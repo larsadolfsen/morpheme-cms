@@ -1,6 +1,6 @@
 // The page's text measure (owner, 16 Nov 2026: a paragraph is 40ch to 60ch wide, --mo-comp-block-text-measure-min/-max in blocks.css): on every built
-// page of the site, at 1280 and 1580, a plain-text block (List, List - Expand, accordion, Steps, Blog posts as a list, Testimonials list)
-// starts at the left edge of the paragraph above it (a plain List or List - Expand: its layer 16px before it, its content on it; in a coloured section, the section's text), is in columns of at least 344px (Steps at most 720px wide), no paragraph is wider than 60ch of its own font, and at 375 and 768 nothing scrolls sideways.
+// page of the site, at 1280 and 1580, a plain-text block (List, Expandable list, accordion, Steps, Blog posts as a list, Testimonials list)
+// starts at the left edge of the paragraph above it (a plain List or Expandable list: its layer 16px before it, its content on it; in a coloured section, the section's text), is in columns of at least 344px (Steps at most 720px wide), no paragraph is wider than 60ch of its own font, and at 375 and 768 nothing scrolls sideways.
 // Run in a site's folder after the site is built: node …/scripts/check-text-measure.mjs (check:screens:extra).
 import { createServer } from 'node:http';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
@@ -90,7 +90,7 @@ for (const width of [375, 768, 1280, 1580]) {
             edgeName = "the section's text";
           }
           // Owner, 21 Nov 2026 (replaces the 16 Nov rule): Material 3 Lists › Specs prints 16 dp leading and trailing space inside the item's container.
-          // The layer of a plain List or List - Expand (no drawn container) reaches that 16px past the text column on each side at every width
+          // The layer of a plain List or Expandable list (no drawn container) reaches that 16px past the text column on each side at every width
           // (--mo-comp-block-list-layer-room, tokens/lists/comp/list.css), so its box starts 16px before the text and its content (leading icon or text)
           // is on the text's edge. In the segmented design the box itself is on the text's edge.
           const bleeds = block.matches('.mo-block-list:not(.mo-list__segmented), .mo-block-accordion:not(.mo-block-accordion__segmented)');

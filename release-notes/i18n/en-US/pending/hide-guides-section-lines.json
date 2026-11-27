@@ -1,0 +1,6 @@
+{
+  "id": "hide-guides-section-lines",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Hide helping lines also hides the line between sections"
+}

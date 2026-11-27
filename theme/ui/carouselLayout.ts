@@ -5,7 +5,7 @@
 // work as in any row), and its mask (.mo-carousel__item-mask) is moved and clipped to the size its place gives it. The
 // places are keylines: where each item stands and how wide it is seen, with an item that is just leaving or coming in
 // outside at each end. Scrolled to the start, the large ones are at the start (also in a hero aligned to the centre);
-// scrolled to the end, at the end; between, the layout's own; and from one to the other the keylines move by
+// scrolled to the end, at the end (center-aligned: the last item centred, with room after it, as the first one is at the start); between, the layout's own; and from one to the other the keylines move by
 // themselves, so that every item grows and shrinks as it passes. Widths from the theme (--mo-comp-carousel-large-item-width,
 // --mo-comp-carousel-small-item-min-width and -max-width, the gap and the height, in ui.css); what is masked of an item is on it
 // as --mo-comp-carousel-mask (0 to 1), for what is on it to fade. The site's carousel.script.ts and, in the editor, Carousel.tsx
@@ -22,6 +22,13 @@ export const aspectOf = (aspect?: number) =>
 
 /** The layouts laid out here, with their items' widths changing as they scroll. */
 export const keylineLayouts: CarouselLayout[] = ['multi-browse', 'hero'];
+
+/** The layouts carouselLayout() runs for: the keyline layouts, and the full-screen one, which is drawn as a hero where M3 says it does not work
+ * (Guidelines, Full-screen: "It only works in portrait orientation in compact and medium breakpoints. Don't use this layout in landscape orientation"). */
+export const scriptedLayouts: CarouselLayout[] = [...keylineLayouts, 'full-screen'];
+
+/** From 840 dp (M3's expanded window class) and in landscape a full-screen carousel is a hero (the stored choice stays). */
+export const FULL_SCREEN_AS_HERO = '(min-width: 52.5rem), (orientation: landscape)';
 
 type Keyline = { loc: number; size: number };
 type State = { lines: Keyline[]; offsets: number[]; focal: number };
@@ -44,15 +51,21 @@ function arrangement(
   gap: number,
   { large, smallMin, smallMax, height }: { large: number; smallMin: number; smallMax: number; height: number },
 ): number[] {
-  // As many large ones as there are items, side by side, when they all fit.
+  // One item, or the layout does not fit: all at one size.
   const even = (n: number) => Array<number>(n).fill((width - (n - 1) * gap) / n);
   if (layout === 'hero') {
-    // A large one at most twice as wide as it is high: more large ones on a wide screen.
-    const smalls = alignment === 'center' ? 2 : 1;
-    if (count <= smalls) return even(count);
+    // A large one at most twice as wide as it is high: more large ones on a wide screen. A center-aligned one always has exactly one large item,
+    // centred between two small ones, which only grows with the width (M3, Guidelines: "A centered hero carousel has two small carousel items, with a large item centered").
+    // Always followed by a small one (two for center-aligned: one on each side), also with two cards: never all at one size (M3, Specs: "at least one large and one small item").
+    const smalls = Math.min(alignment === 'center' ? 2 : 1, count - 1);
+    if (smalls < 1) return even(count);
+    if (smalls < (alignment === 'center' ? 2 : 1)) {
+      const l = width - smallMax - gap;
+      return [l, smallMax];
+    }
     let n = 1;
     const sizeOf = (k: number) => (width - smalls * smallMax - (k + smalls - 1) * gap) / k;
-    while (sizeOf(n) > 2 * height && n + smalls < count) n++;
+    while (alignment !== 'center' && sizeOf(n) > 2 * height && n + smalls < count) n++;
     const l = sizeOf(n);
     const larges = Array<number>(n).fill(l);
     return alignment === 'center' ? [smallMax, ...larges, smallMax] : [...larges, smallMax];
@@ -77,15 +90,23 @@ function arrangement(
 /** The keylines of an arrangement, with one outside at each end, and the unmasked centres of the items that stand at
  * them: an item as wide as a large one (`large`) one step (`large` and a gap) after the other, from the first large one
  * (`anchor` 'first') or back from the last (`anchor` 'last'). */
-function stateOf(sizes: number[], width: number, gap: number, large: number, anchor: 'first' | 'last'): State {
+function stateOf(
+  sizes: number[],
+  width: number,
+  gap: number,
+  large: number,
+  anchor: 'first' | 'last',
+  edge = { start: gap, end: gap },
+): State {
   const small = Math.min(...sizes);
-  const lines: Keyline[] = [{ loc: -gap - small / 2, size: small }];
+  // The item outside at each end stands beyond the row's padding (the row shows its padding too), so that no sliver of it shows at rest (M3: "Carousel items must be fully visible on-screen").
+  const lines: Keyline[] = [{ loc: -Math.max(gap, edge.start) - small / 2, size: small }];
   let x = 0;
   for (const size of sizes) {
     lines.push({ loc: x + size / 2, size });
     x += size + gap;
   }
-  lines.push({ loc: width + gap + small / 2, size: small });
+  lines.push({ loc: width + Math.max(gap, edge.end) + small / 2, size: small });
   const at = (i: number) => Math.abs(lines[i].size - large) < 0.5;
   const focal = anchor === 'first' ? lines.findIndex((_, i) => at(i)) : lines.findLastIndex((_, i) => at(i));
   const step = large + gap;
@@ -100,12 +121,35 @@ const mix = (a: State, b: State, t: number): State => ({
 });
 
 /** Lays out the carousel `root` (its [data-carousel-items] and their masks) in its layout (data-carousel-layout) and
- * alignment (data-carousel-alignment) as it scrolls and is resized; gives back what stops it. */
+ * alignment (data-carousel-alignment) as it scrolls and is resized; gives back what stops it. A full-screen one is a hero from 840 dp and in landscape. */
 export function carouselLayout(root: HTMLElement): () => void {
-  const layout = (root.dataset.carouselLayout ?? 'uncontained') as CarouselLayout;
+  const declared = (root.dataset.carouselLayout ?? 'uncontained') as CarouselLayout;
+  if (declared !== 'full-screen') return runLayout(root, declared);
+  const query = matchMedia(FULL_SCREEN_AS_HERO);
+  let stop = () => {};
+  const sync = () => {
+    stop();
+    if (!query.matches) return void (stop = () => {});
+    root.classList.replace('mo-is-full-screen', 'mo-is-hero');
+    const run = runLayout(root, 'hero');
+    stop = () => {
+      run();
+      root.classList.replace('mo-is-hero', 'mo-is-full-screen');
+    };
+  };
+  query.addEventListener('change', sync);
+  sync();
+  return () => {
+    query.removeEventListener('change', sync);
+    stop();
+  };
+}
+
+function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
   const alignment = (root.dataset.carouselAlignment ?? 'start') as CarouselAlignment;
   const row = root.querySelector<HTMLElement>('[data-carousel-items]');
   if (!row || !keylineLayouts.includes(layout)) return () => {};
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const items = [...row.querySelectorAll<HTMLElement>('[data-carousel-item]')];
   const masks = items.map((item) => item.querySelector<HTMLElement>('[data-carousel-mask]'));
   let start: State, normal: State, end: State, large: number;
@@ -116,8 +160,11 @@ export function carouselLayout(root: HTMLElement): () => void {
   function measure() {
     const style = getComputedStyle(row!);
     // The window the items are laid out in is the row less its padding (M3: 16dp leading and trailing padding): items scroll out under it.
+    // A center-aligned hero has room after its last item, as wide as a small item and a gap, so that the last item can rest in the middle: space, not a drawn part.
+    row!.style.paddingInlineEnd = '';
     const pad = parseFloat(style.paddingInlineStart) || 0;
-    const width = row!.clientWidth - pad - (parseFloat(style.paddingInlineEnd) || 0);
+    const padEnd = parseFloat(style.paddingInlineEnd) || 0;
+    const width = row!.clientWidth - pad - padEnd;
     const gap = parseFloat(style.columnGap) || 0;
     const sizes = arrangement(layout, alignment, items.length, width, gap, {
       large: lengthOf(root, '--mo-comp-carousel-large-item-width', 200),
@@ -126,23 +173,37 @@ export function carouselLayout(root: HTMLElement): () => void {
       height: row!.clientHeight,
     });
     large = Math.max(...sizes);
+    if (layout === 'hero' && alignment === 'center' && items.length > 2)
+      row!.style.paddingInlineEnd = `${padEnd + gap + lengthOf(root, '--mo-comp-carousel-small-item-max-width', 56)}px`;
     row!.style.setProperty('--mo-comp-carousel-item-width', `${large}px`);
-    // Scrolled to the start, the large ones first; to the end, last; between, the layout's own.
-    start = stateOf(
-      [...sizes].sort((a, b) => b - a),
-      width,
-      gap,
-      large,
-      'first',
-    );
-    normal = stateOf(sizes, width, gap, large, 'first');
-    end = stateOf(
-      [...sizes].sort((a, b) => a - b),
-      width,
-      gap,
-      large,
-      'last',
-    );
+    const edge = { start: pad, end: padEnd };
+    normal = stateOf(sizes, width, gap, large, 'first', edge);
+    // Scrolled to the start, the large ones first (a hero) or, center-aligned, the leading small one and then the large one (small, large, small); to the end, the large ones last or,
+    // center-aligned, the large one and then the trailing small one, mirroring the start (M3 is silent on the ends of the scroll: its Guidelines say "A centered hero carousel has two
+    // small carousel items, with a large item centered", and "items automatically change size and snap into place to maintain the same layout"); between, the layout's own.
+    start =
+      alignment === 'center'
+        ? { ...normal, offsets: normal.offsets.map((o) => o + large / 2 - normal.offsets[1]) }
+        : stateOf(
+            [...sizes].sort((a, b) => b - a),
+            width,
+            gap,
+            large,
+            'first',
+            edge,
+          );
+    // Center-aligned: the row has room after the last item (below), so that it rests in the middle too and the layout there is the layout's own.
+    end =
+      alignment === 'center'
+        ? normal
+        : stateOf(
+            [...sizes].sort((a, b) => a - b),
+            width,
+            gap,
+            large,
+            'last',
+            edge,
+          );
     // Where an item rests: its start this far before the first large keyline's (scroll-padding, for scroll-snap).
     lead = normal.lines[normal.focal].loc - large / 2;
     row!.style.scrollPaddingInlineStart = `${lead + pad}px`;
@@ -152,6 +213,15 @@ export function carouselLayout(root: HTMLElement): () => void {
   }
 
   function update() {
+    // Reduced motion (M3, Accessibility): items do not grow or shrink as they pass; all are as large as a large one, the row reaching the edges.
+    if (reduce.matches) {
+      items.forEach((item, i) => {
+        masks[i]?.style.removeProperty('transform');
+        masks[i]?.style.setProperty('--mo-comp-carousel-mask-inset', '0px');
+        item.style.setProperty('--mo-comp-carousel-mask', '0');
+      });
+      return;
+    }
     const s = row!.scrollLeft;
     const max = row!.scrollWidth - row!.clientWidth;
     let state = start;
@@ -192,6 +262,7 @@ export function carouselLayout(root: HTMLElement): () => void {
     frame = requestAnimationFrame(update);
   };
   row.addEventListener('scroll', onScroll, { passive: true });
+  reduce.addEventListener('change', update);
   const resized = new ResizeObserver(() => measure());
   resized.observe(row);
   measure();
@@ -199,6 +270,7 @@ export function carouselLayout(root: HTMLElement): () => void {
   return () => {
     cancelAnimationFrame(frame);
     row.removeEventListener('scroll', onScroll);
+    reduce.removeEventListener('change', update);
     resized.disconnect();
     row.style.removeProperty('--mo-comp-carousel-item-width');
     row.style.scrollPaddingInlineStart = '';

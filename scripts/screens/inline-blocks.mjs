@@ -1,7 +1,17 @@
 import { join } from 'node:path';
 import { openEditor } from '../built-site.mjs';
 import { FIXTURE_PAGE, browser, problems, shots, site } from './support/context.mjs';
-import { barTools, inlineBlocks, inlineSingles, pressInsert, pressMore, pressTool, ratioOf, saveOrClose } from './support/shared.mjs';
+import {
+  barTools,
+  chooseKind,
+  inlineBlocks,
+  inlineSingles,
+  pressInsert,
+  pressMore,
+  pressTool,
+  ratioOf,
+  saveOrClose,
+} from './support/shared.mjs';
 import { shortfall } from './support/statement.mjs';
 import { isMaterialTheme } from '../theme-statement.mjs';
 
@@ -97,6 +107,7 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   // The first row gets an icon from its own control.
   await page.locator(`[data-row="0"] [data-field="${field}"]`).click();
   await slotOf(0).click();
+  await chooseKind(page, 'Icon');
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon control did not open the icon picker`));
   await picker.getByRole('button').nth(1).click();
@@ -112,14 +123,11 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   else {
     await controlOf(0).click();
     await page.waitForTimeout(400);
-    if (
-      !(await page
-        .getByRole('group', { name: 'Icon', exact: true })
-        .last()
-        .isVisible()
-        .catch(() => false))
-    )
-      problems.push(`${label}: a tap on the icon of a row that is not active does not open the icon picker`);
+    // A row with its icon opens its media sheet (the icon and Change icon) in List, Expand and Cards; Buttons open the icon picker.
+    const opened =
+      name === 'buttons' ? page.getByRole('group', { name: 'Icon', exact: true }).last() : page.locator('.mo-editor-media-panel').last();
+    if (!(await opened.isVisible().catch(() => false)))
+      problems.push(`${label}: a tap on the icon of a row that is not active does not open its media sheet`);
     if (!(await page.locator('[data-row="0"].mo-editor-inline-list-row-active').count()))
       problems.push(`${label}: a tap on the icon of a row that is not active does not make it the active row`);
   }
@@ -171,12 +179,13 @@ async function checkFilledSlotRing(scheme, sectionColor) {
       return { style: cs.outlineStyle, width: parseFloat(cs.outlineWidth), ratio: ratio(cs.outlineColor, button, 1, button) };
     })()`);
     if (m.style === 'none' || m.width < 2) problems.push(`${label}: the focused icon control has no ring (${m.style} ${m.width}px)`);
-    else if (m.ratio < 3) problems.push(`${label}: the ring is ${m.ratio.toFixed(2)}:1 against the filled button, under 3:1`);
+    else if (m.ratio < 3)
+      shortfall('1.4.11', 'focus-ring', `${label}: the ring is ${m.ratio.toFixed(2)}:1 against the filled button, under 3:1`);
   }
   await page.close();
 }
 
-/** A List and a List - Expand, each in the design Plain and Segmented (owner, 16 Nov 2026: "The white list is the correct one"), are edited the same way: the active
+/** A List and an Expandable list, each in the design Plain and Segmented (owner, 16 Nov 2026: "The white list is the correct one"), are edited the same way: the active
  * row has the same slots (its icon and its link, at its end), the toolbar the same Link, the add button the same text, and the link slot the same sheet with its page; nothing is
  * drawn at the bottom of a row; the design is a setting of the block (Plain or Segmented) that changes only how the rows are drawn. Each is measured, then compared with the List's. */
 /** A button typed in place (Buttons block) is drawn with Material 3's measures for its size (m3.material.io/components/buttons/specs): the label and the
@@ -234,7 +243,11 @@ async function checkInlineButtonMeasure(width, height) {
     // Material's sizes are Material 3's, exactly; another theme has its own, and keeps WCAG 2.2 AA's target size (2.5.8: at least 24 px).
     if (material) off('height', m.height, want.height);
     else if (m.height < 24)
-      problems.push(`${label}: ${m.size} button is ${m.height.toFixed(1)} px high, under WCAG 2.2 AA's 24 px target size`);
+      shortfall(
+        '2.5.8',
+        'target-size',
+        `${label}: ${m.size} button is ${m.height.toFixed(1)} px high, under WCAG 2.2 AA's 24 px target size`,
+      );
     off('label centre is off the button centre by', m.labelOffset, 0);
     off('icon centre is off the button centre by', m.iconOffset, 0);
     if (material && m.icon !== undefined) {
@@ -252,8 +265,8 @@ async function checkListDesigns(width, height) {
   const looks = [
     { look: 'List', hint: 'Show text and images in a list.' },
     { look: 'List, Segmented', hint: 'Show text and images in a list.', card: true },
-    { look: 'List - Expand', hint: 'Show list items that expand and collapse.', expand: true },
-    { look: 'List - Expand, Segmented', hint: 'Show list items that expand and collapse.', card: true, expand: true },
+    { look: 'Expandable list', hint: 'Show list items that expand and collapse.', expand: true },
+    { look: 'Expandable list, Segmented', hint: 'Show list items that expand and collapse.', card: true, expand: true },
   ];
   const seen = [];
   for (const { look, hint, card, expand } of looks) {
@@ -279,56 +292,52 @@ async function checkListDesigns(width, height) {
       await page.locator('.mo-list__segmented, .mo-block-accordion__segmented').first().waitFor({ timeout: 8000 });
     }
     await page.locator('[data-add-row]').waitFor({ timeout: 8000 });
-    const got = await page.evaluate(() => ({
-      slots: [...document.querySelectorAll('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')].map((x) =>
-        x.getAttribute('aria-label'),
-      ),
-      add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
-      own: document.querySelectorAll('[data-row-link], [data-add-button], [data-row-arrow], .mo-editor-inline-segmented-buttons').length,
-      // The plain design's row layer is 16 dp wider than the text column on each side at every width (M3 Lists › Specs: 16 dp leading and trailing space; 21 Nov 2026), its leading icon on the text's edge.
-      edge: (() => {
-        const row = document.querySelector('.mo-editor-inline-list-row-active');
-        const box = row?.matches('.mo-list__item-container') ? row : row?.querySelector('.mo-list__item-container');
-        const lead = box?.querySelector('.mo-list__item-leading');
-        const text = document.querySelector('.ProseMirror p')?.getBoundingClientRect().left;
-        return box && lead && text !== undefined
-          ? {
-              layer: box.getBoundingClientRect().left - text,
-              icon: lead.getBoundingClientRect().left - text,
-              wide: document.documentElement.scrollWidth - window.innerWidth,
-            }
-          : null;
-      })(),
-      // The link slot is at the end of the row: to the right of the heading.
-      end: (() => {
-        const row = document.querySelector('.mo-editor-inline-list-row-active');
-        const slot = row?.querySelector('.mo-editor-inline-list-slot[aria-label="Page"]');
-        const field = row?.querySelector('[data-field="title"]');
-        return !!slot && !!field && slot.getBoundingClientRect().left >= field.getBoundingClientRect().left;
-      })(),
-    }));
-    await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
-    if (expand) {
-      // List - Expand keeps its row's sheet for now (its row buttons; the next pull request of B5).
-      const sheet = phone ? page.locator('dialog[open]') : page.locator('.mo-editor-side-sheet');
-      const opened = await sheet
-        .getByText('Page', { exact: true })
-        .first()
-        .waitFor({ timeout: 4000 })
-        .then(() => true)
-        .catch(() => false);
-      seen.push({ look, card, ...got, opened, expand, kept: true, iconFilled: true, iconBack: true, rowSheet: 0, closed: true, items: 0 });
-      await page.close();
-      continue;
-    }
+    const got = await page.evaluate(
+      (expand) => ({
+        slots: [...document.querySelectorAll('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')].map((x) =>
+          x.getAttribute('aria-label'),
+        ),
+        add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
+        // An Expand row may have one typed button at the bottom of the open row (owner, 26 Nov 2026); a List row has none.
+        own: document.querySelectorAll(
+          `[data-row-link], ${expand ? '' : '[data-add-button], '}[data-row-arrow], .mo-editor-inline-segmented-buttons`,
+        ).length,
+        // The plain design's row layer is 16 dp wider than the text column on each side at every width (M3 Lists › Specs: 16 dp leading and trailing space; 21 Nov 2026), its leading icon on the text's edge.
+        edge: (() => {
+          const row = document.querySelector('.mo-editor-inline-list-row-active');
+          const box = row?.matches('.mo-list__item-container') ? row : row?.querySelector('.mo-list__item-container');
+          const lead = box?.querySelector('.mo-list__item-leading');
+          const text = document.querySelector('.ProseMirror p')?.getBoundingClientRect().left;
+          return box && lead && text !== undefined
+            ? {
+                layer: box.getBoundingClientRect().left - text,
+                icon: lead.getBoundingClientRect().left - text,
+                wide: document.documentElement.scrollWidth - window.innerWidth,
+              }
+            : null;
+        })(),
+        // The link slot is at the end of the row: to the right of the heading.
+        end: (() => {
+          const row = document.querySelector('.mo-editor-inline-list-row-active');
+          const slot = row?.querySelector('.mo-editor-inline-list-slot[aria-label="Page"]');
+          const field = row?.querySelector('[data-field="title"]');
+          return !!slot && !!field && slot.getBoundingClientRect().left >= field.getBoundingClientRect().left;
+        })(),
+      }),
+      expand,
+    );
+    // An Expandable list row has no link slot (owner, 26 Nov 2026), so only a List row opens the page picker.
+    if (!expand) await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
     // The page picker opens straight from the link button (B5): the sheet with the pages and No page, on a phone and a computer, and no sheet of the row.
     const sheet = page.locator('dialog[open]');
-    const opened = await sheet
-      .getByText('No page', { exact: true })
-      .first()
-      .waitFor({ timeout: 4000 })
-      .then(() => true)
-      .catch(() => false);
+    const opened = expand
+      ? false
+      : await sheet
+          .getByText('No page', { exact: true })
+          .first()
+          .waitFor({ timeout: 4000 })
+          .then(() => true)
+          .catch(() => false);
     const rowSheet = await page.getByText('Row settings').filter({ visible: true }).count();
     // A page picked is written to the row (the picker opens again on it), No page takes it away and closes the picker; Block settings then lists no row.
     let kept = true;
@@ -365,23 +374,26 @@ async function checkListDesigns(width, height) {
   const [first] = seen;
   if (first.slots.join() !== 'Icon,Page') problems.push(`${label}: the List's active row has the slots "${first.slots}", not "Icon,Page"`);
   for (const one of seen) {
-    if (one.slots.join() !== first.slots.join())
-      problems.push(`${label}: ${one.look} has the slots "${one.slots}", the List "${first.slots}"`);
+    const expand = one.look.startsWith('Expandable');
+    // A List row has an icon and a page slot; an Expandable list row has the icon only (no link on it, owner, 26 Nov 2026).
+    const wantSlots = expand ? 'Icon' : first.slots.join();
+    if (one.slots.join() !== wantSlots) problems.push(`${label}: ${one.look} has the slots "${one.slots}", not "${wantSlots}"`);
     if (one.add.join() !== 'Add list row') problems.push(`${label}: ${one.look} has the add button "${one.add}", not "Add list row"`);
     if (one.own) problems.push(`${label}: ${one.look} has a text row or a button of its own for the row's link`);
-    if (!one.end) problems.push(`${label}: ${one.look}: the link slot is not at the end of the row`);
+    if (!expand && !one.end) problems.push(`${label}: ${one.look}: the link slot is not at the end of the row`);
     if (!one.edge) problems.push(`${label}: ${one.look}: no row layer or leading icon to measure`);
     else {
       // Default: the layer starts 16 dp before the text's edge at every width, and the icon is on the text's edge; Card: the container on the text's edge (its icon one 16 dp padding in).
       // The rows that fold out have Material 3's 16 dp list padding inside their card, as the other cards (M3 Lists spec: "Leading element left padding 16dp", "Label left padding 16dp"). Old source: the 24 dp of the theme's accordion (global.css), set before 21 Nov 2026 and not M3's.
-      const [layer, icon] = one.card ? [0, 16] : [-16, 0];
+      // A plain Expandable list in the editor stays inside the block's box (owner, 26 Nov 2026): its row starts on the text's edge and its icon is one 16 dp padding in, as a card's.
+      const [layer, icon] = one.card || expand ? [0, 16] : [-16, 0];
       if (Math.abs(one.edge.layer - layer) > 0.5)
         problems.push(`${label}: ${one.look}: the row starts ${one.edge.layer} px from the text's edge, not ${layer}`);
       if (Math.abs(one.edge.icon - icon) > 1)
         problems.push(`${label}: ${one.look}: the leading icon starts ${one.edge.icon} px from the text's edge, not ${icon}`);
       if (one.edge.wide > 0.5) problems.push(`${label}: ${one.look}: the page scrolls sideways by ${one.edge.wide}px`);
     }
-    if (!one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the page picker`);
+    if (!expand && !one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the page picker`);
     if (!one.kept) problems.push(`${label}: ${one.look}: the page picked is not on the row`);
     if (!one.iconFilled) problems.push(`${label}: ${one.look}: the link button's icon does not change when a page is set (filled)`);
     if (!one.iconBack) problems.push(`${label}: ${one.look}: the link button's icon is not outlined again after No page`);
@@ -391,7 +403,7 @@ async function checkListDesigns(width, height) {
   }
 }
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
-async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowLink, field = 'title', open, start = 1 }) {
+async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowLink, noRowLink, field = 'title', open, start = 1 }) {
   const label = `${width}px inline ${name}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
@@ -417,9 +429,9 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   if ((await page.locator('.mo-editor-inline-list-row-active').count()) !== 1)
     problems.push(`${label}: not exactly one active item at the start`);
   if (name === 'cards') {
-    // The media area is there while the card is active: one button for each kind (icon, image, video); the link is the bar's, not a slot in the card; the action area has the next button, empty and faded.
+    // The media area is there while the card is active: one button for each kind (icon, image, video); the link is the control in the action row, not a media slot; the action area has the next button, empty and faded.
     const slots = await page
-      .locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')
+      .locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-slots .mo-editor-inline-list-slot')
       .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
     if (slots.join() !== 'Icon,Image,Video')
       problems.push(`${label}: the active card's media buttons are "${slots}", not "Icon,Image,Video"`);
@@ -428,8 +440,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     const next = await page
       .locator('.mo-editor-inline-list-row-active .mo-block-cards__card-actions .mo-editor-inline-card-next-button')
       .allTextContents();
-    if (next.join() !== 'Add button')
-      problems.push(`${label}: the active card's action area has "${next}", not the text button "Add button"`);
+    if (next.join() !== 'Add button') problems.push(`${label}: the active card's action area has "${next}", not "Add button"`);
     if (width >= 1000 && !(await page.locator('.mo-editor-tools button[aria-label="Link"]').count()))
       problems.push(`${label}: the toolbar has no Link while the card is still empty`);
     // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
@@ -458,34 +469,79 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       if (hintColor !== rowColor || fieldColor !== rowColor)
         problems.push(`${label}: the ${kind} button's hint is ${hintColor} and its text ${fieldColor}, not its own ${rowColor}`);
     {
-      // The contextual menu's Settings, a plain icon button on a computer and a phone.
-      await pressTool(page, 'Settings').catch(async (e) =>
-        problems.push(
-          `${label}: the toolbar has no way to open the button's settings ${JSON.stringify((await barTools(page)).names)} ${e.message.slice(0, 200)}`,
-        ),
-      );
+      // The button's menu (ButtonMenu), opened from the control on the active button: no sheet of the button, on a computer and a phone.
       const kinds = ['Filled', 'Tonal', 'Outlined', 'Text'];
-      // The choice group (ChoiceGroup): its buttons, or its list of radio buttons when they do not fit.
-      const group = page.getByRole('group', { name: 'Variant', exact: true }).last();
-      await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Variant choice`));
-      const radios = await group.getByRole('radio').count();
-      const names = radios
-        ? await group.locator('.mo-list__item-headline').allTextContents()
-        : await group
-            .getByRole('button')
-            .allTextContents()
-            .catch(() => []);
-      if (names.map((n) => n.trim()).join() !== kinds.join()) problems.push(`${label}: the button's styles are "${names}", not "${kinds}"`);
-      await (
-        radios
-          ? group.locator('.mo-list__item-content', { hasText: /^Outlined$/ })
-          : group.getByRole('button', { name: 'Outlined', exact: true })
-      )
+      // The button is one once it has text (the empty one is the faded next button): its menu control is there.
+      await page.locator('.mo-editor-inline-list-row-active [data-field="label"]').first().fill('Go');
+      await page.waitForTimeout(300);
+      await page
+        .locator('.mo-editor-inline-list-row-active [aria-label="Button options"]')
+        .click({ timeout: 4000 })
+        .catch(() => problems.push(`${label}: the active button has no menu control`));
+      const menu = page.locator('[role=menu][aria-label="Button"]');
+      await menu.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's menu does not open`));
+      await menu
+        .locator('[role^=menuitem]')
+        .first()
+        .waitFor({ timeout: 4000 })
+        .catch(() => {});
+      const names = (await menu.locator('[role^=menuitem]').allTextContents()).map((n) => n.trim());
+      const styles = names.filter((n) => n.startsWith('Style: ')).map((n) => n.slice(7));
+      if (styles.join() !== kinds.join()) problems.push(`${label}: the button's styles are "${styles}", not "${kinds}"`);
+      for (const want of ['Page', 'Icon', 'Remove button'])
+        if (!names.includes(want)) problems.push(`${label}: the button's menu has no "${want}": ${names}`);
+      if (await page.getByText('Button settings').count()) problems.push(`${label}: a "Button settings" sheet shows`);
+      await menu
+        .locator('[role^=menuitem]', { hasText: /^Style: Outlined$/ })
         .click({ timeout: 3000 })
         .catch(() => {});
       await page.waitForTimeout(300);
       if (!(await page.locator('.mo-editor-inline-list-row-active.mo-button.mo-is-outlined').count()))
         problems.push(`${label}: choosing Outlined does not change the active button's style`);
+      // A text button's touch area must not cover its options control.
+      await page.locator('.mo-editor-inline-list-row-active [aria-label="Button options"]').click({ timeout: 4000 });
+      await menu
+        .locator('[role^=menuitem]', { hasText: /^Style: Text$/ })
+        .click({ timeout: 3000 })
+        .catch(() => {});
+      await page.waitForTimeout(300);
+      await page
+        .locator('.mo-editor-inline-list-row-active.mo-is-text [aria-label="Button options"]')
+        .click({ timeout: 4000 })
+        .catch(() => problems.push(`${label}: the options control of a Text button cannot be clicked`));
+      await menu
+        .locator('[role^=menuitem]')
+        .first()
+        .waitFor({ timeout: 3000 })
+        .catch(() => problems.push(`${label}: a click on the options of a Text button opens no menu`));
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(200);
+      // Page: the menu opens the page picker at once; a page picked is on the button, and the menu says so.
+      const openMenu = async () => {
+        await page.locator('.mo-editor-inline-list-row-active [aria-label="Button options"]').click({ timeout: 4000 });
+        await menu.locator('[role^=menuitem]').first().waitFor({ timeout: 4000 });
+      };
+      await openMenu().catch(() => problems.push(`${label}: the button's menu does not open again`));
+      await menu
+        .locator('[role^=menuitem]', { hasText: /^Page$/ })
+        .click({ timeout: 3000 })
+        .catch(() => {});
+      const option = page.locator('[role="option"]:not(:has-text("No page"))').filter({ visible: true }).first();
+      await option.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the menu's Page did not open the page picker`));
+      await option.click().catch(() => {});
+      await page.waitForTimeout(400);
+      if (await page.getByText('Button settings').count())
+        problems.push(`${label}: a "Button settings" sheet shows after a page was picked`);
+      await openMenu().catch(() => {});
+      if (
+        (await menu
+          .locator('[role^=menuitem]', { hasText: /^Page$/ })
+          .getAttribute('aria-checked')
+          .catch(() => null)) !== 'true'
+      )
+        problems.push(`${label}: the menu does not show that the button leads to a page`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
       await page.locator('.mo-editor-inline-list-row [data-field="label"]').first().click();
@@ -498,6 +554,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     else {
       if ((await slot.locator('svg').count()) !== 1) problems.push(`${label}: the empty icon area has no placeholder`);
       await slot.click();
+      await chooseKind(page, 'Icon');
       const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
       await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon area did not open the icon picker`));
       await picker.getByRole('button').nth(1).click();
@@ -587,38 +644,51 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       ])
         if (got[part] !== null && got[part] < min) {
           const message = `${label} (${scheme}): the ${part} on a ${color} section has contrast ${got[part].toFixed(2)}:1, below ${min}`;
-          // A placeholder and the row's outline are parts a theme can name in its accessibility.json; text and slot icons never.
+          // Contrast is a theme value (lib/accessibility.mjs, `kindOf`): measured and printed, never failed.
           if (part === 'placeholder') shortfall('1.4.3', 'placeholder', message);
           else if (part === 'outline')
             shortfall('1.4.11', 'outlined-card-edge', message); // the edge of a block typed in place on a section, M3's outline: judged with the card edge, which the contrast scan measures in whole
-          else problems.push(message);
+          else if (part === 'slot') shortfall('1.4.11', 'icon', message);
+          else shortfall('1.4.3', 'text', message);
         }
   }
   await page.emulateMedia({ colorScheme: 'light' });
   for (const name of ['Add above', 'Add below'])
     if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
-  // The card's settings (the toolbar's gear on a phone, a sheet; the panel on a computer already) open with its page and buttons, never an empty page.
-  const cardSettings = async (when) => {
-    if (width >= 1000) return;
-    await pressTool(page, 'Edit');
-    const sheet = page.locator('dialog[open][aria-label="Card settings"]');
-    await sheet.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the card's settings do not open (${when})`));
-    if (!(await sheet.getByText(/^(Page|Buttons)$/).count())) problems.push(`${label}: the card's settings are empty (${when})`);
-    await sheet
-      .getByRole('button', { name: 'Close' })
-      .click({ timeout: 2000 })
-      .catch(() => {});
-    await page.waitForTimeout(300);
+  // A card has no sheet of its own: no "Card settings" anywhere, and its page is picked from the control in its action row (the picker opens at once).
+  const noCardSheet = async (when) => {
+    if (await page.locator('dialog[open][aria-label="Card settings"], .mo-editor-side-sheet').getByText('Card settings').count())
+      problems.push(`${label}: a "Card settings" sheet shows (${when})`);
   };
-  if (name === 'cards' && width >= 1000) {
-    // A card has a page or buttons, never both: with a button the page is gone from its settings, with a page there are no buttons.
-    const panel = page.locator('.mo-editor-side-sheet');
-    // The card's own Page field, found by its hint (a button has a Page of its own once it is added).
-    const page_ = panel.getByText('With a page, the whole card is the link and has no buttons.');
-    await page_.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the card's settings have no Page`));
-    await panel.getByRole('button', { name: 'Add button' }).click();
-    await page.waitForTimeout(300);
-    if (await page_.count()) problems.push(`${label}: a card with a button still offers a Page`);
+  if (name === 'cards') {
+    await noCardSheet('a card with no buttons');
+    const row = page.locator('.mo-editor-inline-list-row-active');
+    const linkControl = row.locator('.mo-editor-inline-card-buttons [aria-label="Add page"]');
+    if ((await linkControl.count()) !== 1) problems.push(`${label}: the card's action row has no link control`);
+    else {
+      await linkControl.click();
+      const picker = page.locator('[role="option"]:not(:has-text("No page"))').filter({ visible: true }).first();
+      await picker.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the link control did not open the page picker`));
+      await picker.click().catch(() => {});
+      await page.waitForTimeout(400);
+      await noCardSheet('after the page was picked');
+      const noButtons = row.locator('[data-add-button]');
+      if (!/no buttons/.test((await noButtons.textContent()) ?? '') || !(await noButtons.isDisabled()))
+        problems.push(`${label}: a card with a page does not say it has no buttons`);
+      // The link control is pressed once the card has a page; its picker has No page to take it away again.
+      if ((await row.locator('[aria-label="Page"][aria-pressed="true"]').count()) !== 1)
+        problems.push(`${label}: the link control does not show that the card has a page`);
+      await row.locator('[aria-label="Page"]').click({ timeout: 4000 });
+      await page
+        .locator('[role="option"]:has-text("No page")')
+        .filter({ visible: true })
+        .first()
+        .click({ timeout: 4000 })
+        .catch(() => problems.push(`${label}: the picker has no "No page"`));
+      await page.waitForTimeout(400);
+      if (/no buttons/.test((await row.locator('[data-add-button]').textContent()) ?? ''))
+        problems.push(`${label}: "No page" left the card without its Add button`);
+    }
   }
   if (name === 'cards') {
     // A button is typed on the button itself, then the next one is there, empty and faded.
@@ -634,20 +704,117 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     if ((await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-next-button').count()) !== 1)
       problems.push(`${label}: no next button after the first`);
   }
-  if (name === 'cards') await cardSettings('a card with a button');
+  if (name === 'cards') {
+    await noCardSheet('a card with a button');
+    const row = page.locator('.mo-editor-inline-list-row-active');
+    // With a button the link control is gone and a Divider switch is there; the button's own menu opens from its options control, with its target and style.
+    if (await row.locator('.mo-editor-inline-card-buttons [aria-label="Add page"], [aria-label="Page"]').count())
+      problems.push(`${label}: a card with a button still has a link control`);
+    const divider = row.locator('.mo-editor-inline-card-buttons [aria-label="Divider"]');
+    if ((await divider.count()) !== 1) problems.push(`${label}: a card with a button has no Divider switch`);
+    else {
+      await divider.click();
+      if ((await row.locator('[aria-label="Divider"][aria-pressed="true"]').count()) !== 1)
+        problems.push(`${label}: the Divider switch did not turn on`);
+    }
+    await row.locator('.mo-editor-inline-card-button [aria-label="Button options"]').first().click();
+    const menu = page.locator('[role=menu][aria-label="Button"]');
+    await menu
+      .locator('[role^=menuitem]')
+      .first()
+      .waitFor({ timeout: 4000 })
+      .catch(() => problems.push(`${label}: the card button's options did not open the menu`));
+    const items = await menu.locator('[role^=menuitem]').allInnerTexts();
+    for (const want of ['Page', 'Style: Filled', 'Style: Outlined', 'Icon', 'Remove button'])
+      if (!items.some((x) => x.trim() === want)) problems.push(`${label}: the card button's menu has no "${want}"`);
+    // The drawn button follows its style, as the Buttons block's buttons do.
+    await menu.locator('[role^=menuitem]', { hasText: /^Style: Outlined$/ }).click();
+    await page.waitForTimeout(200);
+    if (!(await row.locator('.mo-editor-inline-card-button.mo-is-outlined').count()))
+      problems.push(`${label}: the card's drawn button does not follow its style (no mo-is-outlined after Style: Outlined)`);
+    await row.locator('.mo-editor-inline-card-button [aria-label="Button options"]').first().click();
+    await menu.locator('[role^=menuitem]').first().waitFor({ timeout: 4000 });
+    // A text button's touch area must not cover its options control: a real click still opens the menu, and so does the keyboard.
+    await menu.locator('[role^=menuitem]', { hasText: /^Style: Text$/ }).click();
+    await page.waitForTimeout(200);
+    if (!(await row.locator('.mo-editor-inline-card-button.mo-is-text').count()))
+      problems.push(`${label}: the card's drawn button does not follow Style: Text`);
+    await row
+      .locator('.mo-editor-inline-card-button [aria-label="Button options"]')
+      .first()
+      .click({ timeout: 4000 })
+      .catch(() => problems.push(`${label}: the options control of a Text card button cannot be clicked`));
+    await menu
+      .locator('[role^=menuitem]')
+      .first()
+      .waitFor({ timeout: 3000 })
+      .catch(() => problems.push(`${label}: a click on the options of a Text card button opens no menu`));
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(200);
+    await row.locator('.mo-editor-inline-card-button [aria-label="Button options"]').first().focus();
+    await page.keyboard.press('Enter');
+    await menu
+      .locator('[role^=menuitem]')
+      .first()
+      .waitFor({ timeout: 3000 })
+      .catch(() => problems.push(`${label}: Enter on the options of a Text card button opens no menu`));
+    await noCardSheet('the button menu');
+    await page.keyboard.press('Escape');
+    await page
+      .locator('dialog[open] button[aria-label="Close"]')
+      .click({ timeout: 1000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+    // Block settings holds only what applies to every card: no list of cards, no card's title, text, buttons or page.
+    await pressMore(page, 'Edit');
+    await page.waitForTimeout(400);
+    const listed = await page
+      .locator('dialog[open], .mo-editor-side-sheet')
+      .getByText(/^Add card$|^Buttons$|^Divider$|^Heading$|^Subheading$/)
+      .count();
+    if (listed)
+      problems.push(
+        `${label}: Block settings lists the cards or their parts: ${await page
+          .locator('dialog[open], .mo-editor-side-sheet')
+          .getByText(/^Add card$|^Buttons$|^Divider$|^Heading$|^Subheading$/)
+          .allInnerTexts()}`,
+      );
+    await page.keyboard.press('Escape');
+    await page
+      .locator('dialog[open] button[aria-label="Close"]')
+      .click({ timeout: 1000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+  }
   // A block with no settings (Steps): no Link action and no Edit button, a step has nothing to set.
   if (noEdit)
     for (const name of ['Link', 'Edit'])
       if (one.bar.some((b) => b.label === name)) problems.push(`${label}: the toolbar has "${name}" although the block has no settings`);
-  // A row's link (List and List - Expand alike, owner, 16 Nov 2026): the link slot at the end of the active row and the toolbar's Link, no text row of
-  // its own at the bottom of the row and no text button typed there; the slot opens the row's sheet, which has the page.
+  // A row's link (List and Expandable list alike, owner, 16 Nov 2026): the link slot at the end of the active row and the toolbar's Link, no text row of
+  // its own at the bottom of the row; the slot opens the page picker. List rows: no button of their own; Expand rows: at most one typed button at the bottom
+  // of the open row, besides the Icon and Page slots (owner, 26 Nov 2026).
+  // An Expandable list row has no link at all (owner, 26 Nov 2026: "No link on them. Just buttons."): only the Icon slot, no Page slot, no toolbar Link.
+  if (noRowLink) {
+    const slots = await page
+      .locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')
+      .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
+    if (slots.join() !== 'Icon')
+      problems.push(`${label}: the active row's slots are "${slots}", not "Icon" (a row that folds out has no link)`);
+    if (await page.locator('[data-row-link], .mo-editor-inline-segmented-buttons').count())
+      problems.push(`${label}: the row has a link control`);
+    if ((await state()).bar.some((b) => b.label === 'Link'))
+      problems.push(`${label}: the toolbar has a Link button on a row that has no link`);
+  }
   if (rowLink) {
     const slots = await page
       .locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')
       .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
     if (slots.join() !== 'Icon,Page') problems.push(`${label}: the active row's slots are "${slots}", not "Icon,Page"`);
-    if (await page.locator('[data-row-link], [data-add-button], .mo-editor-inline-segmented-buttons').count())
-      problems.push(`${label}: the row has a text row or a button of its own for its link`);
+    const own =
+      name === 'expand'
+        ? '[data-row-link], .mo-editor-inline-segmented-buttons'
+        : '[data-row-link], [data-add-button], .mo-editor-inline-segmented-buttons';
+    if (await page.locator(own).count()) problems.push(`${label}: the row has a text row or a button of its own for its link`);
     if (!(await state()).bar.some((b) => b.label === 'Link')) problems.push(`${label}: the toolbar has no Link button`);
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
     await page.waitForTimeout(500);
@@ -656,8 +823,28 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
   }
+  // The add actions of the block (Add list row, Add button, Add card, Add point ...) are the theme's outlined button, not a text button (owner, 26 Nov 2026: "Don't use text buttons.
+  // Use outline button. Also in cards."), with its outline (drawn by the theme as an inset ring), the theme's label colour and a tap target of at least 40 px (the theme adds the rest to 48 dp).
+  const adds = await page.locator('[data-add-row], [data-add-button], [data-add-feature]').evaluateAll((bs) =>
+    bs.map((b) => {
+      const c = getComputedStyle(b);
+      const r = b.getBoundingClientRect();
+      return {
+        name: b.textContent,
+        outlined: b.classList.contains('mo-is-outlined'),
+        text: b.classList.contains('mo-is-text'),
+        border: parseFloat(c.borderTopWidth) || (c.boxShadow.includes('inset') ? 1 : 0),
+        height: r.height,
+      };
+    }),
+  );
+  if (!adds.length) problems.push(`${label}: no add action found`);
+  for (const a of adds) {
+    if (!a.outlined || a.text || !(a.border >= 1)) problems.push(`${label}: "${a.name}" is not an outlined button (${JSON.stringify(a)})`);
+    if (a.height < 40) problems.push(`${label}: "${a.name}" is ${a.height} px high, under 40`);
+  }
   if (phone) {
-    // A touch screen has no hover (hover: none), but the browser leaves :hover on what was tapped: the add button stays a text button, without the pointed-at background.
+    // A touch screen has no hover (hover: none), but the browser leaves :hover on what was tapped: the add button has no pointed-at background.
     const session = await page.context().newCDPSession(page);
     await session.send('Emulation.setEmulatedMedia', { features: [{ name: 'hover', value: 'none' }] });
     await page.locator('[data-add-row]').hover();
@@ -667,8 +854,8 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       const c = getComputedStyle(b);
       return { pointed: b.matches(':hover'), background: c.backgroundColor, shadow: c.boxShadow };
     });
-    if (!sticky.pointed || sticky.background !== 'rgba(0, 0, 0, 0)' || sticky.shadow !== 'none')
-      problems.push(`${label}: "${add}" tapped on a touch screen is no longer a text button (${JSON.stringify(sticky)})`);
+    if (!sticky.pointed || sticky.background !== 'rgba(0, 0, 0, 0)' || !sticky.shadow.includes('inset'))
+      problems.push(`${label}: "${add}" tapped on a touch screen is not quiet on a touch screen (${JSON.stringify(sticky)})`);
     await session.send('Emulation.setEmulatedMedia', { features: [] });
   }
   await page.click('[data-add-row]');
@@ -694,10 +881,66 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   );
   if (kept !== one.background)
     problems.push(`${label}: the row has background ${one.background} while typed in, ${kept} when the cursor left it`);
+  if (name === 'expand') {
+    // The open row's one button is typed on the row (no sheet): an Add button control, its label typed there, its page from a slot, and Remove.
+    await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
+    const row = page.locator('.mo-editor-inline-list-row-active');
+    await row.locator('[data-add-button]').click();
+    // The new label field has the focus, so typing goes into it at once.
+    await page.waitForTimeout(300);
+    if (!(await page.evaluate(() => document.activeElement?.getAttribute('data-field') === 'row-button')))
+      problems.push(`${label}: after Add button the focus is not in the button's label field`);
+    await row.locator('[data-field="row-button"]').fill('More');
+    for (const want of ['Button page', 'Remove button'])
+      if ((await row.locator(`.mo-editor-inline-card-button [aria-label="${want}"]`).count()) !== 1)
+        problems.push(`${label}: the row's button has no "${want}" control`);
+    if ((await row.locator('[data-add-button]').count()) !== 0) problems.push(`${label}: a row with a button still offers Add button`);
+    await row.locator('[aria-label="Button page"]').click();
+    await page.waitForTimeout(500);
+    await page
+      .locator('[role="option"]:not(:has-text("No page"))')
+      .filter({ visible: true })
+      .first()
+      .waitFor({ timeout: 4000 })
+      .catch(() => problems.push(`${label}: the row button's Page slot did not open the page picker`));
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+    await row.locator('[aria-label="Remove button"]').click();
+    if ((await row.locator('[data-add-button]').count()) !== 1) problems.push(`${label}: Remove button did not leave Add button`);
+    if (await page.getByText('Row settings').filter({ visible: true }).count()) problems.push(`${label}: a "Row settings" sheet shows`);
+  }
+  if (name === 'pricecards') {
+    // A card has no sheet: Highlighted is a switch on the active card with its label typed on it, and the button has the shared menu.
+    await page.locator('.mo-editor-inline-list-row [data-field="name"]').first().click();
+    const row = page.locator('.mo-editor-inline-list-row-active');
+    const featured = row.locator('[aria-label="Highlighted"]');
+    if ((await featured.count()) !== 1) problems.push(`${label}: the active price card has no Highlighted switch`);
+    else {
+      await featured.click();
+      if ((await row.locator('[aria-label="Highlighted"][aria-pressed="true"]').count()) !== 1)
+        problems.push(`${label}: the Highlighted switch did not turn on`);
+      if ((await row.locator('[data-field="badge"]').count()) !== 1) problems.push(`${label}: a highlighted card has no label field`);
+    }
+    await row.locator('[data-field="button"]').first().fill('Buy');
+    await row.locator('[aria-label="Button options"]').first().click();
+    const menu = page.locator('[role=menu][aria-label="Button"]');
+    await menu
+      .locator('[role^=menuitem]')
+      .first()
+      .waitFor({ timeout: 4000 })
+      .catch(() => problems.push(`${label}: the price card button's options did not open the menu`));
+    const items = await menu.locator('[role^=menuitem]').allInnerTexts();
+    for (const want of ['Page', 'Style: Filled', 'Icon', 'Remove button'])
+      if (!items.some((x) => x.trim() === want)) problems.push(`${label}: the price card button's menu has no "${want}"`);
+    if (await page.getByText('Card settings').filter({ visible: true }).count()) problems.push(`${label}: a "Card settings" sheet shows`);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+  }
   if (name === 'cards') {
     // A media that is set is changed by a tap on it: an icon is picked from the Icon button, then the icon itself opens the picker and no media button is left.
     await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Icon"]').click();
+    await chooseKind(page, 'Icon');
     const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
     await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Icon button did not open the icon picker`));
     await picker.getByRole('button').nth(1).click();
@@ -715,17 +958,12 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       problems.push(`${label}: the media buttons show although the card has its icon`);
     if ((await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-media-box svg').count()) !== 1)
       problems.push(`${label}: the card's icon is not shown exactly once`);
-    await cardSettings('a card with an icon');
+    await noCardSheet('a card with an icon');
     // A video: the Media choice of the first card, then its link.
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-media').click();
-    // The Media choice is the choice group: buttons when they fit, else the list of radio buttons (the whole row is the target).
-    const mediaVideo = page.getByRole('button', { name: 'Video', exact: true }).last();
-    if (await mediaVideo.count()) await mediaVideo.click();
-    else
-      await page
-        .locator('.mo-choice-group__list .mo-list__item-content', { hasText: /^Video$/ })
-        .last()
-        .click();
+    // The icon is set, so the sheet shows it: Change media gives the kinds of media, and Video is one of them.
+    await page.getByRole('button', { name: 'Change media', exact: true }).last().click();
+    await page.getByRole('radio', { name: 'Video', exact: true }).last().click();
     await page.getByRole('textbox', { name: 'Video link' }).fill('https://www.youtube.com/watch?v=aqz-KE-bpKQ');
     await page.waitForTimeout(400);
     await page
@@ -734,7 +972,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       .catch(() => {});
     await page.waitForTimeout(300);
     await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
-    await cardSettings('a card with a video');
+    await noCardSheet('a card with a video');
   }
   await page.close();
 }
@@ -891,7 +1129,7 @@ async function checkSteps(width, height) {
   }
 }
 
-/** Pasting lines into an empty item makes one item each (spec 2026-11-14-paste-and-change-to-design.md, section 2): in List, List - Expand,
+/** Pasting lines into an empty item makes one item each (spec 2026-11-14-paste-and-change-to-design.md, section 2): in List, Expandable list,
  * Cards and Steps, three lines pasted into the empty block make three items with those titles (a tab gives the second field its
  * text), the cursor in the last field of the last; a paste with a `#` line is left as it is; a paste into an empty item after Add below
  * makes items there and keeps the items before; Ctrl+Z gives the block back as it was before the paste. */
@@ -1051,6 +1289,74 @@ async function checkTablePaste(width, height) {
   await page.close();
 }
 
+/**
+ * The Expandable list in the page editor (owner, 26 Nov 2026): a click on a row's header opens or closes the row and selects the block (the row is the active one, so the
+ * block's bar shows), and the accordion's left and right edges lie inside the block's box at every width, with no horizontal overflow.
+ */
+async function checkExpandSelect(width, height) {
+  const label = `${width}px Expandable list select and width`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Show list items that expand and collapse.' }).first().click();
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]', { timeout: 8000 });
+  await page.keyboard.type('One');
+  await page.waitForTimeout(300);
+  await page.locator('[data-add-row]').click();
+  await page.keyboard.type('Two');
+  await page.waitForTimeout(300);
+  const edges = () =>
+    page.evaluate(() => {
+      const box = document.querySelector('.mo-site-block-inline').getBoundingClientRect();
+      const out = [];
+      for (const el of document.querySelectorAll(
+        '.mo-site-block-inline ul.mo-block-accordion, .mo-site-block-inline .mo-list__item-expand, .mo-site-block-inline .mo-list__item-expand-summary',
+      )) {
+        const r = el.getBoundingClientRect();
+        if (r.left < box.left - 0.5 || r.right > box.right + 0.5)
+          out.push(
+            `${el.className.split(' ')[0]} ${r.left.toFixed(1)}..${r.right.toFixed(1)} outside ${box.left.toFixed(1)}..${box.right.toFixed(1)}`,
+          );
+      }
+      const de = document.documentElement;
+      if (de.scrollWidth > de.clientWidth) out.push(`page scrolls sideways (${de.scrollWidth} > ${de.clientWidth})`);
+      return out;
+    });
+  for (const found of await edges()) problems.push(`${label}: ${found}`);
+  // Another block is selected: the cursor is in the first paragraph.
+  const away = async () => {
+    await page.click('.ProseMirror > p');
+    await page.waitForTimeout(300);
+  };
+  const selected = (row) => page.locator(`[data-row="${row}"].mo-editor-inline-list-row-active`).count();
+  const open = (row) => page.locator(`[data-row="${row}"] .mo-list__item-expand-button`).getAttribute('aria-expanded');
+  for (const [how, press] of [
+    ['the chevron', (row) => page.locator(`[data-row="${row}"] .mo-list__item-expand-button`).click()],
+    ['the header', (row) => page.locator(`[data-row="${row}"] .mo-list__item-expand-summary`).click({ position: { x: 8, y: 20 } })],
+  ]) {
+    await away();
+    if (await selected(0)) problems.push(`${label}: a row is still active after a click outside the block`);
+    const before = await open(0);
+    await press(0);
+    await page.waitForTimeout(300);
+    if (!(await selected(0))) problems.push(`${label}: a click on ${how} did not select the block`);
+    if ((await open(0)) === before) problems.push(`${label}: a click on ${how} did not open or close the row`);
+    if (!(await page.locator('[data-add-row]').count()))
+      problems.push(`${label}: the block is not selected (no add button) after a click on ${how}`);
+  }
+  for (const found of await edges()) problems.push(`${label} (selected): ${found}`);
+  await page.screenshot({ path: join(shots, `expand-select-${width}.png`) });
+  await page.close();
+}
+
 export function register(unit) {
   for (const [width, height] of [
     [375, 740],
@@ -1064,6 +1370,12 @@ export function register(unit) {
           inlineBlocks.find((b) => b.name === name),
         ),
       );
+  for (const [w, h] of [
+    [390, 740],
+    [768, 900],
+    [1280, 900],
+  ])
+    unit(`checkExpandSelect ${w}`, () => checkExpandSelect(w, h));
   for (const block of inlineBlocks) unit(`checkInlineBlock 375 ${block.name}`, () => checkInlineBlock(375, 740, block));
   // On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
   for (const block of inlineSingles)

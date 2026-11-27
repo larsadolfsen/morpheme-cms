@@ -169,3 +169,22 @@ One implementation pull request, started from `main` after the Cards-changes pul
 is merged, because it changes the same files (`src/standard/cards/*`, `theme/blocks/cards/LinkCards.tsx`, `blocks.css`). It holds the
 setting, the carousel drawing with `Show all` and the keyboard, the theme CSS, the strings in both languages, the tests and
 screens checks, and the release note line.
+
+## Update 26 Nov 2026: items are M3 carousel items, not cards
+
+The owner compared the demo with m3.material.io/components/carousel (overview, specs, guidelines, accessibility) and found that cards in a
+carousel did not look like Material 3. This update replaces the points above that describe a card (surface, outline, elevation, text
+below the image). In a carousel an item is what M3 prints: the image fills the item (28 dp corners, no surface, no outline), the label
+(title, subhead, text) sits inside the item on the image, and a small item of a contained layout is the same full-height image cut to 40-56 dp.
+`LinkCards.tsx` draws the item (`mo-block-cards__item`) with the existing `Carousel`, `Link`, `Buttons` and `Svg`; the stacked grid still uses
+`Card`. M3 is silent on a scrim for text on an image and on an item without an image: the label gets a scrim of the theme's scrim colour with the
+on-scrim colour text, and an item without an image is the carousel item surface with the icon and label inside, no outline. The row height
+(`--mo-comp-carousel-height`, 20 rem) is the theme's, since M3 prints no item height. Keyboard and aria behaviour are unchanged.
+
+## Update 26 Nov 2026: M3 names, own demo page, text by size
+
+- Layout names are M3's, in this order: Multi-browse, Uncontained, Hero, Center-aligned hero, Full-screen; each has M3's "Best used for" line as its hint. Uncontained multi-aspect ratio is a variant of Uncontained.
+- Full-screen is one edge-to-edge large item with the text on the image (from 840 px wide and in landscape it is drawn as a hero, consistent with M3: "Don't use this layout in landscape orientation").
+- Contained layouts show every item fully at rest (M3: "Carousel items must be fully visible on-screen (except for the uncontained layout)"); the row clips the next item's sliver on phones.
+- Text adapts to size (M3: "Consider adapting the text to use brief labels on smaller carousel items"): large shows title and text, medium hides the title, small shows no text.
+- The carousel examples live on `/blocks/carousel/` (`blocks-carousel.md`); `/blocks/cards/` keeps one short example. A carousel is a layout of Cards, so the standard-block list in CLAUDE.md does not change.

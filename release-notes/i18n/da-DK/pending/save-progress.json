@@ -1,0 +1,7 @@
+{
+  "id": "save-progress",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Gemmeforløb",
+  "text": "Du kan se, hvornår en gemt ændring er på hjemmesiden. Efter Gem viser en bjælke under topbjælken Udgiver og derefter Live. Hvis buildet fejler, står der Ikke live, at ændringerne er gemt, og et link til buildet."
+}

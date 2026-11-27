@@ -356,6 +356,14 @@ async function checkSelection() {
     await sheet.waitFor();
     await page.waitForTimeout(600);
     const items = sheet.locator('[role=checkbox], .mo-list__item-container', { hasText: /Selection check/ });
+    // The sheet's buttons are outlined error buttons: "Clear" with nothing selected, "Delete selected" while some are.
+    const outlinedError = async (name, what) => {
+      const button = page.getByRole('button', { name }).first();
+      const cls = (await button.count()) ? ((await button.getAttribute('class')) ?? '') : '';
+      if (!/\bmo-is-error\b/.test(cls) || !/\bmo-is-outlined\b/.test(cls))
+        problems.push(`${label}: the notifications' ${what} is not an outlined error button (${cls || 'not found'})`);
+    };
+    await outlinedError(/^Clear$/, 'Clear');
     if ((await items.count()) !== 3) {
       problems.push(`${label}: the notifications sheet does not show the three seeded notifications`);
     } else if (touch) {
@@ -371,6 +379,7 @@ async function checkSelection() {
       await page.waitForTimeout(300);
       if (!/^2 selected$/.test((await count(page)) ?? ''))
         problems.push(`${label}: the notifications' count is not announced ("2 selected")`);
+      // On a phone the delete is the top bar's icon button; the outlined one is in the dialog (below).
       await page.getByRole('button', { name: 'Close selection' }).click();
       if (await checked(page, scope)) problems.push(`${label}: Cancel does not unselect the notifications`);
     } else {
@@ -381,6 +390,7 @@ async function checkSelection() {
       await items.nth(1).focus();
       await page.keyboard.press('Space');
       if ((await checked(page, scope)) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
+      await outlinedError(/^Delete \d+ selected$/, 'Delete selected');
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
       if (await checked(page, scope)) problems.push(`${label}: Escape does not unselect the notifications`);
@@ -1362,6 +1372,91 @@ async function checkInsertDialogClosesLate(width) {
   await page.close();
 }
 
+// A tap on an image of the Image grid opens that image's sheet and makes the block the active one, so its row is there however many images fill the block
+// (the other check taps the middle of a block, which is a gap only while the grid is small).
+async function checkImageGridTap(width) {
+  const label = `image grid tap ${width}`;
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-image-grid.md')))
+    return console.log(`${label}: skipped, the site has no Image grid page.`);
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#src/content/pages/blocks-image-grid.md'));
+  await page.waitForSelector('.ProseMirror > .mo-site-block', { timeout: 30_000 });
+  const tile = page.locator('.ProseMirror > .mo-site-block a[data-image]').first();
+  await tile.waitFor({ timeout: 15_000 });
+  await tile.scrollIntoViewIfNeeded();
+  await (phone ? tile.tap({ timeout: 3000 }) : tile.click({ timeout: 3000 }));
+  const row = await page
+    .waitForFunction(() => !!document.querySelector('.ProseMirror > .mo-site-block.mo-site-block-has-row'), null, { timeout: 5000 })
+    .then(
+      () => true,
+      () => false,
+    );
+  if (!row) problems.push(`${label}: a tap on an image did not make its block the active one (no row)`);
+  await page.close();
+}
+
+/** A swipe that starts outside the block being typed in is not held back: that touch closes the open row and the block's action row (blockRow.ts),
+ * and the page had been scrolled back by what the closing moved on every frame (`hold`), cancelling the finger, so it stuck and jumped up and down.
+ * On a phone, on the demo's Lists page: a row of a List - Expand is opened, a slow swipe starts below the block, and while the finger is down the page
+ * must follow it (scroll down as the finger goes up) with no frame that scrolls it back by more than the closing moved it. */
+async function checkRowSwipeScrolls(width = 375) {
+  const label = `${width}px swipe after a row was opened`;
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#src/content/pages/blocks-lists.md'));
+  const rows = page.locator('ul.mo-list__expand .mo-list__item-expand-summary');
+  await rows.first().waitFor({ timeout: 30_000 });
+  await rows.first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  await rows.first().tap();
+  await page.waitForTimeout(800);
+  // The block's end is brought to the middle of the screen, so a swipe can start below it (outside the block).
+  const below = await page.evaluate(async () => {
+    const block = document.activeElement?.closest('.mo-site-block-card');
+    if (!block) return null;
+    scrollBy({ top: block.getBoundingClientRect().bottom - 400, behavior: 'instant' });
+    await new Promise((r) => setTimeout(r, 300));
+    return Math.round(block.getBoundingClientRect().bottom) + 24;
+  });
+  if (below === null || below > 650) return (problems.push(`${label}: no open block with room below it to start the swipe`), page.close());
+  await page.evaluate(() => {
+    window.__ys = [];
+    const f = () => (window.__ys.push(scrollY), requestAnimationFrame(f));
+    f();
+  });
+  const cdp = await page.context().newCDPSession(page);
+  const steps = 24;
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: 190, y: below }] });
+  for (let i = 1; i <= steps; i++) {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 190, y: below - (300 * i) / steps }] });
+    await page.waitForTimeout(16);
+  }
+  const down = await page.evaluate(() => window.__ys.length);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await page.waitForTimeout(600);
+  const ys = (await page.evaluate(() => window.__ys)).slice(0, down);
+  // Frames where the page went back up although the finger only moves up, after the first (the closing may move it once).
+  // The closing may move the page once before the finger has moved it (the row is shorter); from the moment it rises with the finger, it never goes back.
+  let back = 0;
+  let low = ys[0];
+  let rising = false;
+  for (let i = 1; i < ys.length; i++) {
+    low = Math.min(low, ys[i]);
+    if (ys[i] > low + 5) rising = true;
+    if (rising && ys[i] < ys[i - 1] - 1) back++;
+  }
+  const net = ys.at(-1) - low;
+  if (back > 0 || net < 150)
+    problems.push(
+      `${label}: the page did not follow the finger (scrolled back in ${back} frames, ${Math.round(net)} px in all; the row's hold fights the swipe)`,
+    );
+  await page.close();
+}
+
 export function register(unit) {
   for (const width of [375, 1280]) unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
   for (const width of [375, 1280]) unit(`checkCardBar ${width}`, () => checkCardBar(width));
@@ -1371,7 +1466,9 @@ export function register(unit) {
   unit('checkTwoFinger', () => checkTwoFinger());
   for (const w of [375, 1280]) unit(`checkBlockDrag ${w}`, () => checkBlockDrag(w));
   for (const w of [375, 768, 1280]) unit(`checkBlockHandleCorner ${w}`, () => checkBlockHandleCorner(w));
+  for (const w of [375, 768, 1280]) unit(`checkImageGridTap ${w}`, () => checkImageGridTap(w));
   for (const w of [375, 1280]) unit(`checkBlockSelect ${w}`, () => checkBlockSelect(w));
   for (const w of [375, 1280]) unit(`checkInsertDialogClosesLate ${w}`, () => checkInsertDialogClosesLate(w));
   for (const w of [375, 1280]) unit(`checkBlockMove ${w}`, () => checkBlockMove(w));
+  unit('checkRowSwipeScrolls 375', () => checkRowSwipeScrolls(375));
 }

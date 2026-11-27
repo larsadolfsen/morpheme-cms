@@ -1,0 +1,6 @@
+{
+  "id": "items-inline-pricecards",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A price card is highlighted and its button is set on the card itself"
+}

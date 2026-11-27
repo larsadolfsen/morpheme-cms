@@ -24,8 +24,8 @@ test('the screens that left Appearance open where they are now, the rest of the 
   assert.equal(movedRoute('appearance/header'), 'global/header');
   assert.equal(movedRoute('appearance/footer'), 'global/footer');
   assert.equal(movedRoute('appearance/side-column'), 'global/side-column');
-  assert.equal(movedRoute('appearance/colors'), 'company/colors');
-  assert.equal(movedRoute('appearance/colors/fallback-colors'), 'company/colors/fallback-colors');
+  assert.equal(movedRoute('appearance/colors'), 'style/color');
+  assert.equal(movedRoute('appearance/colors/fallback-colors'), 'style/color/fallback-colors');
   assert.equal(movedRoute('developer'), 'settings');
 });
 
@@ -33,7 +33,7 @@ test('an address that has not moved stays', () => {
   assert.equal(movedRoute('appearance/themes'), 'appearance/themes');
   assert.equal(movedRoute('developer/caching'), 'developer/caching');
   assert.equal(movedRoute('global/header'), 'global/header');
-  assert.equal(movedRoute('company/colors'), 'company/colors');
+  assert.equal(movedRoute('style/color'), 'style/color');
   assert.equal(movedRoute('lists'), 'lists');
 });
 
@@ -65,7 +65,7 @@ test('old prefixes are renamed, the data after them stays', () => {
   assert.equal(movedRoute('liste/temaer'), 'list/temaer');
   assert.equal(movedRoute('udseende/dele/liste/kontakt'), 'developer/parts/list/kontakt');
   assert.equal(movedRoute('indstillinger/appstore'), 'settings/appstore');
-  assert.equal(movedRoute('udseende/farver'), 'company/colors');
+  assert.equal(movedRoute('udseende/farver'), 'style/color');
 });
 
 test('every old route prefix opens the screen where it is now', () => {
@@ -82,14 +82,14 @@ test('every old route prefix opens the screen where it is now', () => {
     'udseende/temaer': 'appearance/themes',
     'udseende/temaer/material': 'appearance/themes/material',
     'udseende/ikonpakker': 'appearance/icon-packs',
-    'udseende/bevaegelse': 'appearance/motion',
+    'udseende/bevaegelse': 'style/motion',
     'udseende/sidekolonne': 'global/side-column',
-    'udseende/farver': 'company/colors',
-    'udseende/farver/reservefarver': 'company/colors/fallback-colors',
+    'udseende/farver': 'style/color',
+    'udseende/farver/reservefarver': 'style/color/fallback-colors',
     'udseende/dele': 'developer/parts',
     'udseende/dele/editor': 'developer/parts/editor',
     'udseende/dele/blokke': 'developer/parts/blocks',
-    'udseende/dele/vaerdier': 'developer/parts/values',
+    'udseende/dele/vaerdier': 'style/color',
     'appearance/parts': 'developer/parts',
     'appearance/parts/list/x': 'developer/parts/list/x',
     advanced: 'developer/caching',
@@ -155,7 +155,7 @@ test('an old route to the app store opens it at its English route', () => {
 });
 
 test('the old colours route opens the colours screen under Business', () => {
-  assert.equal(movedRoute('farver'), 'company/colors'); // language-ok: a legacy route id
+  assert.equal(movedRoute('farver'), 'style/color'); // language-ok: a legacy route id
 });
 
 test('an old parts route keeps a list id and opens at its English route', () => {

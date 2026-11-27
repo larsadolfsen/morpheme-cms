@@ -59,10 +59,10 @@ import {
   SearchRow,
   useKept,
   ConnectedButtons,
-  UnfoldButton,
   GroupTitle,
   SwitchRow,
   ScoreRing,
+  CheckList,
   scoreOf,
   Button,
   EmptyNote,
@@ -74,7 +74,7 @@ import {
 } from './ui';
 import { openAtSeo } from './EntryForm';
 import { isRated } from './SeoScores';
-import { fileRating } from './seo';
+import { fileRating, firstImage } from './seo';
 import { dateName, headed, letterOf } from './Sheet';
 import type { Env } from './App';
 import { kindAndName, savedText } from './deploy';
@@ -87,7 +87,8 @@ import NewListDialog from './NewListDialog';
 import { useListDrafts } from './listDraft';
 import { ownListsOf } from './ownLists';
 import { isOver, untilTime } from '../lib/notice.mjs';
-import { isUnlisted } from '../lib/status.mjs';
+import { safeImageSrc } from '../lib/safe-url.mjs';
+import { hiddenFromSearch, isUnlisted } from '../lib/status.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
 import { saveDensity, savedDensity, setDensity, type Density } from './density';
 import { browserLocale, locale, localeName, locales, savedLocale, setLocale, siteLocale, siteT, siteText, t, type Locale } from './i18n';
@@ -139,7 +140,21 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'header') return { label: parts.header, href: '#global/header', count: null };
   if (id === 'footer') return { label: parts.footer, href: '#global/footer', count: null };
   if (id === 'side-column') return { label: parts.sideColumn, href: '#global/side-column', count: null };
-  if (id === 'colors') return { label: parts.colors, href: '#company/colors', count: null };
+  if (id === 'colors') return { label: parts.styleColor, href: '#style/color', count: null };
+  // The seven pages of Style (a section of the main menu, opened from its row): #style/<name>.
+  if (id.startsWith('style-')) {
+    const page = id.slice('style-'.length);
+    const label = {
+      color: parts.styleColor,
+      elevation: parts.styleElevation,
+      icons: parts.styleIcons,
+      motion: parts.motion,
+      shape: parts.styleShape,
+      spacing: parts.styleSpacing,
+      typography: parts.styleTypography,
+    }[page];
+    if (label) return { label, href: `#style/${page}`, count: null };
+  }
   if (id === 'lists') return { label: parts.lists, href: '#lists', count: listsShown(files).length };
   if (id === 'blocks') return { label: parts.blocks, href: '#blocks', count: blockParts.length };
   if (id === 'files') return { label: parts.media, href: '#files', count: mediaOf(files).length + filesOf(files).length };
@@ -225,8 +240,7 @@ export function Start({ builtAt, files, env }: { builtAt: Date | null; files: Re
   );
 }
 
-// "Business": its screen has "Logo and icon" (BrandForm.tsx, #company/logo) first, then "Colors" (Colors.tsx, #company/colors, with the
-// swatches), then its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
+// "Business": its screen has "Logo and icon" (BrandForm.tsx, #company/logo) first, then its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
 // of its own ("Payment"), and the settings of the apps installed of its kinds (Part.apps: MobilePay), going back to
 // "Business".
 export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
@@ -243,11 +257,7 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
     <Parts
       title={t.common.parts.company}
       route="company"
-      parts={[
-        { id: 'logo', label: t.common.parts.brand, icon: icons.logo },
-        { id: 'colors', label: t.common.parts.colors, icon: icons.colors, trailing: <ThemeColors files={files} /> },
-        ...companyParts,
-      ]}
+      parts={[{ id: 'logo', label: t.common.parts.brand, icon: icons.logo }, ...companyParts]}
     />
   );
 }
@@ -269,7 +279,6 @@ export function Theme({ files }: { files: RepoFile[] }) {
       icon: icons['icon-packs'],
       detail: iconPacks.find((x) => x.id === chosenPack(files))?.name,
     },
-    { id: 'motion', label: t.common.parts.motion, icon: icons.motion, detail: t.library.motionSchemes[motionOf(files)] },
     ...appearance,
   ];
   // A site with its own old `groups` (no section has these): the rows stay here, at the same screens (they open at their new addresses).
@@ -284,13 +293,21 @@ export function Theme({ files }: { files: RepoFile[] }) {
       href: '#global/side-column',
       detail: sideChoicesOf(files).find((x) => x.type === sideSettingOf(files))?.label ?? t.library.sideNone,
     });
-  if (!placed('colors'))
+  if (!placed('style-color') && !placed('colors'))
     parts.push({
       id: 'colors',
-      label: t.common.parts.colors,
+      label: t.common.parts.styleColor,
       icon: icons.colors,
-      href: '#company/colors',
+      href: '#style/color',
       trailing: <ThemeColors files={files} />,
+    });
+  if (!placed('style-motion'))
+    parts.push({
+      id: 'motion',
+      label: t.common.parts.motion,
+      icon: icons.motion,
+      href: '#style/motion',
+      detail: t.library.motionSchemes[motionOf(files)],
     });
   return <Parts title={t.common.parts.appearance} route="appearance" parts={parts} back={backFrom('appearance')} />;
 }
@@ -418,7 +435,30 @@ export function motionOf(files: RepoFile[]): MotionScheme {
   return schemeInUse(scheme, theme.motion, themes.find((x) => x.id === STANDARD_THEME)?.motion);
 }
 
-/** "Motion" (#appearance/motion): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
+/** "Icons" in Style (#style/icons): Material Symbols, the one set the editor and the site draw their icons with, with a few
+ * of its icons and who made it. The packs a theme brings stay under Appearance › Icon packs. */
+export function StyleIcons() {
+  const material = iconPacks.find((x) => x.id === 'material-symbols');
+  return (
+    <Screen title={t.common.parts.styleIcons} wide>
+      <Group>
+        <ListItem
+          headline={material?.name ?? t.library.styleIconsName}
+          supporting={[t.library.styleIconsHint, material && t.library.iconPackByline(material.author, material.license)]
+            .filter(Boolean)
+            .join(' · ')}
+          trailing={
+            material?.samples.length ? (
+              <IconSwatches icons={material.samples} label={t.library.iconPackSamples(material.name)} />
+            ) : undefined
+          }
+        />
+      </Group>
+    </Screen>
+  );
+}
+
+/** "Motion" in Style (#style/motion): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
  * moves, the one in use ticked (motionOf) and "The theme's choice" by the theme's own. A tap on another asks first and then
  * saves it in the site's file (config.motion) at once, in its own commit, as an icon pack is; the editor moves by it at
  * once (applyMotion, App.tsx), the site after it is built. */
@@ -454,7 +494,7 @@ export function MotionSchemes({ env, files }: { env: Env; files: RepoFile[] }) {
   }
 
   return (
-    <Screen title={t.common.parts.motion} wide back={backToAppearance}>
+    <Screen title={t.common.parts.motion} wide>
       <Group>
         {MOTION_SCHEMES.map((scheme) => (
           <ChoiceRow
@@ -491,6 +531,7 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
   const description = inLocale(of.description);
   const highlights = inLocale(of.highlights) ?? [];
   const statement = statementOf(of.accessibility);
+  const [checksOpen, setChecksOpen] = useState(false);
   const shotName = (key: string) => t.library.themeShots[key] ?? of.name;
   const kept: [Icon, string][] = [
     [materialIcon('description'), t.library.themeKeptContent],
@@ -555,22 +596,28 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
         </Group>
       )}
       <Group>
-        <ListItem
-          icon={statement.state === 'meets' ? materialIcon('check') : materialIcon('checklist')}
-          headline={
-            statement.state === 'meets'
-              ? t.library.themeA11yMeets
-              : statement.state === 'short'
-                ? t.library.themeA11yShort
-                : t.library.themeA11yUnchecked
-          }
-        />
-        {statement.shortfalls.map((x) => (
+        {statement.state === 'measured' ? (
           <ListItem
-            key={`${x.part}-${x.criterion}`}
-            headline={t.library.themeA11yItem(t.library.themeA11yParts[x.part] ?? partWords(x.part), x.criterion)}
-          />
-        ))}
+            onClick={() => setChecksOpen(!checksOpen)}
+            aria-expanded={checksOpen}
+            leading={<ScoreRing score={statement.score} label={t.library.themeA11yScoreLabel(statement.score)} />}
+            headline={t.library.themeA11yHeadline}
+            supporting={t.library.themeA11ySupporting(statement.standard, statement.measured)}
+            arrow={materialIcon(checksOpen ? 'keyboard_arrow_up' : 'keyboard_arrow_down')}
+          >
+            {checksOpen && (
+              <CheckList
+                title={t.library.themeA11yChecks}
+                items={statement.checks.map((c) => ({
+                  ok: c.ok,
+                  text: t.library.themeA11yCheck(t.library.themeA11yParts[c.part] ?? partWords(c.part), c.criterion, c.why),
+                }))}
+              />
+            )}
+          </ListItem>
+        ) : (
+          <ListItem icon={materialIcon('checklist')} headline={t.library.themeA11yUnmeasured} />
+        )}
         <ListItem headline={t.library.themeA11yNotYours} />
       </Group>
       <Group title={t.library.themeKept}>
@@ -587,14 +634,13 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
 
 /** "Components" (#developer/parts, a row of Settings): the parts the editor and the site are built of, each on a screen of its own: the editor's
  * (Parts.tsx), the theme's UI components, the blocks (the standard ones and the apps') and each list of kinds
- * ("Promotion", its own kinds and the apps'), as the theme shows them (BlockParts.tsx), and the theme's design tokens ("Values", Tokens.tsx). */
+ * ("Promotion", its own kinds and the apps'), as the theme shows them (BlockParts.tsx), and the Style pages (Tokens.tsx). */
 export function PartsHome() {
   const parts: Part[] = [
     { id: 'editor', label: t.parts.screens.editor, icon: icons.parts },
     { id: 'ui', label: t.parts.screens.components, icon: icons.appearance },
     { id: 'blocks', label: t.parts.screens.blocks, icon: icons.blocks },
     ...kindLists().map((c) => ({ id: `list/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lists })),
-    { id: 'values', label: t.parts.screens.values, icon: materialIcon('straighten') },
   ];
   return <Parts title={t.common.parts.editorParts} route="developer/parts" parts={parts} back={backFrom('components')} />;
 }
@@ -968,6 +1014,12 @@ type Item = {
   /** Kladde, Skjult or Planlagt (statusOf), before its date; an entry not yet looked through, what it says
    * (FolderCollection.fresh: "New"). */
   status?: string;
+  /** Pages and posts: which versions exist, one line (`Published · Draft`), with the full time of a scheduled one as its tooltip. */
+  versions?: { text: string; title?: string };
+  /** Pages and posts: kept out of the lists (a post's Hidden) or out of search engines (a page's). */
+  hidden?: boolean;
+  /** Pages and posts: the image the page shares (the Open Graph image, else its own), not the site's own. */
+  image?: string;
   /** Added by something else and not yet looked through (FolderCollection.fresh): at the top of the list. */
   fresh?: boolean;
   /** Which of them, or published: what the choices over the list show. */
@@ -1022,6 +1074,26 @@ function statusOf(d: Record<string, unknown>, w?: Waiting, post = false): string
   return timed(w.publishAt, t.library.status.scheduledChanges, t.library.status.unpublishedChanges);
 }
 
+// The line under a page's or post's name: the versions it has, joined by " · " (`Published`, `Published · Draft`, `Published · Scheduled Nov 30`,
+// `Draft`, `Scheduled Nov 27`); the full time of a scheduled one is the tooltip.
+function versionsOf(d: Record<string, unknown>, w?: Waiting): { text: string; title?: string } {
+  const v = t.library.versions;
+  const scheduled = (time: unknown) => {
+    const at = untilTime(String(time ?? ''));
+    if (at === null) return { text: v.scheduled };
+    const date = new Date(at);
+    return {
+      text: v.scheduledOn(date.toLocaleDateString(locale, { month: 'short', day: 'numeric' })),
+      title: t.library.status.scheduledAt(when(date)),
+    };
+  };
+  if (d.status === 'draft') return w?.publishAt ? scheduled(w.publishAt) : { text: v.draft };
+  if (d.status === 'scheduled' && !isOver(String(d.publishAt ?? ''))) return scheduled(d.publishAt);
+  if (!w) return { text: v.published };
+  const next = w.publishAt ? scheduled(w.publishAt) : { text: v.draft };
+  return { text: `${v.published} · ${next.text}`, title: next.title };
+}
+
 function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
   if (collection.kind === 'files') return collection.files.map((f) => ({ href: `#${f.file}`, title: f.label, detail: f.view }));
   const own = files.filter((f) => f.path.startsWith(`${collection.folder}/`) && (collection.kind !== 'folder' || isEntryPath(f.path)));
@@ -1034,6 +1106,9 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
         // Blog posts show their date; pages when they were last saved (`saved`, asked in List).
         const detail = collection.id === 'blog' ? String(d.date ?? '') : '';
         const date = collection.id === 'blog' ? detail : undefined;
+        const post = collection.id === 'blog';
+        const body = splitFrontmatter(file.text).body;
+        const image = String(d.shareImage || d.image || firstImage(body) || '');
         const path = String(d.path ?? `/${file.path.slice(collection.folder.length + 1).replace(/(\/index)?\.md$/, '')}/`);
         return {
           href: `#${file.path}`,
@@ -1041,6 +1116,9 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
           detail,
           date,
           status: statusOf(d, waiting.get(file.path), collection.id === 'blog'),
+          versions: versionsOf(d, waiting.get(file.path)),
+          hidden: post ? isUnlisted(d) : hiddenFromSearch(d, 'page'),
+          image: image || undefined,
           state: stateOf(d, waiting.get(file.path), collection.id === 'blog'),
           // Hidden is on the site, so nothing is unfinished about it.
           unfinished:
@@ -1484,17 +1562,22 @@ export function List({
         {...(path ? selection.row(path) : {})}
         href={item.href}
         leading={ring(item)}
+        {...(!scores && item.versions ? pictureOf(item, collection.id === 'blog') : {})}
         headline={item.title}
-        supporting={under(item, {
-          address: markdown && wide,
-          text: pages ? savedTime(item) : collection.id === 'blog' ? shortDate(item.detail) : item.detail,
-        })}
+        supporting={
+          item.versions
+            ? versionLine(item, markdown && wide)
+            : under(item, {
+                address: markdown && wide,
+                text: pages ? savedTime(item) : collection.id === 'blog' ? shortDate(item.detail) : item.detail,
+              })
+        }
         truncate
         count={item.count}
-        arrow={!orderable}
+        arrow={!orderable && !item.versions}
         actions={
-          orderable &&
-          !selecting && (
+          !selecting &&
+          (orderable ? (
             <span className="mo-editor-library-row-actions">
               <IconButton
                 icon={materialIcon('arrow_upward')}
@@ -1511,7 +1594,11 @@ export function List({
                 onClick={() => move(i, i + 1)}
               />
             </span>
-          )
+          ) : (
+            // The eye of a hidden page or post stands in the middle of the row (the theme's trailing slot sits in the middle of the text lines,
+            // which is higher than the middle of a row with an image), as in the menu tree.
+            item.hidden && <span className="mo-editor-library-row-actions mo-editor-library-row-eye">{hiddenIcon(item)}</span>
+          ))
         }
       />
     );
@@ -1642,11 +1729,11 @@ export function List({
       )}
       {!appTab && tree && (
         <>
-          <Group title={t.library.menu}>
+          <Group title={t.library.menu} dividers>
             <TreeRows branches={tree.menu} depth={0} open={openBranches} toggle={toggleBranch} ring={scores ? ring : undefined} />
           </Group>
           {tree.rest.length > 0 && (
-            <Group title={t.library.notInMenu}>
+            <Group title={t.library.notInMenu} dividers>
               <TreeRows
                 branches={tree.rest.map((item) => ({ key: item.href, item, children: [] }))}
                 depth={0}
@@ -1665,6 +1752,7 @@ export function List({
         groups.map((g) => (
           <Group
             key={g.key || 'all'}
+            dividers={markdown}
             title={g.key ? (sort === 'type' || sort === 'az' || sort === 'za' ? g.key : dateName(g.key)) : undefined}
           >
             {g.items.map(listRow)}
@@ -1680,12 +1768,35 @@ export function List({
   );
 }
 
+/** A page's or post's leading part: its share image, else a square with its icon, the same size and corners (the image itself and its corner are ListItem's). */
+function pictureOf(item: Item, post: boolean): Record<string, unknown> {
+  if (!item.file) return {};
+  const src = item.image ? safeImageSrc(item.image) : '';
+  if (src) return { leadingImage: { src } };
+  return { icon: materialIcon(post ? 'article' : 'description') };
+}
+
+/** The line under a page's or post's name: its versions (and its address from a computer's width), the full time of a scheduled version as the tooltip. */
+function versionLine(item: Item, address?: boolean) {
+  if (!item.versions) return under(item, { address, text: '' });
+  const { text, title } = item.versions;
+  return under(item, { address, text: <span title={title}>{text}</span>, plain: true });
+}
+
+/** Hidden is an icon at the right of the row, not a button. */
+const hiddenIcon = (item: Item) =>
+  item.hidden ? (
+    <span role="img" aria-label={t.library.status.unlisted} title={t.library.status.unlisted} className="mo-editor-library-hidden">
+      <MaterialIcon name="visibility_off" />
+    </span>
+  ) : undefined;
+
 /** What is under a page's or post's name: its address (from a computer's width, where the list has the room), its status and its
  * time or date. Nothing when there is none of them (undefined): the row is then Material's one-line item, 56 dp, not a two-line
  * one with an empty line (owner, 25 Nov 2026: "List items only with one line should not be styled like it has two"). A row
  * gets its second line when it has something to say in it, and not before. */
-function under(item: Item, { address, text }: { address?: boolean; text?: ReactNode }) {
-  const status = item.status ? <span className="mo-editor-library-status">{item.status}</span> : null;
+function under(item: Item, { address, text, plain }: { address?: boolean; text?: ReactNode; plain?: boolean }) {
+  const status = item.status && !plain ? <span className="mo-editor-library-status">{item.status}</span> : null;
   const line = text === false || text === '' || text == null ? null : text;
   if (!address && !status && !line) return undefined;
   return (
@@ -1729,24 +1840,30 @@ function TreeRows({
             <ListItem
               href={item.href || undefined}
               tone={item.href ? undefined : 'muted'}
-              // Indented a step under the item it is under, in the editor's segmented lists.
+              // Indented 20 dp under the item it is under: the step is added to the container's own start padding, which an inline value would replace.
               style={
-                depth ? { paddingInlineStart: `calc(var(--mo-comp-list-segmented-padding-inline, 1rem) + ${depth * 1.25}rem)` } : undefined
+                depth ? { paddingInlineStart: `calc(var(--mo-comp-list-list-item-leading-space, 0px) + ${depth * 1.25}rem)` } : undefined
               }
               leading={ring?.(item)}
+              {...(!ring && item.versions ? pictureOf(item, false) : {})}
               headline={item.title}
-              supporting={item.href ? under(item, { address: wide, text: savedTime(item) }) : t.library.pageGone}
+              supporting={item.href ? versionLine(item, wide) : t.library.pageGone}
               truncate
               actions={
-                children.length > 0 && (
-                  <span className="mo-editor-library-row-unfold">
-                    <UnfoldButton
-                      open={shown}
-                      count={children.length}
-                      label={shown ? t.library.hideSubpagesOf(item.title) : t.library.showSubpagesOf(item.title)}
-                      title={shown ? t.library.hideSubpages : t.library.showSubpages}
-                      onClick={() => toggle(key)}
-                    />
+                item.href && (
+                  <span className="mo-editor-library-row-trail">
+                    {hiddenIcon(item)}
+                    <span className="mo-editor-library-row-unfold">
+                      {children.length > 0 && (
+                        <IconButton
+                          kind="tonal"
+                          icon={shown ? materialIcon('keyboard_arrow_up') : materialIcon('keyboard_arrow_down')}
+                          aria-expanded={shown}
+                          label={shown ? t.library.hideSubpagesOf(item.title) : t.library.showSubpagesOf(item.title)}
+                          onClick={() => toggle(key)}
+                        />
+                      )}
+                    </span>
                   </span>
                 )
               }

@@ -15,7 +15,7 @@ import { glyphProblems } from './icon-pack.mjs';
 const i18nDir = fileURLToPath(new URL('../../../src/i18n/da-DK/', import.meta.url));
 const bundled = await build({
   stdin: {
-    contents: ['apps', 'app', 'cms', 'dashboard', 'common', 'library', 'text', 'blocks']
+    contents: ['apps', 'app', 'cms', 'dashboard', 'common', 'library', 'text', 'blocks', 'forms']
       .map((name) => `export { ${name} } from './${name}.ts';`)
       .join('\n'),
     resolveDir: i18nDir,
@@ -37,6 +37,7 @@ export const {
   library: daLibrary,
   text: daText,
   blocks: daBlocks,
+  forms: daForms,
 } = texts;
 
 // The same messages in English, for a check that reads the site's own texts: the site's page is in the site's language (`<html lang>`), not the
@@ -162,7 +163,7 @@ const builtPages = existsSync(join(ROOT, 'src/content/pages'))
       .sort()
   : [];
 export const BUILT_PAGE = `src/content/pages/${builtPages.includes('about.md') ? 'about.md' : (builtPages[0] ?? 'about.md')}`;
-/** A page's text with a List and a List - Expand (one marked as a FAQ), for the checks of their rows: a site's page need not have them. */
+/** A page's text with a List and an Expandable list (one marked as a FAQ), for the checks of their rows: a site's page need not have them. */
 export const block = (name, props) => `<div data-block="${name}" data-props="${JSON.stringify(props).replaceAll('"', '&quot;')}"></div>`;
 export const LIST_PAGE = [
   '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',

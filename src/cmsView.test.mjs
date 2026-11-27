@@ -68,26 +68,74 @@ test('patch waiting', () => {
   assert.equal(view.action, null);
 });
 
-test('major', () => {
-  const status = makeStatus({ checked: { latest: '1.0.0', problem: { kind: 'major' } } });
-  const view = cmsView(status, now);
-  assert.equal(view.latest, '1.0.0');
-  assert.equal(view.action, 'update');
-});
-
-test('major while undoing', () => {
+test('a version that failed its trial shows why, the build and the next try', () => {
+  const retryAt = Date.parse('2026-11-05T10:00:00.000Z');
   const status = makeStatus({
-    checked: { latest: '1.0.0', problem: { kind: 'major' } },
-    update: { commit: 'a1', from: '1.0.0', to: '0.1.1', at: '2026-11-04T11:00:00.000Z', state: 'undoing' },
+    checked: { latest: '0.1.3' },
+    failed: [
+      {
+        version: '0.1.3',
+        at: '2026-11-04T10:00:00.000Z',
+        reason: 'build-failed',
+        buildUrl: 'https://github.com/o/r/commit/abc/checks',
+        retryAt,
+      },
+    ],
   });
   const view = cmsView(status, now);
+  assert.equal(view.latest, '0.1.3');
+  assert.equal(view.action, 'try-again');
+  assert.deepEqual(view.failed, {
+    version: '0.1.3',
+    reason: 'build-failed',
+    buildUrl: 'https://github.com/o/r/commit/abc/checks',
+    retryAt,
+  });
+});
+
+test('a failed version of another number is not shown for the newer one', () => {
+  const status = makeStatus({ checked: { latest: '0.1.4' }, failed: [{ version: '0.1.3', reason: 'build-failed', retryAt: 1 }] });
+  const view = cmsView(status, now);
+  assert.equal(view.failed, null);
   assert.equal(view.action, null);
 });
 
-test('skipped', () => {
-  const status = makeStatus({ checked: { latest: '0.1.3', problem: { kind: 'skipped' } } });
+test('a newer version that was never tried has no try-again button', () => {
+  const view = cmsView(makeStatus({ checked: { latest: '0.1.3' } }), now);
+  assert.equal(view.failed, null);
+  assert.equal(view.action, null);
+});
+
+test('trying: the trial is under way, so nothing can be pressed', () => {
+  const status = makeStatus({
+    checked: { latest: '0.1.3' },
+    failed: [{ version: '0.1.3', reason: 'build-failed', retryAt: 1 }],
+    update: { commit: 'a1', from: '0.1.1', to: '0.1.3', at: '2026-11-04T11:55:00.000Z', state: 'trying' },
+  });
   const view = cmsView(status, now);
-  assert.equal(view.action, 'try-again');
+  assert.equal(view.update.state, 'trying');
+  assert.equal(view.action, null);
+});
+
+test('a stuck undo keeps the build link', () => {
+  const status = makeStatus({
+    update: {
+      commit: 'a1',
+      from: '0.1.1',
+      to: '0.1.3',
+      at: '2026-11-04T11:00:00.000Z',
+      state: 'stuck',
+      buildUrl: 'https://github.com/o/r/commit/def/checks',
+    },
+  });
+  const view = cmsView(status, now);
+  assert.equal(view.update.state, 'stuck');
+  assert.equal(view.update.buildUrl, 'https://github.com/o/r/commit/def/checks');
+});
+
+test('no preview address: the update is not tried', () => {
+  const view = cmsView(makeStatus({ checked: { problem: { kind: 'no-preview' } } }), now);
+  assert.deepEqual(view.problems, ['no-preview']);
 });
 
 test('needs npm', () => {

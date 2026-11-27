@@ -391,6 +391,26 @@
     border-radius: var(--mo-comp-block-radius);
     object-fit: cover;
   }
+  /* The top of an item's media sheet (MediaPanel.tsx): the media as it is, and its actions under it. */
+  .mo-editor-media-panel {
+    display: grid;
+    gap: var(--mo-ref-space-200);
+  }
+  .mo-editor-media-panel-preview {
+    display: flex;
+    justify-content: center;
+    color: var(--mo-sys-color-on-surface);
+  }
+  .mo-editor-media-panel-preview img {
+    max-inline-size: 100%;
+    max-block-size: 12rem;
+    border-radius: var(--mo-comp-block-radius);
+    object-fit: contain;
+  }
+  .mo-editor-media-panel-actions {
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-100);
+  }
   .mo-editor-fold-arrow,
   .mo-editor-section-arrow {
     color: var(--mo-sys-color-on-surface-variant);
@@ -493,9 +513,6 @@
     margin-inline-start: var(--mo-ref-space-250);
     border: 0 solid var(--mo-sys-color-outline-variant);
     border-inline-start-width: 1px;
-  }
-  .mo-editor-row-delete {
-    color: var(--mo-sys-color-error);
   }
   .mo-editor-row-sub {
     color: var(--mo-sys-color-on-surface-variant);
@@ -706,7 +723,12 @@
     margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
   .mo-editor-score-ring {
+    /* A box of its own: in a list item's leading slot (not a flex or grid box) an inline span ignores its size, so the ring
+       has no area to tap and the tap goes to the row's link. Above the leading slot's 48 dp tap area (`::after`, drawn when the
+       row can be selected), which would otherwise take the tap. */
+    display: block;
     position: relative;
+    z-index: 1;
     inline-size: 2.5rem;
     block-size: 2.5rem;
   }
@@ -958,6 +980,22 @@
     align-items: center;
     justify-content: space-between;
   }
+  /* The back row reads as the page's top bar does (owner, 26 Nov 2026: "Write the current menu name in the menu with the same type as the
+     page name, and the back arrow with the same size."): the section's name in the top bar's headline type (Material 3, Top app bar,
+     Guidelines: "Small: Title large") and the arrow in a 48dp target with the 24dp icon, as .mo-editor-screen-back. The arrow's
+     glyph stays over the items' icons (the target reaches out past the item's padding). */
+  .mo-editor-main-drawer-back-row .mo-navigation-drawer__back {
+    color: var(--mo-comp-top-app-bar-headline-color, var(--mo-comp-block-text));
+    font-size: var(--mo-comp-top-app-bar-small-headline-font-size, var(--mo-sys-typescale-title-large-size));
+    font-weight: var(--mo-comp-top-app-bar-headline-weight, var(--mo-sys-typescale-title-large-weight));
+    letter-spacing: var(--mo-comp-top-app-bar-headline-letter-spacing, var(--mo-sys-typescale-title-large-tracking));
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+  }
+  .mo-editor-main-drawer-back-row .mo-navigation-drawer__back > .mo-navigation-drawer__icon {
+    inline-size: var(--mo-ref-space-600);
+    block-size: var(--mo-ref-space-600);
+    margin-inline: -0.75rem 0;
+  }
   .mo-editor-main-drawer-divider {
     margin-block: var(--mo-ref-space-200);
   }
@@ -977,6 +1015,19 @@
   }
   .mo-editor-main-drawer-panel {
     padding-block-start: env(safe-area-inset-top);
+  }
+  /* The drawer's lists and the rail scroll by touch, wheel and keys with no scrollbar drawn: M3's navigation drawer, navigation rail and
+     side sheet pages print nothing about one (they only say the list "can be scrolled within the drawer"), and the owner asked for it
+     hidden (26 Nov 2026). Only the editor's own classes; the theme's drawer is unchanged. */
+  .mo-editor-main-drawer-frame,
+  .mo-editor-main-drawer-panel,
+  .mo-editor-main-rail .mo-nav-rail__items {
+    scrollbar-width: none;
+  }
+  .mo-editor-main-drawer-frame::-webkit-scrollbar,
+  .mo-editor-main-drawer-panel::-webkit-scrollbar,
+  .mo-editor-main-rail .mo-nav-rail__items::-webkit-scrollbar {
+    display: none;
   }
   .mo-editor-main-drawer-panel-full {
     min-block-size: 100%;

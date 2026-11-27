@@ -3,10 +3,11 @@
 // row shows its empty fields (a slot for the icon, the heading, the text, a slot for the link); the others show their live look. While the
 // list has no row there is one, empty and faded: typing in it starts the first row; while it is active and has rows, a text button
 // below the last row (`Add list row`) adds one. The parts, the keys and what is kept are the shared ones of InlineItems.tsx and
-// src/inlineRows.mjs; this is the List's markup on them. List - Expand is typed the same way (InlineExpand.tsx hands over to this): `fold` is its rows that
+// src/inlineRows.mjs; this is the List's markup on them. Expandable list is typed the same way (InlineExpand.tsx hands over to this): `fold` is its rows that
 // fold out (the active one open, its text typed in it), `design` of the block (or `kind`) its rows on their own surfaces (`segmented`); the link slot, the
 // toolbar's Link, the add button and the texts are the same in every design. Depends on the theme's List (themeUi.ts).
 import type { MouseEvent } from 'react';
+import { buttonClass } from '@theme/ui/Button';
 import { iconColorOf } from './iconColor';
 import { shownAt } from './images';
 import { leadingProps } from './standard/list/leading';
@@ -14,7 +15,9 @@ import { leadingOf, type ListRowProps } from './standard/list/view';
 import { t } from './i18n';
 import { SiteButton, SiteList, SiteListItem } from './themeUi';
 import { columnsAttr } from './standard/columns';
-import InlineItems, { foldOf, InlineIcon, InlineSlot, type Change, type Focus, type Item } from './InlineItems';
+import { listRowFields } from './standard/rows/listParts';
+import type { Field } from './schema';
+import InlineItems, { foldOf, InlineField, InlineIcon, InlineSlot, type Change, type Focus, type Item } from './InlineItems';
 import { Icon } from './icon';
 
 export type { Change, Focus };
@@ -30,6 +33,8 @@ export type Row = {
   image?: string;
   alt?: string;
   tags?: string[];
+  /** The text button at the bottom of an open row that folds out (Expandable list): at most one. */
+  buttons?: { label?: string; href?: string }[];
 };
 
 export default function InlineList({
@@ -47,6 +52,7 @@ export default function InlineList({
   fold,
   folds,
   onFold,
+  onPick,
 }: {
   items: Row[];
   /** The block's own props: its setting Columns. */
@@ -67,17 +73,86 @@ export default function InlineList({
   onTags?: (row: number) => void;
   /** `segmented`: each row on its own surface (the design `segmented`); the standard rows are on the page. Without it, the block's own `design` says. */
   kind?: 'standard' | 'segmented';
-  /** The rows fold out (a List - Expand): the active row is open, its text typed in it. */
+  /** The rows fold out (an Expandable list): the active row is open, its text typed in it. */
   fold?: boolean;
   /** The rows of a block that folds out the owner opened or closed with the chevron (a view state), and what a tap on a chevron says. */
   folds?: Record<number, boolean>;
   onFold?: (row: number, open: boolean | null) => void;
+  /** Opens the page sheet for a relation field; the value picked, or null when it was closed (the page of a row's button). */
+  onPick?: (field: Field, value: string, title: string) => Promise<string | null>;
 }) {
   // The design (`design` of the block, or the one the caller says): each row on its own surface (`segmented`), else the rows on the page.
   const look = kind ?? (props?.design === 'segmented' ? 'segmented' : 'standard');
   const segmented = look === 'segmented';
-  const [withIcon, withText, withHref] = [show.icon !== false, show.text !== false, show.href !== false];
+  const [withIcon, withText, withHref] = [show.icon !== false, show.text !== false, show.href !== false && !fold];
   // While one row is active every row has its two lines, so the list does not change height when another is made active; else, as the site.
+  // The button of a row that folds out is typed on the open row (no sheet): its label where it stands, its page from the slot, and Remove. A row that is not
+  // open draws it as the site does.
+  const buttonHref = listRowFields({ buttons: true })
+    .find((f) => f.name === 'buttons')
+    ?.fields?.find((f) => f.name === 'href');
+  const setButtons = (i: number, buttons: Row['buttons'], focus = false) =>
+    onChange({
+      items: items.map((r, j) => (j === i ? (buttons ? { ...r, buttons } : (({ buttons: _, ...rest }) => rest)(r)) : r)) as Item[],
+      active: i,
+      focus: focus ? { row: i, field: 'row-button' } : null,
+    });
+  const rowButton = (i: number, r: Row, here: boolean) => {
+    const b = r.buttons?.[0];
+    if (!here)
+      return b?.label ? (
+        <div className="mo-block-accordion__row-links">
+          <SiteButton kind="text">{b.label}</SiteButton>
+        </div>
+      ) : null;
+    if (!onPick || !buttonHref) return null;
+    return (
+      <div className="mo-block-accordion__row-links">
+        {b ? (
+          // Drawn in the theme's text button; the editor's Card button rules size its field and slots the same way.
+          <span className={[buttonClass('text'), 'mo-editor-inline-button', 'mo-editor-inline-card-button'].join(' ')}>
+            <InlineField
+              name="row-button"
+              value={b.label ?? ''}
+              label={t.blocks.expand.rowButtonText}
+              placeholder={t.blocks.expand.rowButtonText}
+              onType={(v) => setButtons(i, [{ ...b, label: v }])}
+              onFocus={() => {}}
+              onKeys={(e) => {
+                if (e.key === 'Enter') e.preventDefault();
+                if (e.key === 'Backspace' && !b.label) {
+                  e.preventDefault();
+                  setButtons(i, undefined);
+                }
+              }}
+            />
+            <InlineSlot
+              label={t.blocks.expand.rowButtonPage}
+              pressed={Boolean(b.href)}
+              onClick={async () => {
+                const picked = await onPick(buttonHref, b.href ?? '', t.blocks.list.href);
+                if (picked !== null) setButtons(i, [{ ...b, href: picked }]);
+              }}
+            >
+              <Icon name={b.href ? 'link' : 'add_link'} size={18} />
+            </InlineSlot>
+            <InlineSlot label={t.blocks.expand.removeRowButton} onClick={() => setButtons(i, undefined)}>
+              <Icon name="delete" size={18} />
+            </InlineSlot>
+          </span>
+        ) : (
+          <SiteButton
+            kind="outlined"
+            data-add-button=""
+            className="mo-editor-inline-card-next-button"
+            onClick={() => setButtons(i, [{ label: '', href: '' }], true)}
+          >
+            {t.blocks.expand.addRowButton}
+          </SiteButton>
+        )}
+      </div>
+    );
+  };
   const twoLines = withText && (active !== null || items.some((r) => r.text));
   return (
     <InlineItems
@@ -146,6 +221,17 @@ export default function InlineList({
         // Rows that fold out: open while it is the active row, or as the chevron left it (a tap on the heading does not fold it: the heading is typed there).
         if (fold) {
           const open = foldOf(i, here, folds, onFold);
+          // A click on the row's header opens or closes the row and selects the block (the row becomes the active one, so the block's bar and settings show), as a click on any
+          // other inline block does. The heading and the slots keep their own click (typing, the icon and link pickers); the chevron button folds the row itself.
+          const row = items.length ? i : 0;
+          const select = () => active !== row && onChange({ active: row, focus: null });
+          const headerClick = (e: MouseEvent<HTMLElement>) => {
+            const target = e.target instanceof Element ? e.target : null;
+            if (!target?.closest('.mo-list__item-expand-summary') || target.closest('textarea, input, a, .mo-editor-inline-list-slot'))
+              return;
+            if (!target.closest('.mo-list__item-expand-button')) open.toggle.onToggle();
+            select();
+          };
           return (
             <SiteListItem
               key={i}
@@ -155,6 +241,7 @@ export default function InlineList({
               expandProps={{
                 role: 'group',
                 onFocus: open.onFocus,
+                onClick: headerClick,
                 'data-row': i,
                 'aria-current': here ? 'true' : undefined,
                 'aria-label': next ? t.blocks.list.newRow : t.blocks.list.rowOf(i + 1, items.length),
@@ -171,6 +258,7 @@ export default function InlineList({
               trailing={linkSlot}
             >
               <div className="mo-block-accordion__answer">{withText && field('text', t.blocks.list.text, t.blocks.list.text)}</div>
+              {rowButton(i, r, here)}
             </SiteListItem>
           );
         }

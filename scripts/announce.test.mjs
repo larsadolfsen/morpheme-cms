@@ -150,24 +150,21 @@ test("a link or text in a text area is the site owner's; the text area and the e
   assert.equal(isAuthored(el({}, screen)), false);
 });
 
-test('a finding on a part the theme names in its accessibility.json is let through, an unnamed one is judged', () => {
+test('a theme value is measured, never judged; every other finding is our code and fails on every theme', () => {
   const dir = mkdtempSync(join(tmpdir(), 'mo-allow-'));
   writeFileSync(join(dir, 'x-allowlist.json'), '[]');
-  const make = (fallsShort) =>
-    makeAllowlist({
-      file: pathToFileURL(join(dir, 'x-allowlist.json')),
-      field: 'problem',
-      label: 'x',
-      collectEnv: 'X_COLLECT',
-      classify: (f) => (f.problem === 'low-contrast' ? { criterion: '1.4.3', part: 'placeholder' } : null),
-      statement: () => ({ statement: { fallsShort } }),
-    });
+  const allow = makeAllowlist({
+    file: pathToFileURL(join(dir, 'x-allowlist.json')),
+    field: 'problem',
+    label: 'x',
+    collectEnv: 'X_COLLECT',
+    criterionOf: (f) => (f.problem === 'low-contrast' ? '1.4.3' : null),
+  });
   const findings = [
     { problem: 'low-contrast', selector: 'input.a' },
     { problem: 'no-name', selector: 'button.b' },
   ];
-  const named = make([{ criterion: '1.4.3', part: 'placeholder' }]).judge(findings, '#x', 'phone');
-  assert.equal(named.length, 1);
-  assert.match(named[0], /no-name/);
-  assert.equal(make([]).judge(findings, '#x', 'phone').length, 2);
+  const judged = allow.judge(findings, '#x', 'phone');
+  assert.equal(judged.length, 1);
+  assert.match(judged[0], /no-name/);
 });

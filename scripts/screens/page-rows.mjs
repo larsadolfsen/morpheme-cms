@@ -4,6 +4,7 @@ import { installedApps } from '../../lib/apps.mjs';
 import { appCheckPage } from '../../lib/appCheckPage.mjs';
 import { CORE_PAGE_FILE, coreBlocksPage } from '../core-blocks-page.mjs';
 import { FIXTURE_PAGE, ROOT, browser, problems, server, shots, site } from './support/context.mjs';
+import { shortfall } from './support/statement.mjs';
 import {
   checkSavedLabel,
   hintContrasts,
@@ -16,6 +17,7 @@ import {
   openStyleMenu,
   pressInsert,
   saveOrClose,
+  chooseKind,
 } from './support/shared.mjs';
 
 /** The active block's action row (src/blockRow.ts): it shows only while a block is active (a real touch tap on a block's rows activates it), its buttons are real 44 x 44 dp
@@ -181,18 +183,18 @@ async function checkBlockRow(width, options = {}) {
     problems.push(`${label}: a row button's hover is ${JSON.stringify(upHover)}, not the theme icon button's ${JSON.stringify(wantHover)}`);
   // A phone has no hover (the theme's state layer is for a pointer that hovers): the hover is compared on a computer.
   if (!phone && wantHover.background === 'rgba(0, 0, 0, 0)') problems.push(`${label}: the theme icon button shows no state layer on hover`);
-  // `Add list row`: the theme's text button, and its hover container is whole inside the outline.
+  // `Add list row`: the theme's outlined button, and its hover container is whole inside the outline.
   const add = page.locator('.mo-editor-inline-list-add').first();
   if (await add.count()) {
     const addHover = await hoverOf(add);
     const classes2 = await add.evaluate((e) => [...e.classList]);
-    if (!classes2.includes('mo-button') || !classes2.includes('mo-is-text'))
-      problems.push(`${label}: Add list row is not the theme's text button (${classes2})`);
+    if (!classes2.includes('mo-button') || !classes2.includes('mo-is-outlined'))
+      problems.push(`${label}: Add list row is not the theme's outlined button (${classes2})`);
     const wantText = page.locator('[data-probe="text"]');
     await page.evaluate(() => {
       const probe = document.createElement('button');
       probe.dataset.probe = 'text';
-      probe.className = 'mo-button mo-is-text';
+      probe.className = 'mo-button mo-is-outlined';
       probe.textContent = 'x';
       document.querySelector('.mo-site-block-card.mo-site-block-inline').append(probe);
     });
@@ -201,7 +203,7 @@ async function checkBlockRow(width, options = {}) {
     const textWant = await wantText.evaluate((e) => getComputedStyle(e).backgroundColor);
     await wantText.evaluate((e) => e.remove());
     if (!phone && (addHover.background !== textWant || textWant === 'rgba(0, 0, 0, 0)'))
-      problems.push(`${label}: Add list row's hover is ${addHover.background}, not the theme text button's ${textWant}`);
+      problems.push(`${label}: Add list row's hover is ${addHover.background}, not the theme outlined button's ${textWant}`);
     const box = await add.boundingBox();
     const outline = await page.locator('.mo-site-block-card.mo-site-block-inline').boundingBox();
     const inner = frame.border;
@@ -811,7 +813,8 @@ async function checkEmptyHint() {
         if (got !== 'H1:From us to you,P:Hej') problems.push(`${name}: expected the heading and P:Hej, got ${got}`);
         if (!color && way === 'hint' && !touch)
           for (const [c, ratio] of Object.entries(await hintContrasts(page, '.ProseMirror > p', '::before')))
-            if (ratio < 4.5) problems.push(`${name}: the hint on a ${c} section has contrast ${ratio.toFixed(2)}:1, below 4.5`);
+            if (ratio < 4.5)
+              shortfall('1.4.3', 'text', `${name}: the hint on a ${c} section has contrast ${ratio.toFixed(2)}:1, below 4.5`);
         await page.close();
       }
     }
@@ -984,7 +987,7 @@ async function checkPreviewDraft(width) {
   await page.close();
 }
 
-/** An empty row in a block typed in place (the List - Expand's "New row" left empty) is not a snackbar and a page that cannot be saved: Save or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
+/** An empty row in a block typed in place (the Expandable list's "New row" left empty) is not a snackbar and a page that cannot be saved: Save or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
 async function checkEmptyRow(width, height) {
   const label = `${width}px empty row`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -1021,7 +1024,7 @@ async function checkEmptyRow(width, height) {
   await press('Publish');
   if (!(await dialog.count())) problems.push(`${label}: a block with no row on Publish did not open a dialog`);
   else {
-    if ((await sayOf()) !== 'List - Expand has no rows. The block will be deleted.')
+    if ((await sayOf()) !== 'Expandable list has no rows. The block will be deleted.')
       problems.push(`${label}: the dialog says "${await sayOf()}"`);
     const got = await buttons();
     if (got.join('|') !== 'Cancel|Delete and publish')
@@ -1171,6 +1174,7 @@ async function checkChangeTo(width, height) {
   // The first row gets an icon.
   await page.locator('[data-row="0"] [data-field="title"]').click();
   await page.locator('[data-row="0"] .mo-editor-inline-list-slot[aria-label="Icon"]').click();
+  await chooseKind(page, 'Icon');
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
   await picker.getByRole('button').nth(1).click();
@@ -1225,7 +1229,7 @@ async function checkChangeTo(width, height) {
   await opener.click();
   await page.waitForTimeout(200);
   const level = await menuRows();
-  const want = 'Change type,List - Expand,Steps,Cards,Table';
+  const want = 'Change type,Expandable list,Steps,Cards,Table';
   if (level.join() !== want) problems.push(`${label}: Change type's level is ${level.join(', ')}, not ${want}`);
   // The header of the level has the swap icon of the row (not a back arrow) and says where it goes.
   const header = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
@@ -1297,7 +1301,7 @@ async function checkChangeTo(width, height) {
   if (!(await page.locator('.mo-editor-inline-list').count()) || !(await hasIcon()))
     problems.push(`${label}: Table → List did not give the List with its icon`);
   if (JSON.stringify(await rows('title')) !== was) problems.push(`${label}: Table → List has ${JSON.stringify(await rows('title'))}`);
-  // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and a List - Expand's Markdown on their
+  // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and an Expandable list's Markdown on their
   // first step, as Change type leaves them, and the page shows neither.
   if (await onTestPage(page, label)) {
     const html = await page.content();
@@ -1307,7 +1311,7 @@ async function checkChangeTo(width, height) {
   await page.close();
 }
 
-/** In the page: the inner padding of the first row of each block that shows rows with a title and a trailing chevron (the List, List - Expand, Questions and answers and Link
+/** In the page: the inner padding of the first row of each block that shows rows with a title and a trailing chevron (the List, Expandable list, Questions and answers and Link
  * collection), by the heading above it: the title's distance from the row's left edge and the chevron's from its right edge. Runs in the page. */
 const rowPadding = () => {
   const out = {};
@@ -1420,9 +1424,9 @@ async function checkPageLeftEdge(width) {
       problems.push(
         `${label}: on the site the rows of "${head}" have ${pad.left} px of padding on the left and ${pad.right} px on the right`,
       );
-  // The rows of a List and of a List - Expand (the FAQ) are both measured above; without one of them the check would pass on nothing.
-  if (!['plain design', 'list - expand as a faq'].every((h) => h in editorPads))
-    problems.push(`${label}: a List and a List - Expand have no row to measure (${Object.keys(editorPads)})`);
+  // The rows of a List and of an Expandable list (the FAQ) are both measured above; without one of them the check would pass on nothing.
+  if (!['plain design', 'expandable list as a faq'].every((h) => h in editorPads))
+    problems.push(`${label}: a List and an Expandable list have no row to measure (${Object.keys(editorPads)})`);
   for (const cursor of [false, true]) {
     if (cursor) await page.locator('.ProseMirror p').first().click();
     const got = await page.evaluate(() => {

@@ -305,7 +305,8 @@ async function checkSectionOnImage() {
             const message = `${label}: the ${part} has contrast ${ratio.toFixed(2)}:1 on the panel, below ${min}`;
             if (part === 'placeholder') shortfall('1.4.3', 'placeholder', message);
             else if (part === 'outline') shortfall('1.4.11', 'section-edges', message);
-            else problems.push(message);
+            else if (['icon', 'chevron'].includes(part)) shortfall('1.4.11', 'icon', message);
+            else shortfall('1.4.3', 'text', message);
           }
         }
         await page.close();
@@ -619,7 +620,8 @@ async function checkFocusFrame() {
           `${label}: the line under the section (${betaRow.topColor}) is not the colour of the line above it (${alphaRow.topColor})`,
         );
       for (const [color, c] of Object.entries(got.contrast))
-        if (c.frame < 3) problems.push(`${label}: the frame on a ${color} section is ${c.frame?.toFixed(2)}:1, under 3:1`);
+        if (c.frame < 3)
+          shortfall('1.4.11', 'section-edges', `${label}: the frame on a ${color} section is ${c.frame?.toFixed(2)}:1, under 3:1`);
       // Cursor in the page's top text: the top part has the frame, the sections do not.
       await tap('.ProseMirror > p:has-text("Top part")', { x: 6, y: 6 });
       await page
@@ -663,7 +665,11 @@ async function checkFocusFrame() {
       for (const [color, c] of Object.entries(got.contrast)) {
         if (c.blockBorder !== 'dotted') problems.push(`${label}: the focused block has no dotted outline on a ${color} section`);
         else if (c.block < 3)
-          problems.push(`${label}: the focused block's outline on a ${color} section is ${c.block?.toFixed(2)}:1, under 3:1`);
+          shortfall(
+            '1.4.11',
+            'section-edges',
+            `${label}: the focused block's outline on a ${color} section is ${c.block?.toFixed(2)}:1, under 3:1`,
+          );
       }
       // The cursor leaves: no focus, no frame.
       await page.evaluate(() => document.activeElement?.blur());

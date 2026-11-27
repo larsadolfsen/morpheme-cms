@@ -328,10 +328,10 @@ export async function checkSavedLabel(page, width) {
 export const inlineBlocks = [
   { name: 'list', hint: 'Show text and images in a list.', add: 'Add list row', rowLink: true },
   { name: 'steps', hint: 'Show the steps in order.', add: 'Add step', noEdit: true },
-  { name: 'expand', hint: 'Show list items that expand and collapse.', add: 'Add list row', rowLink: true, surface: true },
+  { name: 'expand', hint: 'Show list items that expand and collapse.', add: 'Add list row', noRowLink: true, surface: true },
   { name: 'cards', hint: 'Show content and actions in cards.', add: 'Add card', surface: true, start: 3 },
-  { name: 'pricecards', hint: 'Show prices and what they include.', add: 'Add price card', surface: true, field: 'name' },
-  { name: 'buttons', hint: 'Prompt actions with buttons.', add: 'Add button', surface: true, field: 'label' },
+  { name: 'pricecards', hint: 'Show prices and what they include.', add: 'Add price card', surface: true, noEdit: true, field: 'name' },
+  { name: 'buttons', hint: 'Prompt actions with buttons.', add: 'Add button', surface: true, field: 'label', noEdit: true },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
   { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
   // (Only a site that has the demo's app: another site does not have the block.)
@@ -406,3 +406,15 @@ export const ratioOf = `
       const front = pixel(markCss, 'rgb(' + back + ')', opacity);
       return (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
     };`;
+
+/** A media slot that has nothing set opens its sheet at the radio list of kinds (the plan's B6): chooses one by its name, when the list is there. */
+export async function chooseKind(page, name) {
+  const radio = page.getByRole('radio', { name, exact: true }).last();
+  if (
+    await radio.waitFor({ timeout: 2000 }).then(
+      () => true,
+      () => false,
+    )
+  )
+    await radio.click();
+}

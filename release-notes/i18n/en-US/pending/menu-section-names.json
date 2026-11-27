@@ -1,0 +1,7 @@
+{
+  "id": "menu-section-names",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Menu sections",
+  "text": "Style opens its seven pages in a list of its own, as Globals does, so the main menu stays short on a phone. Inside a section, the top row shows its name, such as Globals, next to the arrow that goes back to the main menu."
+}

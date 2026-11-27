@@ -1,4 +1,4 @@
-// What "List - Expand" shows (its view, drawn by the theme's View.tsx): its head, its rows (an icon, a heading, a text and a page),
+// What "Expandable list" shows (its view, drawn by the theme's View.tsx): its head, its rows (an icon, a heading, a text and a page),
 // that fold out (closed to begin with, one open at a time with `only`), its design (the rows on the page, or each on its own surface: `card`)
 // and the text button under the last row. In the editor: viewOf; on the site: load.ts.
 import { siteT } from '../../i18n';

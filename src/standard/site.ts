@@ -102,7 +102,7 @@ export type StandardSite = {
   /** The blocks' shared texts (shared.ts, with those saved over them), by type: for a block that shows another's
    * (a block that shows the shared texts of another). */
   texts: Record<string, Record<string, any>>;
-  /** The opening of a page's text, by its address (List - Expand: a row without a text of its own);
+  /** The opening of a page's text, by its address (Expandable list: a row without a text of its own);
    * undefined when there is no such page. `preview`: the page is a new version (/new/), so the opening
    * of the new version of the page, when there is one. */
   pageOpening(href: string, preview?: boolean): Promise<string | undefined>;

@@ -184,6 +184,16 @@ function ButtonParts() {
                     {screens.withIcon}
                   </SiteButton>
                 </Example>
+                <Example label={screens.errorOutlined} flat>
+                  <SiteButton kind="outlined" tone="error" icon="delete" data-error-tone="outlined">
+                    {screens.errorOutlined}
+                  </SiteButton>
+                </Example>
+                <Example label={screens.errorFilled} flat>
+                  <SiteButton tone="error" icon="delete" data-error-tone="filled">
+                    {screens.errorFilled}
+                  </SiteButton>
+                </Example>
                 {buttonKinds.map((k) => (
                   <Example key={k} label={`${kinds[k]}, ${screens.disabled}`} flat>
                     <SiteButton kind={k} disabled>
@@ -618,7 +628,7 @@ function CardParts() {
               <SiteListItem control={{ type: 'switch' }} leadingIcon="dark_mode" headline={switchItem} />
               <SiteListItem href="" disabled leadingIcon="location_on" headline={lists.disabled} />
             </SiteList>
-            {/* The "expand" kind (Material's "List - Expand"): items that fold out, one open at a time; the second one open. */}
+            {/* The "expand" kind (Material's "Expandable list"): items that fold out, one open at a time; the second one open. */}
             <SiteList expand aria-label={lists.expand[0]}>
               {lists.expand.map((h, i) => (
                 <SiteListItem key={h} expand expandName="parts-list-expand" expandOpen={i === 1 ? true : undefined} headline={h}>

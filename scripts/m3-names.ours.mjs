@@ -4,6 +4,11 @@
 export const ours = {
   tokens: [
     {
+      token: '--mo-comp-list-item-inset-end',
+      reason:
+        'The divider inset on the right of a list item (M3 Lists > Specs: 24 dp; 16 dp on the left is --mo-comp-divider-inset); M3 prints it on its specs page only, not as a token.',
+    },
+    {
       token: '--mo-comp-divider-inset',
       reason:
         'The inset divider\'s distance from each edge (M3: "inset dividers, which don\'t run the full width", 16 dp); md.comp.divider holds only thickness and color.',

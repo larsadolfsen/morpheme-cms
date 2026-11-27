@@ -2,7 +2,7 @@
   Snackbars (Snackbar, snackbarClass; m3.material.io/components/snackbar): .mo-snackbar__stack holds them at the bottom of
   the screen, the newest lowest (@morphemecms/cms/lib/snackbar.ts, which draws the editor's messages and shows the site's);
   .mo-snackbar with .mo-snackbar__supporting-text, its links (.mo-snackbar__link, with an arrow) and optionally .mo-snackbar__actions (the
-  action, a text button, .mo-snackbar__action, and the close button, a standard icon button, .mo-snackbar__close), under the
+  action, an outlined button, .mo-snackbar__action, and the close button, a standard icon button, .mo-snackbar__close), under the
   text with .mo-snackbar.mo-is-longer-action. The buttons on it get the snackbar's colours.
     --mo-comp-snackbar-container-color, --mo-comp-snackbar-supporting-text-color, --mo-comp-snackbar-container-shape, --mo-comp-snackbar-shadow, --mo-comp-snackbar-backdrop (the blur behind it)
     --mo-comp-snackbar-padding-block, --mo-comp-snackbar-padding-inline, --mo-comp-snackbar-max-width, --mo-comp-snackbar-font-size,

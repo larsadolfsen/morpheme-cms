@@ -41,9 +41,9 @@ export const blocks = {
   /** A block's head (standard/head.ts): the label above its heading and the subheading under it. */
   subheading: 'Subheading',
   subheadingHint: 'Shown under the heading.',
-  /** "List - Expand" (standard/expand/). */
+  /** "Expandable list" (standard/expand/). */
   expand: {
-    label: 'List - Expand',
+    label: 'Expandable list',
     hint: 'Show list items that expand and collapse.',
     /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
     items: 'Rows',
@@ -51,6 +51,9 @@ export const blocks = {
     rowButtons: 'Buttons',
     rowButton: 'button',
     rowButtonsHint: 'Text buttons at the bottom of the open row, each with a page.',
+    addRowButton: 'Add button',
+    rowButtonPage: 'Button page',
+    removeRowButton: 'Remove button',
     rowButtonText: 'Button label',
     only: 'Only one open',
     onlyToggle: ['On', 'Off'] as [string, string],
@@ -78,8 +81,11 @@ export const blocks = {
     over: (day: string, time: string) => `No longer shown (until ${day} at ${time})`,
   },
   rows: {
+    dynamicList: 'Dynamic list',
+    dynamicListHint: 'On: the rows come from a list. Off: you type the rows yourself.',
+    toggle: ['On', 'Off'] as [string, string],
     from: 'Rows from',
-    fromHint: 'Select a list to show its items as rows. Leave empty to type the rows yourself.',
+    fromHint: 'Select the list to show its items as rows.',
     tags: 'Only with these tags',
     addTag: 'Add tag',
     tagsHint: 'Leave empty to show all items of the list.',
@@ -140,7 +146,7 @@ export const blocks = {
     newRow: 'New row',
     /** A row of the list typed in place: its place, for screen readers (row 2 of 4). */
     rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
-    /** The caret of a row that folds out (List - Expand typed in place); its state is `aria-expanded`. */
+    /** The caret of a row that folds out (Expandable list typed in place); its state is `aria-expanded`. */
     foldRow: 'Expand row',
     /** The design of a list: rows on the page (plain), or each row on its own surface (segmented). */
     design: 'Design',
@@ -230,7 +236,11 @@ export const blocks = {
     addBelow: 'Add below',
     settingsAction: 'Settings',
     button: 'Button',
-    buttonSettings: 'Button settings',
+    menuPage: 'Page',
+    menuStyle: 'Style',
+    menuIcon: 'Icon',
+    menuRemove: 'Remove button',
+    options: 'Button options',
     addButton: 'Add button',
     newButton: 'New button',
     /** A button typed in place: its place, for screen readers (button 2 of 4). */
@@ -453,27 +463,28 @@ export const blocks = {
     designOutlined: 'Outlined',
     designFilled: 'Filled',
     designElevated: 'Elevated',
-    /** How the cards show on a phone: stacked, or swiped sideways in a carousel (Material 3's uncontained layout). */
-    phone: 'On phones',
-    phoneStacked: 'Stacked',
+    /** How the cards show on every screen size: side by side in a grid, or swiped sideways in a carousel. */
+    phone: 'Display',
+    phoneStacked: 'Grid',
     phoneCarousel: 'Carousel',
-    phoneHint: 'Swipeable cards on a phone. Larger screens show them together.',
+    phoneHint: 'Cards side by side, or swiped sideways on every screen size.',
     /** The subtext of the Carousel variant on the block's screen under Blocks. */
-    phoneVariantHint: 'Swipeable cards on phones.',
+    phoneVariantHint: 'Cards swiped sideways.',
     /** The carousel's layouts, Material 3's names (m3.material.io/components/carousel/guidelines), and the subtext of each on the block's screen under Blocks. */
     layout: 'Carousel layout',
     layoutUncontained: 'Uncontained',
-    layoutMultiAspect: 'Multi-aspect ratio',
-    layoutMultiAspectHint: 'Cards of different widths, each as wide as its image.',
+    layoutUncontainedHint: 'Highly customized or text-heavy carousels, stacked image and text.',
+    layoutMultiAspect: 'Uncontained multi-aspect ratio',
+    layoutMultiAspectHint: 'Items of different sizes, each as wide as its image.',
     layoutMultiBrowse: 'Multi-browse',
-    layoutMultiBrowseHint: 'Large, medium and small cards in a row, for browsing many.',
+    layoutMultiBrowseHint: 'Browsing many visual items at once, like photos.',
     layoutHero: 'Hero',
-    layoutHeroHint: 'One large card with a small one beside it.',
+    layoutHeroHint: 'Spotlighting very large visual items, like a movie or a featured app.',
     layoutHeroCenter: 'Center-aligned hero',
-    layoutHeroCenterHint: 'One large card in the middle, a small one on each side.',
+    layoutHeroCenterHint: 'Centered, large visual items.',
     layoutFullScreen: 'Full-screen',
-    layoutFullScreenHint: 'One card at a time, edge to edge.',
-    carouselChip: 'Carousel on phones',
+    layoutFullScreenHint: 'Immersive experiences, one edge-to-edge item at a time.',
+    carouselChip: 'Carousel',
     /** On the site and in the drawings (in the site's language): for screen readers and the button under the carousel. */
     carousel: 'carousel',
     slide: 'card',
@@ -514,7 +525,10 @@ export const blocks = {
     addBelow: 'Add below',
     link: 'Link',
     cardMenu: 'Card',
-    cardSettings: 'Card settings',
+    noButtons: 'Has a page, so no buttons',
+    addLink: 'Add page',
+    linkTo: 'Page',
+    dividerOn: 'Divider',
     title: 'Heading',
     subhead: 'Subheading',
     text: 'Text',

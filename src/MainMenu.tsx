@@ -1,5 +1,5 @@
 // The editor's main menu (App.tsx renders it): the drawer (ui.tsx MainDrawer) in two levels. The first lists Home and the
-// sections; a section opens its list, under a back row, with the open screen marked and its fold-out folded out. Apps lists
+// sections; a section opens its list, under a back row that shows the section's name, with the open screen marked and its fold-out folded out. Apps lists
 // Store, Connectors, Plugins and Themes (the pages of the installed ones), and no row per app. From medium and wider the first level is also the collapsed navigation rail
 // (MainRailItem), whose sections open the drawer at their list. The drawer's header is the signed-in user (AccountRow), a link
 // to the account. The cog (Settings, #settings) is pinned at the bottom of the first level and of the rail; it is marked on
@@ -64,6 +64,8 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
   const sectionOf = place.section && !flat.includes(place.section) ? place.section : null;
   const [shown, setShown] = useState<string | null>(sectionOf);
   const [focus, setFocus] = useState<'list' | 'top' | undefined>();
+  // The section whose list was left: its button on the first level takes the focus.
+  const [from, setFrom] = useState<string | undefined>();
   const shownRef = useRef(shown);
   shownRef.current = shown;
   // The section a click in the rail asked for: the drawer opens at its list instead of at the route's section.
@@ -78,12 +80,14 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     setOpen(true);
   };
   const show = (section: string | null) => {
+    setFrom(section === null ? (shownRef.current ?? undefined) : undefined);
     setFocus(section === null ? 'top' : 'list');
     setShown(section);
   };
   // Escape in a section's list goes to the first level; at the first level it is not used, so the modal drawer closes.
   const onEscape = useCallback(() => {
     if (shownRef.current === null) return false;
+    setFrom(shownRef.current);
     setFocus('top');
     setShown(null);
     return true;
@@ -97,6 +101,8 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     window.addEventListener('hashchange', close);
     return () => window.removeEventListener('hashchange', close);
   }, [modal, open, setOpen]);
+  // The back row reads the section's name; its accessible name begins with where it goes and contains that text (WCAG 2.5.3 Label in Name).
+  const backLabel = tree.find((entry) => entry.id === shown)?.label ?? t.library.back;
   // Every level stays in the page (the screen check finds the screens from the links); the ones not shown are `hidden`.
   const sections = tree.filter((entry) => entry.href === undefined && !flat.includes(entry.id));
   return (
@@ -109,7 +115,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
         shown === null ? (
           (close) => (user ? <AccountRow user={user} supporting={config.domain} href="#account" actions={close} /> : close)
         ) : (
-          <MainDrawerBack label={t.library.back} name={t.common.backTo(t.library.mainMenu)} onClick={() => show(null)} />
+          <MainDrawerBack label={backLabel} name={`${t.common.backTo(t.library.mainMenu)}: ${backLabel}`} onClick={() => show(null)} />
         )
       }
       footer={
@@ -144,7 +150,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
         ),
       )}
     >
-      <MainDrawerLevel shown={shown === null} focus={focus}>
+      <MainDrawerLevel shown={shown === null} focus={focus} from={from}>
         <MainDrawerSection>
           {tree
             .filter((entry) => !flat.includes(entry.id))
@@ -157,6 +163,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
                   icon={icons[entry.id]}
                   label={entry.label}
                   selected={place.section === entry.id}
+                  section={entry.id}
                   onClick={() => show(entry.id)}
                 />
               ),

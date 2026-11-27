@@ -1,4 +1,4 @@
-// What "List" and "List - Expand" share (owner, 16 Nov 2026: "The white list is the correct one": the two are one block that differs only in its
+// What "List" and "Expandable list" share (owner, 16 Nov 2026: "The white list is the correct one": the two are one block that differs only in its
 // look, so a row has the same fields, the same texts, and is edited the same way in both): the row's fields, the texts of the typed-in-place
 // toolbar and the add action, and the row's `inline` settings. The List's way is the reference: a link icon button at the end of the active row
 // (the toolbar's Link too), the row's other settings in its sheet, `Add list row` under the last row. The two blocks differ only in what they
@@ -37,7 +37,7 @@ export const leadingField: Field = {
   ],
 };
 
-/** A row's fields, in the sheet's order. `buttons`: the text button at the bottom of a row that folds out (List - Expand). `pageTitle`: a row with
+/** A row's fields, in the sheet's order. `buttons`: the text button at the bottom of a row that folds out (Expandable list). `pageTitle`: a row with
  * a page may have no heading and then shows the page's title (List); else the heading is required. */
 export const listRowFields = ({ buttons, pageTitle }: { buttons?: boolean; pageTitle?: boolean }): Field[] => [
   // The color comes first, so it is chosen before the icons below it.
@@ -86,7 +86,7 @@ export const listRowFields = ({ buttons, pageTitle }: { buttons?: boolean; pageT
 ];
 
 /** The design of a list (`design`, owner, 16 Nov 2026): the rows on the page, or each row on its own surface, a card (Material 3's standard and
- * segmented styles). No value is the plain design. The same for List and List - Expand. */
+ * segmented styles). No value is the plain design. The same for List and Expandable list. */
 export const designField: Field = {
   name: 'design',
   label: t.blocks.list.design,
@@ -106,13 +106,16 @@ export const moreFields: Field[] = [
   { name: 'buttonHref', label: t.blocks.list.buttonHref, type: 'relation', to: 'pages' },
 ];
 
-/** How a list's rows are typed in place: the heading and the text where they stand, the icon in a slot, the page (and a row's buttons) in the
- * row's sheet, which the link slot and the toolbar's Link open. */
+/** How a list's rows are typed in place: the heading and the text where they stand, the icon in a slot, the page of a List row from the link slot and the toolbar's
+ * Link (a row has no sheet; a row that folds out has no link), the button of a row that folds out on the open row itself (`onItem`). */
 export const listInline = ({ buttons }: { buttons?: boolean }): InlineSpec => ({
   item: 'items',
   fields: ['title', 'text'],
   media: ['icon', 'iconColor', 'image', 'alt'],
   blockMedia: ['leading'],
-  ...(buttons ? { settings: ['href', 'buttons'] } : { link: 'href' }),
+  // A row that folds out has no link (owner, 26 Nov 2026: "No link on them. Just buttons."): an icon, a heading, a text and typed buttons. A row's stored `href` stays
+  // and the site still draws it.
+  // `kept: ['href']`: stored, not edited anywhere, so Block settings does not list the rows for it.
+  ...(buttons ? { onItem: ['buttons'], kept: ['href'] } : { link: 'href' }),
   texts: listTexts,
 });

@@ -1,0 +1,6 @@
+{
+  "id": "menu-header-type",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "In the main menu, a section's name and back arrow match the page's name and back arrow"
+}

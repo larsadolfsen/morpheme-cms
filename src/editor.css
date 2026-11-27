@@ -116,12 +116,24 @@
   inset-inline: 0;
 }
 
-/* Helping lines hidden (the bar's grid button, MarkdownEditor.tsx): the resting dotted lines of sections and blocks go; the focus, hover and selection lines stay. */
+/* Helping lines hidden (the bar's grid button, MarkdownEditor.tsx): the resting dotted lines of sections and blocks go; the focus, hover and selection lines stay.
+   A section's start line that marks the focus (data-section-focus, data-section-focus-below) is a focus line only while the text has the focus (:focus-visible,
+   above); without it, it is a resting line like the others and goes too. */
+.mo-editor-text-box[data-guides='off'] .mo-editor-text .ProseMirror:not(:focus-visible) > [data-section-part='start']::before {
+  border-block-start-color: transparent;
+}
 .mo-editor-text-box[data-guides='off']
   .mo-editor-text
   .ProseMirror
   > [data-section-part='start']:not([data-section-focus], [data-section-focus-below])::before {
   border-block-start-color: transparent;
+}
+/* The 2px the start line is drawn in is only there for the line, so it goes with it (the page keeps the section rhythm only); a focus line drawn then starts at the edge. */
+.mo-editor-text-box[data-guides='off'] .mo-editor-text .ProseMirror > [data-section-part='start'] {
+  border-block-start-width: 0;
+}
+.mo-editor-text-box[data-guides='off'] .mo-editor-text .ProseMirror > [data-section-part='start']::before {
+  inset-block-start: 0;
 }
 .mo-editor-text-box[data-guides='off']
   .mo-editor-text
@@ -1315,6 +1327,14 @@ html {
   display: none;
 }
 
+/* An Expandable list in the page editor stays inside the block's box: the theme moves a plain list out by the layer room on each side (so the site's text keeps the text
+   edges); here the block's dashed outline is the edge, so the list takes the box's width and the rows keep their own inner padding. */
+.mo-editor-text .mo-block-accordion.mo-editor-inline-segmented {
+  margin-inline: 0;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
 /* The row being typed in has a dotted line round it in the text's own colour (3:1 on every section colour, unlike the section frame's quiet line); the empty row of an empty list is faded. */
 .mo-editor-text .mo-editor-inline-list-row-active {
   outline: 2px dotted color-mix(in srgb, currentColor 70%, transparent);
@@ -1355,20 +1375,12 @@ html {
   background: var(--mo-sys-color-secondary-container);
   color: var(--mo-sys-color-on-secondary-container);
 }
-/* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn as a tonal pill. */
+/* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn in the theme button of its style. */
 .mo-editor-text .mo-editor-inline-card-button {
   display: inline-flex;
   min-width: 6rem;
   min-height: 2.5rem;
   align-items: center;
-  border-radius: var(--mo-sys-shape-corner-full);
-  padding-inline: 1rem;
-  background: var(--mo-sys-color-secondary-container);
-  color: var(--mo-sys-color-on-secondary-container);
-}
-/* A card's next button: empty and quiet (on-surface-variant, not an opacity, which kept it under 3:1) until it is made (Cards, InlineCards.tsx). */
-.mo-editor-text .mo-editor-inline-card-next-button {
-  color: var(--mo-sys-color-on-surface-variant);
 }
 
 .mo-editor-inline-list-slot {
@@ -1823,14 +1835,16 @@ dialog {
 
 /* Buttons typed in place: the label is typed on the button itself, which has the width of its text; the default buttons shown while the block has none of its own. */
 .mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-field,
-.mo-editor-text .mo-editor-inline-plans .mo-block-pricecards__plan-buttons .mo-editor-inline-list-field {
+.mo-editor-text .mo-editor-inline-plans .mo-block-pricecards__plan-buttons .mo-editor-inline-list-field,
+.mo-editor-text .mo-editor-inline-card-button .mo-editor-inline-list-field {
   width: auto;
   min-width: 3ch;
   text-align: center;
 }
 
 .mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-slot,
-.mo-editor-text .mo-editor-inline-plans .mo-block-pricecards__plan-buttons .mo-editor-inline-list-slot {
+.mo-editor-text .mo-editor-inline-plans .mo-block-pricecards__plan-buttons .mo-editor-inline-list-slot,
+.mo-editor-text .mo-editor-inline-card-button .mo-editor-inline-list-slot {
   color: inherit;
 }
 
@@ -1841,6 +1855,27 @@ dialog {
 .mo-editor-text .mo-editor-inline-button .mo-editor-inline-list-field {
   min-block-size: 0;
   align-self: center;
+}
+
+/* The button's target (Material 3, Buttons, Specs, Target areas: "Extra small and small icon buttons must have a target size of 48x48dp or larger to be
+   accessible"): the theme draws it as an invisible area over a button (theme/styles/ui/target-size.css) but not over a button with a field in it, which this
+   one is. So the area is drawn here, behind the label field and the icon slot, which stay above it; a tap on it that no field gets goes to the label
+   (InlineButtons.tsx). Out from the button's middle to --mo-sys-target-size (48 on touch, 44 for a mouse), never further than half of the room to the
+   next row of buttons (0.5rem, so 4px a side), as the theme's button group does. */
+.mo-editor-text .mo-editor-inline-button {
+  position: relative;
+}
+
+.mo-editor-text .mo-editor-inline-button::after {
+  content: '';
+  position: absolute;
+  inset-block: max(min(0px, calc((100% - var(--mo-sys-target-size)) / 2)), -0.25rem);
+  inset-inline: 0;
+}
+
+.mo-editor-text .mo-editor-inline-button > * {
+  position: relative;
+  z-index: 1;
 }
 
 .mo-editor-text .mo-editor-inline-button .mo-editor-inline-list-slot {

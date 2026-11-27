@@ -1,0 +1,6 @@
+{
+  "id": "carousel-items-m3",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Cards in a carousel show the image full size with the text on it, like Material 3 carousels"
+}

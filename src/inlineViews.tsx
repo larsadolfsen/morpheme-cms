@@ -3,6 +3,7 @@
 import type { ComponentType } from 'react';
 import InlineList from './InlineList';
 import type { BlockData, BlockProps } from './blocks';
+import type { Field } from './schema';
 import type { RowSpec } from './BlockDialog';
 import InlineCards from './InlineCards';
 import InlineTable from './InlineTable';
@@ -39,6 +40,8 @@ export type InlineViewProps = {
   onIcon: (item: number) => void;
   /** Changes the block's own props (a card's media kind). */
   onProps: (patch: BlockProps) => void;
+  /** Opens the page sheet for a relation field (a button's page, or what its target opens): the value picked, or null when the sheet was closed. */
+  onPick?: (field: Field, value: string, title: string) => Promise<string | null>;
   /** Opens the block's Edit sheet (a block with a setting that is not typed in place, like the FAQ's button page). */
   onEdit?: () => void;
   /** Opens a sheet of settings for something in the block that is not an item (the Image grid's image: its text), or closes it with null. */

@@ -1,0 +1,8 @@
+/* Plain class names: the build scopes them to [data-mo-app="event-notes"]. */
+.event-note {
+  background-color: var(--mo-sys-color-secondary-container);
+  color: var(--mo-sys-color-on-secondary-container);
+}
+.event-note-text {
+  font-weight: 700;
+}
