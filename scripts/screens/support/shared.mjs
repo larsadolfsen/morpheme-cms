@@ -104,7 +104,15 @@ export async function barTools(page) {
 
 /** Waits until the menus that are opening have stopped (the theme's menu is a popover that scales in from 97%), so a size read is the real one. */
 export function menusSettled(page) {
-  return page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))));
+  // (Not an animation tied to a scroll position: it has no end in time.)
+  return page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => !(typeof ScrollTimeline === 'function' && a.timeline instanceof ScrollTimeline))
+        .map((a) => a.finished.catch(() => {})),
+    ),
+  );
 }
 
 /** The contrast (WCAG) of a hint line (a pseudo-element of the element, which must be in the page: it is waited for) on each section colour, with the section's own colours set on the element as sectionFrame.ts does. */
@@ -350,12 +358,19 @@ export const inlineSingles = [
   { name: 'video', hint: 'Play a video from YouTube or Vimeo.', field: 'title', text: 'My film', slot: false },
 ];
 
-/** Waits until every animation and transition that ends has ended, and the fonts are loaded, so a check reads the settled geometry (a slower runner would catch the spring `transition: padding` of a button, or a row's layer, half way). Looping ones (`iterations: Infinity`, a spinner) are left running, as they never finish; new animations that start while it waits are waited for too. Nothing is skipped or loosened: a check measures the same, once the page is at rest. */
+/** Waits until every animation and transition that ends has ended, and the fonts are loaded, so a check reads the settled geometry (a slower runner would catch the spring `transition: padding` of a button, or a row's layer, half way). Looping ones (`iterations: Infinity`, a spinner) and ones tied to a scroll position (`ScrollTimeline`) are left running, as they never finish in time; new animations that start while it waits are waited for too. Nothing is skipped or loosened: a check measures the same, once the page is at rest. */
 export async function animationsSettled(page) {
   await page.evaluate(async () => {
     await document.fonts.ready;
     for (let round = 0; round < 10; round++) {
-      const running = document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations !== Infinity);
+      // Not those tied to a scroll position (a carousel's items): they have no end in time, so `finished` never comes while the row stands where it is.
+      const running = document
+        .getAnimations()
+        .filter(
+          (a) =>
+            a.effect?.getComputedTiming().iterations !== Infinity &&
+            !(typeof ScrollTimeline === 'function' && a.timeline instanceof ScrollTimeline),
+        );
       if (!running.length) break;
       await Promise.all(running.map((a) => a.finished.catch(() => {})));
       // One frame, so a transition that the end of this one starts has begun and is in the next round.
