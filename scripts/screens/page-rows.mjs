@@ -138,10 +138,10 @@ async function checkBlockRow(width, options = {}) {
     problems.push(`${label}: the row sits outside the dotted outline (${JSON.stringify({ row: frame.row, card: frame.card })})`);
   if (frame.radius[0] !== frame.radius[1] || frame.radius[0] === '0px')
     problems.push(`${label}: the outline's corner radius is ${frame.radius[0]}, not the Card's ${frame.radius[1]}`);
-  // Above and below the padding is the Card's; at the sides it is the frame's outset less its line (6.5 px), so the block's content stands on the text column's edge.
-  if (frame.padding[0] !== frame.padding[1] || frame.padding[2] !== '6.5px')
+  // Above and below the padding is the Card's; at the sides it is the frame's outset less its line (7 px), so the block's content stands on the text column's edge.
+  if (frame.padding[0] !== frame.padding[1] || frame.padding[2] !== '7px')
     problems.push(
-      `${label}: the outline's padding is ${frame.padding[0]} (the Card's ${frame.padding[1]}) above and ${frame.padding[2]} at the sides (6.5px: the frame's outset less its line)`,
+      `${label}: the outline's padding is ${frame.padding[0]} (the Card's ${frame.padding[1]}) above and ${frame.padding[2]} at the sides (7px: the frame's outset less its line)`,
     );
   // The row hugs the top of the outline: its space above is the Card's small gap, well under the Card's padding.
   if (frame.row && frame.row.top - frame.card.top - frame.border > 12)
