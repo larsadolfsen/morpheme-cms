@@ -158,8 +158,8 @@ async function checkChoiceGroupFields(width, locale) {
   for (let i = 0; i < count; i++) {
     const card = cards.nth(i);
     const name = await card.evaluate((el) => (el.querySelector(':scope > .mo-site-block-card-button') ?? el).getAttribute('aria-label'));
-    // At the top of the screen, clear of the save bar over the bottom (a phone).
-    await card.evaluate((el) => el.scrollIntoView({ block: 'start' }));
+    // In the middle of the screen, clear of the docked text bar (64 dp, Material 3) over the top and the save bar over the bottom (a phone).
+    await card.evaluate((el) => el.scrollIntoView({ block: 'center' }));
     await page.waitForTimeout(200);
     await (touch ? card.tap({ timeout: 5000 }) : card.click({ timeout: 5000 })).catch(() =>
       problems.push(`${label}: the ${name} block could not be selected`),
