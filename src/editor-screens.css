@@ -581,10 +581,7 @@
   .mo-editor-media-pick-bar {
     position: sticky;
     inset-block-end: 0;
-    display: flex;
     justify-content: flex-end;
-    background-color: var(--mo-sys-color-surface-container-low);
-    padding-block: var(--mo-ref-space-100);
   }
   .mo-editor-media-providers {
     display: flex;
@@ -631,11 +628,7 @@
   .mo-editor-media-file-tools {
     position: sticky;
     inset-block-end: 0;
-    margin-inline: calc(var(--mo-ref-space-200) * -1);
     margin-block-start: var(--mo-ref-space-300);
-    @media (width >= 37.5rem) {
-      margin-inline: calc(var(--mo-ref-space-300) * -1);
-    }
   }
   .mo-editor-media-muted {
     color: var(--mo-sys-color-on-surface-variant);

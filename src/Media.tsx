@@ -579,9 +579,9 @@ export function useMediaPicker(
               }}
             />
             {selection.count > 0 && (
-              <div className="mo-editor-media-pick-bar">
+              <SiteToolbar label={t.media.pick} kind="docked" className="mo-editor-media-pick-bar">
                 <Button onClick={finish}>{t.media.addPicked(selection.count)}</Button>
-              </div>
+              </SiteToolbar>
             )}
           </>
         ) : null}
