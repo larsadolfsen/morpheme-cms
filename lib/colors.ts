@@ -107,7 +107,7 @@ export function colorsCss(colors: Colors): string {
   // M3's md.ref.palette.neutral-variant20 (the drawer's scrim), made from the site's source colour; none without one, and the
   // scrim rule keeps its own fallback (lib/ref-palette.ts).
   const nv20 = neutralVariant20(colors.dynamic?.source);
-  // M3's md.ref.palette.primary10..90 tones the page list's placeholder thumbnails use (the avatar's wave tokens point at them).
+  // M3's md.ref.palette.primary10, 30, 80 and 90 tones the page list's placeholder thumbnails use (avatar.css reads them).
   const primary = primaryTones(colors.dynamic?.source);
   const primaryDeclarations = primary
     ? Object.entries(primary)

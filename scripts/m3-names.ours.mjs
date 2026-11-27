@@ -96,22 +96,17 @@ export const ours = {
     {
       token: '--mo-comp-avatar-container-color',
       reason:
-        "M3 prints the leading avatar on its Lists page, not as a component with tokens; the avatar's colour, corner and label tokens are read with a role as their fallback (avatar.css), and the placeholder wave of the page list (task 24, owner 27 Nov 2026) sets them from M3's primary tonal palette.",
+        "M3 prints the leading avatar on its Lists page, not as a component with tokens; the avatar's colour, corner and label tokens are read with a role as their fallback (avatar.css), and the placeholder thumbnail of the page list (task 24, owner 27 Nov 2026) sets them from M3's primary tonal palette.",
     },
     {
       token: '--mo-comp-avatar-container-shape',
       reason:
-        "M3 prints the leading avatar on its Lists page, not as a component with tokens; the avatar's colour, corner and label tokens are read with a role as their fallback (avatar.css), and the placeholder wave of the page list (task 24, owner 27 Nov 2026) sets them from M3's primary tonal palette.",
+        "M3 prints the leading avatar on its Lists page, not as a component with tokens; the avatar's colour, corner and label tokens are read with a role as their fallback (avatar.css), and the placeholder thumbnail of the page list (task 24, owner 27 Nov 2026) sets them from M3's primary tonal palette.",
     },
     {
       token: '--mo-comp-avatar-label-text-color',
       reason:
-        "M3 prints the leading avatar on its Lists page, not as a component with tokens; the avatar's colour, corner and label tokens are read with a role as their fallback (avatar.css), and the placeholder wave of the page list (task 24, owner 27 Nov 2026) sets them from M3's primary tonal palette.",
-    },
-    {
-      token: '--mo-comp-avatar-wave-*',
-      reason:
-        "M3 prints the leading avatar on its Lists page, not as a component with tokens; the avatar's colour, corner and label tokens are read with a role as their fallback (avatar.css), and the placeholder wave of the page list (task 24, owner 27 Nov 2026) sets them from M3's primary tonal palette.",
+        "M3 prints the leading avatar on its Lists page, not as a component with tokens; the avatar's colour, corner and label tokens are read with a role as their fallback (avatar.css), and the placeholder thumbnail of the page list (task 24, owner 27 Nov 2026) sets them from M3's primary tonal palette.",
     },
     {
       token: '--mo-comp-avatar-size',
@@ -935,22 +930,7 @@ export const ours = {
     {
       class: 'mo-avatar-placeholder',
       reason:
-        "The placeholder thumbnail of the page list (task 24): the Avatar part at the list image's size and corner, in a tone of the primary palette by the row's place.",
-    },
-    {
-      class: 'mo-avatar-wave-0',
-      reason:
-        "The placeholder thumbnail of the page list (task 24): the Avatar part at the list image's size and corner, in a tone of the primary palette by the row's place.",
-    },
-    {
-      class: 'mo-avatar-wave-1',
-      reason:
-        "The placeholder thumbnail of the page list (task 24): the Avatar part at the list image's size and corner, in a tone of the primary palette by the row's place.",
-    },
-    {
-      class: 'mo-avatar-wave-2',
-      reason:
-        "The placeholder thumbnail of the page list (task 24): the Avatar part at the list image's size and corner, in a tone of the primary palette by the row's place.",
+        "The placeholder thumbnail of the page list (task 24): the Avatar part at the list image's size and corner, in one light tone of the primary palette.",
     },
     { class: 'mo-avatar', reason: 'M3 prints the avatar on its Lists page, not as a component with tokens.' },
     { class: 'mo-back-link', reason: 'A site link; a site part.' },

@@ -1746,7 +1746,10 @@ async function checkPageRowsList(width, height) {
           letters: (() => {
             const a = el.querySelector('.mo-avatar-placeholder');
             const b = a?.getBoundingClientRect();
-            return a ? { w: Math.round(b.width), h: Math.round(b.height), text: (a.textContent || '').trim() } : null;
+            const c = a && getComputedStyle(a);
+            return a
+              ? { w: Math.round(b.width), h: Math.round(b.height), text: (a.textContent || '').trim(), bg: c.backgroundColor, ink: c.color }
+              : null;
           })(),
           tile: !!el.querySelector('.mo-list__item-image-placeholder'),
           name: (el.querySelector('.mo-list__item-headline')?.textContent || '').trim(),
@@ -1776,6 +1779,9 @@ async function checkPageRowsList(width, height) {
       problems.push(`${label}: ${hash} has no rows`);
       continue;
     }
+    // Every placeholder avatar has the same light colour and the same letter colour (Task 24, owner 27 Nov 2026).
+    const looks = new Set(rows.filter((r) => r.letters).map((r) => `${r.letters.bg} / ${r.letters.ink}`));
+    if (looks.size > 1) problems.push(`${label}: ${hash} letters avatars have ${looks.size} different colours (${[...looks].join('; ')})`);
     const links = rows.map((r) => r.href).filter(Boolean);
     if (new Set(links).size !== links.length) problems.push(`${label}: ${hash} lists a page or post twice (${links.join(', ')})`);
     for (const r of rows) {

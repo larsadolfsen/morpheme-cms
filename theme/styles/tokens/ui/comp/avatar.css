@@ -6,16 +6,3 @@
     --mo-comp-avatar-size: 2.5rem;
   }
 }
-
-/* A placeholder thumbnail (a page with no image, the page list): tones of M3's primary tonal palette (md.ref.palette.primary10..90, made at build from the
-   site's dynamic source, lib/ref-palette.ts): light tones 90, 80, 70 with tone 10 letters in light mode, dark tones 20, 30, 40 with tone 90 letters in dark mode
-   (light-dark() follows the root's color-scheme, so the system setting and data-theme both work), as a wave by the row's position (avatar.css). A site with
-   hand-set colours has no palette: each token is then invalid and avatar.css falls back to the primary container and its on-colour. */
-@layer components {
-  :root {
-    --mo-comp-avatar-wave-0: light-dark(var(--mo-ref-palette-primary90), var(--mo-ref-palette-primary20));
-    --mo-comp-avatar-wave-1: light-dark(var(--mo-ref-palette-primary80), var(--mo-ref-palette-primary30));
-    --mo-comp-avatar-wave-2: light-dark(var(--mo-ref-palette-primary70), var(--mo-ref-palette-primary40));
-    --mo-comp-avatar-wave-label-color: light-dark(var(--mo-ref-palette-primary10), var(--mo-ref-palette-primary90));
-  }
-}
