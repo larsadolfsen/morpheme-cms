@@ -30,6 +30,11 @@ import * as announce from '../announce.mjs';
 import * as announceFlows from '../announce-flows.mjs';
 import { PHONE_FLOWS, FLOWS, SITE_FLOW, runFlow, runSiteFlow } from '../keyboard-flows.mjs';
 
+/** The WCAG scans (the axe scan, the keyboard walk and flows, the screen reader walk and flows) run only when WCAG_CHECKS=1 (owner, 27 Nov 2026: WCAG 2.2 is
+ * not a rule for the site, the theme or the editor until the base theme, roadmap 0.27.3). CI does not set it; the base theme turns them back on by setting it.
+ * The units stay registered, so their numbers and times do not move. */
+const wcagOn = () => process.env.WCAG_CHECKS === '1';
+
 /** Keyboard focus is visible (Modern Web Guidance, `accessibility`: "Don't disable browser native focus indicators without providing a
  * replacement ... at least 3:1", WCAG 2.4.7 and 1.4.11; the 13 `outline: none` of the theme and the editor, A1 of the audit of 15 Nov 2026).
  * Tabs through every stop of a screen; at each one it takes a picture of the element and 12 px around it focused and unfocused, and
@@ -1289,7 +1294,7 @@ async function checkMorpheme(page, state) {
  * or the computer (1280 px); a screen of the list is checked on its own, so a shard that runs the unit checks every screen. */
 async function checkA11y(page, width, hash) {
   // Only in the CMS repository: a site that installed the package has no axe-core, and the allowlist is the demo's (scripts/a11y.mjs, scanRuns).
-  if (!scanRuns()) return;
+  if (!wcagOn() || !scanRuns()) return;
   const viewport = width < 600 ? 'phone' : 'computer';
   const place = `#${hash}`;
   // The screen settles first: a list or a sheet that is still drawing would be a finding that is gone a moment later.
@@ -1308,7 +1313,7 @@ async function checkA11y(page, width, hash) {
  * it runs after the screen's other checks; the screen is left without focus. */
 async function checkKeyboard(page, width, hash) {
   // Only in the CMS repository: the allowlist is the demo's (scripts/keyboard.mjs, keyboardRuns).
-  if (!keyboardRuns()) return;
+  if (!wcagOn() || !keyboardRuns()) return;
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(300);
   const { findings } = await walk(page);
@@ -1321,7 +1326,7 @@ async function checkKeyboard(page, width, hash) {
  * other content items, the pages other units make for themselves (`zz-check-page.md` …) among them, are not. */
 async function checkAnnounce(page, width, hash) {
   // Only in the CMS repository: the allowlist is the demo's (scripts/announce.mjs, announceRuns).
-  if (!announce.announceRuns()) return false;
+  if (!wcagOn() || !announce.announceRuns()) return false;
   if (!announce.announceWalks(hash)) return false;
   await page.waitForTimeout(300);
   const { findings } = await announce.walk(page);
@@ -1332,7 +1337,7 @@ async function checkAnnounce(page, width, hash) {
 /** The main flows with what is announced recorded (scripts/announce-flows.mjs): A, B, C, F, I, J, K and L at the computer, A, B, F and J also at the phone (375 px).
  * The speech log goes to announce-log.txt (ANNOUNCE_LOG); CI keeps it. */
 async function checkAnnounceFlows(width) {
-  if (!announce.announceRuns()) return;
+  if (!wcagOn() || !announce.announceRuns()) return;
   for (const flow of announceFlows.FLOWS) {
     if (width < 600 && !announceFlows.PHONE_FLOWS.includes(flow)) continue;
     const { findings, errors, lines } = await announceFlows.runAnnounceFlow(browser, site, flow, width);
@@ -1344,7 +1349,7 @@ async function checkAnnounceFlows(width) {
 
 /** The main flows by keyboard (scripts/keyboard-flows.mjs): A to I at the computer, A, B and F also at the phone (375 px). */
 async function checkKeyboardFlows(width) {
-  if (!keyboardRuns()) return;
+  if (!wcagOn() || !keyboardRuns()) return;
   for (const flow of FLOWS) {
     if (width < 600 && !PHONE_FLOWS.includes(flow)) continue;
     const { findings, errors } = await runFlow(browser, site, flow, width);
@@ -1544,7 +1549,7 @@ export function register(unit) {
         next = found;
       }
       // Every block is walked by the screen reader check on its demo Blocks page, also one the links above did not reach (scripts/announce.mjs).
-      if (announce.announceRuns())
+      if (wcagOn() && announce.announceRuns())
         for (const hash of announce.blockPagesLeft(announced)) {
           route = hash;
           await page.evaluate((h) => (location.hash = h), hash);

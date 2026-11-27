@@ -223,7 +223,8 @@ jobs:
           build: 'true'
           browser: 'true'
       # --areas: `all` (the full level, or in doubt), `none` (the core units only) or the touched areas besides the core units.
-      # ANNOUNCE_LOG: the speech log of the screen reader check's flows (what a reader would say at each step, scripts/announce-flows.mjs), kept below.
+      # The WCAG scans (axe, keyboard, screen reader) in these units run only with WCAG_CHECKS=1, which CI does not set (owner, 27 Nov 2026).
+      # ANNOUNCE_LOG: the speech log of the screen reader check's flows, written only when those scans run; kept below if present.
       - run: npm run check:screens:shard -- ${{ matrix.shard }}/${{ strategy.job-total }} --areas "${{ needs.changes.outputs.areas || 'all' }}"
         env:
           ANNOUNCE_LOG: ${{ github.workspace }}/announce-log-${{ matrix.shard }}.txt
@@ -279,8 +280,7 @@ jobs:
       # The demo's editor without sign-in (its service worker answers the Worker): opens, saves, resets, and shows the demo's own colours to a
       # browser that kept an earlier build's files. Reads the built demo the job build unpacked.
       - run: npm run check:demo-editor
-      # The accessibility scan of every built page (WCAG 2.2 AA, axe-core); the editor's screens are scanned inside the screens shards.
-      - run: npm run check:a11y
+      # No WCAG scan here: check:a11y is not a required check until the base theme (owner, 27 Nov 2026). The script stays for the base theme.
 
   # The starter as a new site with the package from npm pack: its own checks (with check:worker) and its build.
   # With its screens: every screen of the editor on the starter too, so the checks sites run never lean on the demo's content.
