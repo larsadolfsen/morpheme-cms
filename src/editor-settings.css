@@ -24,9 +24,17 @@
     margin-block-start: var(--mo-comp-editor-rhythm-200);
   }
 
+  /* Material 3, dialogs: the supporting text is body medium in on-surface-variant. */
+  .mo-editor-ask-text,
+  .mo-editor-ask-note {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
   .mo-editor-ask-note {
     margin-block-start: var(--mo-ref-space-50);
-    color: var(--mo-sys-color-on-surface-variant);
   }
 
   .mo-editor-ask-notes {

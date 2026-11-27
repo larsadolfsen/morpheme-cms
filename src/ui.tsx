@@ -4014,13 +4014,11 @@ export function Dialog({ ref, className, children, ...rest }: DialogHTMLAttribut
       let watch: MutationObserver | undefined;
       if (el) {
         // The content of a dialog such as ask() is drawn just after showModal, so the first control is looked for again on each change until one has the focus.
-        let placed = false;
         const focusFirst = () => {
-          if (!el.open) {
-            placed = false;
-            return;
-          }
-          if (placed) return;
+          if (!el.open) return;
+          // A control inside already has the focus: leave it (the person may be typing); on the dialog itself or on the page, move it in.
+          const at = document.activeElement;
+          if (at && at !== el && el.contains(at)) return;
           const first =
             el.querySelector<HTMLElement>('[autofocus]:not(:disabled)') ??
             el.querySelector<HTMLElement>(
@@ -4028,7 +4026,6 @@ export function Dialog({ ref, className, children, ...rest }: DialogHTMLAttribut
             );
           if (!first) return;
           first.focus();
-          placed = true;
         };
         watch = new MutationObserver(focusFirst);
         watch.observe(el, { attributes: true, attributeFilter: ['open'], childList: true, subtree: true });

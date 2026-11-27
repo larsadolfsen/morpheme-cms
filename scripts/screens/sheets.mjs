@@ -447,11 +447,14 @@ async function checkPhoneSheet(width = 375, height = 740) {
   if (await question.count()) {
     if (!(await question.getByText('Your changes to Image weren’t saved.').count()))
       problems.push(`${label}: the restore question does not say "Your changes to Image weren’t saved."`);
-    // The owner's dialog rule: no button has the focus to begin with (Restore filled, Discard outlined).
-    const focused = await page.evaluate(() =>
-      document.activeElement?.closest('button') ? document.activeElement.textContent?.trim() : null,
-    );
-    if (focused) problems.push(`${label}: the button "${focused}" has the focus when the restore question opens`);
+    // Material 3: the focus is in the dialog when it opens, on its first control.
+    const inside = await page
+      .waitForFunction(() => !!document.activeElement?.closest('dialog[open]'), null, { timeout: 3000 })
+      .then(
+        () => true,
+        () => false,
+      );
+    if (!inside) problems.push(`${label}: the focus is not in the restore question when it opens`);
     await question.getByRole('button', { name: 'Restore', exact: true }).tap();
     await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Restore did not open the image's subpage`));
     if (await sheet.count()) {

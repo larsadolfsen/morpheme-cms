@@ -491,7 +491,7 @@
     padding-block: var(--mo-comp-editor-rhythm-150);
   }
   /* Material 3, bottom sheets, Specs: "Drag handle padding top/bottom 22dp". */
-  .mo-sheet__drag-handle.mo-editor-sheet-handle {
+  .mo-editor-sheet-handle button.mo-sheet__drag-handle {
     padding-block: 1.375rem;
   }
   .mo-editor-sheet-handle {

@@ -113,7 +113,7 @@ export function Ask() {
           </div>
         )}
         {question?.text && (
-          <p id={textId} className={question.notes?.length ? 'mo-editor-ask-follow' : ''}>
+          <p id={textId} className={question.notes?.length ? 'mo-editor-ask-text mo-editor-ask-follow' : 'mo-editor-ask-text'}>
             {question.text}
           </p>
         )}
