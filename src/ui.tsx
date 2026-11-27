@@ -907,13 +907,13 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
   return (
     <>
       {htmlFor ? (
-        <label htmlFor={htmlFor} className="mo-editor-field-label mo-editor-field-label-block">
+        <label htmlFor={htmlFor} className="mo-type-label-large mo-editor-field-label mo-editor-field-label-block">
           {children}
         </label>
       ) : (
-        <p className="mo-editor-field-label">{children}</p>
+        <p className="mo-type-label-large mo-editor-field-label">{children}</p>
       )}
-      {hint && <span className="mo-editor-field-hint">{hint}</span>}
+      {hint && <span className="mo-type-body-small mo-editor-field-hint">{hint}</span>}
     </>
   );
 }
@@ -921,7 +921,7 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
 /** Small muted text under a field or a part: what it does, what happens. */
 export function SupportingText({ id, children, className = '' }: { id?: string; children: ReactNode; className?: string }) {
   return (
-    <span id={id} className={`mo-editor-supporting-text ${className}`}>
+    <span id={id} className={`mo-type-body-small mo-editor-supporting-text ${className}`}>
       {children}
     </span>
   );
@@ -933,7 +933,7 @@ export function CloseButton({ onClick }: { onClick: () => void }) {
   return <IconButton icon={materialIcon('close')} label={t.common.close} onClick={onClick} className="mo-editor-close-button" />;
 }
 
-/** A message at the top of a screen about what it shows (an earlier version of a page): the theme's filled card with a
+/** A message at the top of a screen about what it shows (an earlier version of a page): the theme's outlined card with a
  * title, a text, and what can be done about it (a small button). With `onClose` it can be closed: the close button in
  * its top end corner (what was updated since the last visit, on the start screen). */
 export function Notice({
@@ -952,13 +952,13 @@ export function Notice({
 }) {
   return (
     <SiteCard
-      kind="filled"
+      kind="outlined"
       role={role === 'alert' ? undefined : role}
       className={onClose ? 'mo-editor-gapped-100 mo-editor-notice mo-editor-notice-closable' : 'mo-editor-gapped-100 mo-editor-notice'}
     >
       {role === 'alert' && <Announce text={`${title} ${nodeText(children)}`} urgent />}
-      <p className="mo-editor-notice-title">{title}</p>
-      <div className="mo-editor-notice-text">{children}</div>
+      <p className="mo-type-title-small mo-editor-notice-title">{title}</p>
+      <div className="mo-type-body-medium mo-editor-notice-text">{children}</div>
       {action}
       {onClose && <CloseButton onClick={onClose} />}
     </SiteCard>
@@ -1085,15 +1085,12 @@ export function FormField({
   label,
   htmlFor,
   hint,
-  problem,
   count,
   children,
 }: {
   label: string;
   htmlFor?: string;
   hint?: ReactNode;
-  /** What is wrong, under the field; `id` is the field's aria-describedby. */
-  problem?: { id: string; text: string };
   count?: { length: number; max: number };
   children: ReactNode;
 }) {
@@ -1103,11 +1100,6 @@ export function FormField({
         {label}
       </Label>
       {children}
-      {problem && (
-        <p id={problem.id} className="mo-editor-field-problem">
-          {problem.text}.
-        </p>
-      )}
       {count && (
         <p className={`mo-editor-field-count ${count.length > count.max ? 'mo-editor-accent-text' : 'mo-editor-muted-text'}`}>
           {count.length} / {count.max}
@@ -1152,7 +1144,7 @@ export function FieldGroup({ label, hint, children }: { label: string; hint?: Re
   const id = useId();
   return (
     <div role="group" aria-labelledby={id} className={`${siteCardClass('outlined')} mo-editor-rhythm-250 mo-editor-field-group`}>
-      <h3 id={id} className="mo-editor-field-group-title">
+      <h3 id={id} className="mo-type-title-medium mo-editor-field-group-title">
         {label}
       </h3>
       {hint && <SupportingText>{hint}</SupportingText>}
@@ -1196,19 +1188,16 @@ export function SlotButton({
   children: ReactNode;
 }) {
   return (
-    <button
-      type="button"
-      className="mo-editor-inline-list-slot"
-      aria-label={label}
-      aria-pressed={pressed}
+    <SiteIconButton
+      icon={children}
+      label={label}
+      selected={pressed}
       aria-expanded={expanded}
       aria-controls={controls}
       data-icon-color={iconColor}
-      title={label}
+      className="mo-editor-inline-list-slot"
       onClick={onClick}
-    >
-      {children}
-    </button>
+    />
   );
 }
 
@@ -2914,7 +2903,7 @@ export function EmptyNote({ item, busy, children }: { item?: boolean; busy?: boo
  * not be read. `alert`: read by screen readers as soon as it is shown. */
 export function ProblemNote({ alert, children }: { alert?: boolean; children: ReactNode }) {
   return (
-    <div className="mo-editor-problem-note">
+    <div className="mo-type-body-medium mo-editor-problem-note">
       {alert && <Announce text={nodeText(children)} urgent />}
       {children}
     </div>

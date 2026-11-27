@@ -48,7 +48,6 @@
   }
   .mo-editor-field-label {
     margin-block-end: var(--mo-ref-space-50);
-    font-weight: 500;
   }
   .mo-editor-field-label-block {
     display: block;
@@ -56,30 +55,17 @@
   .mo-editor-field-hint {
     display: block;
     margin-block-end: var(--mo-ref-space-100);
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-supporting-text {
     display: block;
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
-  }
-  .mo-editor-field-problem {
-    margin-block-start: var(--mo-ref-space-50);
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    color: var(--mo-sys-color-primary);
   }
   .mo-editor-field-count {
     margin-block-start: var(--mo-ref-space-50);
     text-align: right;
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
-  }
-  .mo-editor-field-group-title {
-    font-weight: 600;
   }
   .mo-editor-search-field {
     min-inline-size: 0;
@@ -115,12 +101,7 @@
     padding-inline-end: var(--mo-ref-space-700);
   }
   .mo-editor-notice-title {
-    font-weight: 500;
-    color: var(--mo-sys-color-primary);
-  }
-  .mo-editor-notice-text {
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface);
   }
   .mo-editor-close-button {
     position: absolute;
@@ -135,9 +116,7 @@
   }
   .mo-editor-problem-note {
     overflow-wrap: break-word;
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    color: var(--mo-sys-color-primary);
+    color: var(--mo-sys-color-error);
   }
   .mo-editor-loading {
     display: inline-flex;

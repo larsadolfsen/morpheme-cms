@@ -1371,25 +1371,12 @@ html {
   text-align: start;
   cursor: pointer;
 }
-.mo-editor-text .mo-editor-inline-list-slot[aria-pressed='true'] {
-  background: var(--mo-sys-color-secondary-container);
-  color: var(--mo-sys-color-on-secondary-container);
-}
 /* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn in the theme button of its style. */
 .mo-editor-text .mo-editor-inline-card-button {
   display: inline-flex;
   min-width: 6rem;
   min-height: 2.5rem;
   align-items: center;
-}
-
-.mo-editor-inline-list-slot {
-  display: grid;
-  width: 2.5rem;
-  height: 2.5rem;
-  place-items: center;
-  border-radius: var(--mo-sys-shape-corner-full);
-  color: var(--mo-sys-color-on-surface-variant);
 }
 
 .mo-editor-inline-list-slot[data-icon-color] {
@@ -1426,23 +1413,6 @@ html {
 /* The icon picker's grid draws its icons in the color picked in the Icon color field (IconPicker, iconColor); the chosen one keeps its own colors. */
 [data-icon-grid][data-icon-color] .mo-icon-button:not([aria-pressed='true']) {
   color: var(--mo-comp-icon-color);
-}
-
-.mo-editor-inline-list-slot:hover,
-.mo-editor-inline-list-slot:focus-visible {
-  background: var(--mo-sys-color-surface-container-high);
-}
-
-/* Keyboard focus: the editor's 2 px ring in the primary role (the state layer alone is about 1.2:1 against the row). */
-.mo-editor-inline-list-slot:focus-visible {
-  outline: 2px solid var(--mo-sys-color-primary);
-  outline-offset: 2px;
-}
-
-/* Inside a filled button the ring is drawn on the button's own container, which is the ring role's colour (1:1). It takes the button's
-   on-colour instead (the same tokens the theme's filled button uses for its label), so it holds on every section colour, light and dark. */
-.mo-button.mo-is-filled .mo-editor-inline-list-slot:focus-visible {
-  outline-color: var(--mo-comp-button-filled-label-text-color, var(--mo-comp-block-on-accent));
 }
 
 /* Where the browser has CSS anchor positioning the menu is placed by the theme's rules for a dropdown menu (ui.css, under the

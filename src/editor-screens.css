@@ -134,13 +134,10 @@
   }
   .mo-editor-updates-notice {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
-    --mo-comp-card-padding: 0;
-    --mo-comp-elevated-card-container-elevation: var(--mo-sys-elevation-level1-shadow);
   }
   .mo-editor-updates-notice-body {
     display: grid;
-    overflow: hidden;
-    border-radius: inherit;
+    gap: var(--mo-ref-space-200);
     @media (width >= 37.5rem) {
       grid-template-columns: minmax(10rem, 14rem) 1fr;
     }
@@ -163,29 +160,22 @@
     inset: 0;
     inline-size: 100%;
     block-size: 100%;
-    border-radius: 0.75rem;
+    border-radius: var(--mo-sys-shape-corner-medium);
     object-fit: cover;
   }
   .mo-editor-updates-notice-text {
     display: flex;
     min-inline-size: 0;
     flex-direction: column;
-    padding: var(--mo-ref-space-200);
   }
   .mo-editor-updates-notice-title {
-    font-size: var(--mo-sys-typescale-headline-small-size);
-    line-height: var(--mo-sys-typescale-headline-small-line-height);
     overflow-wrap: anywhere;
   }
   .mo-editor-updates-notice-place {
     margin-block-start: var(--mo-ref-space-50);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
   }
   .mo-editor-updates-notice-counts {
     margin-block-start: var(--mo-ref-space-100);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-updates-notice-actions {
@@ -197,8 +187,8 @@
     padding-block-start: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-updates-notice-apps {
+    margin-block-start: var(--mo-ref-space-200);
     border-block-start: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-color-outline-variant));
-    padding: var(--mo-ref-space-100) var(--mo-ref-space-200);
   }
 
   .mo-editor-selection-columns {
