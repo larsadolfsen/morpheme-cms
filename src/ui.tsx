@@ -64,6 +64,7 @@ import {
   SiteFabMenu,
   SiteIconButton,
   SiteLoadingIndicator,
+  SiteCircularProgressIndicator,
   SiteSearchBar,
   SiteSearchBarButton,
   SiteNavigationDrawer,
@@ -565,10 +566,13 @@ export function DateTimeField({
 }: InField & { id: string; value: string; onChange: (value: string) => void }) {
   const [day = '', time = ''] = value.split('T');
   const join = (d: string, h: string) => (d ? `${d}T${h || '00:00'}` : '');
+  // One column while the field's own box is narrow, two when it has room: a container query, so a side panel in a wide window stacks too.
   return (
     <div className="mo-editor-date-time-field">
-      <DatePicker id={id} {...field} value={day} onChange={(d) => onChange(join(d, time))} />
-      <TimePicker id={`${id}-time`} value={time.slice(0, 5)} onChange={(h) => onChange(join(day, h))} />
+      <div className="mo-editor-date-time-field-row">
+        <DatePicker id={id} {...field} value={day} onChange={(d) => onChange(join(d, time))} />
+        <TimePicker id={`${id}-time`} value={time.slice(0, 5)} onChange={(h) => onChange(join(day, h))} />
+      </div>
     </div>
   );
 }
@@ -885,7 +889,7 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
       ) : (
         <p className="mo-type-label-large mo-editor-field-label">{children}</p>
       )}
-      {hint && <span className="mo-type-body-small mo-editor-field-hint">{hint}</span>}
+      {hint && <SupportingText className="mo-editor-field-hint">{hint}</SupportingText>}
     </>
   );
 }
@@ -1308,12 +1312,13 @@ export function IconPicker({
               </ChipSet>
             </div>
           )}
-          <div role="group" aria-label={label} data-icon-grid data-icon-color={iconColor} className="mo-editor-icon-picker-grid">
+          <div role="group" aria-label={label} data-icon-color={iconColor} className="mo-editor-icon-picker-grid">
             {hits.slice(0, shown).map((o) => (
               <ChoiceTile
                 key={o.value || 'none'}
                 selected={o.value !== '' && o.value === value}
                 label={o.label}
+                iconColor={iconColor}
                 onClick={() => {
                   onChange(o.value);
                   if (!startOpen) setOpen(false);
@@ -1750,13 +1755,23 @@ export function ChoiceTile({
   selected,
   label,
   onClick,
+  iconColor,
   children,
 }: {
   selected: boolean;
   label: string;
   onClick: () => void;
+  /** The color role a picked icon is drawn in (src/iconColor.ts): the selected tile takes it (and its on-role) through the part's tokens, and the rest draw their icons in it. */
+  iconColor?: string;
   children: ReactElement<{ size?: number; className?: string }>;
 }) {
+  // Set through the icon button's own tokens: selected, inverse surface (M3: outlined toggle), or the picked role and its on-role.
+  const role = iconColor === 'primary' || iconColor === 'secondary' || iconColor === 'tertiary' ? iconColor : undefined;
+  const style = {
+    '--mo-comp-icon-button-outlined-selected-surface': role ? `var(--mo-sys-color-${role})` : 'var(--mo-sys-color-inverse-surface)',
+    '--mo-comp-icon-button-outlined-selected-text': role ? `var(--mo-sys-color-on-${role})` : 'var(--mo-sys-color-inverse-on-surface)',
+    ...(iconColor ? { '--mo-comp-icon-button-outlined-icon-color': 'var(--mo-comp-icon-color)' } : {}),
+  } as CSSProperties;
   return (
     <SiteIconButton
       icon={children}
@@ -1766,6 +1781,7 @@ export function ChoiceTile({
       shape="square"
       selected={selected}
       className="mo-editor-choice-tile-image"
+      style={style}
       onClick={onClick}
     />
   );
@@ -2490,7 +2506,7 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
   return (
     <div style={vars} aria-label={title} role="img" className="mo-editor-rhythm-150 mo-editor-colors-preview">
       <p className="mo-type-body-large mo-editor-colors-preview-heading">{p.heading}</p>
-      <p className="mo-editor-colors-preview-hint">{p.text}</p>
+      <SupportingText medium>{p.text}</SupportingText>
       <p>
         <span className="mo-link">{p.link}</span>
       </p>
@@ -2938,27 +2954,14 @@ export function Group({ title, children, dividers }: { title?: string; children:
  * share that is fine) in a ring, green from 90, orange from 50, else red, with the title under it; then those that can be
  * done better (a red triangle before each) and those that are fine (a green dot), each under its name and number
  * (editor.css: --editor-status-*). A row with a `fix` folds out to it (how to do it better). Material 3 has none, so it
- * has its own name. Never with a note under it. The ring fills up to the score when it comes into view, and its number
- * counts up with it. */
+ * has its own name. Never with a note under it. The ring fills up to the score when it comes into view. */
 export type Check = { ok: boolean; text: string; fix?: string };
 
 // The ring's colours for each status, as whole class names.
 const statusTones = {
-  good: {
-    fill: 'mo-editor-check-good-fill',
-    stroke: 'mo-editor-check-good-stroke',
-    text: 'mo-editor-check-good-text',
-  },
-  average: {
-    fill: 'mo-editor-check-average-fill',
-    stroke: 'mo-editor-check-average-stroke',
-    text: 'mo-editor-check-average-text',
-  },
-  bad: {
-    fill: 'mo-editor-check-bad-fill',
-    stroke: 'mo-editor-check-bad-stroke',
-    text: 'mo-editor-check-bad-text',
-  },
+  good: { ring: 'mo-editor-score-good', mark: 'mo-editor-check-good-mark', icon: 'check_circle' },
+  average: { ring: 'mo-editor-score-average', mark: 'mo-editor-check-average-mark', icon: 'warning' },
+  bad: { ring: 'mo-editor-score-bad', mark: 'mo-editor-check-bad-mark', icon: 'error' },
 };
 
 /** The score of checks from 0 to 100: the share that is fine (100 with none). The function is `lib/score.mjs`, which `morpheme accessibility` imports too. */
@@ -2971,22 +2974,9 @@ const toneOf = (score: number) => statusTones[score >= 90 ? 'good' : score >= 50
 export function ScoreRing({ score, label, onClick }: { score: number; label: string; onClick?: () => void }) {
   const tone = toneOf(score);
   return (
-    <span role="img" aria-label={label} onClick={onClick} className="mo-keep mo-editor-score-ring">
-      <svg viewBox="0 0 36 36" aria-hidden="true" className="mo-editor-score-ring-svg">
-        <circle cx="18" cy="18" r="15.9155" className={tone.fill} />
-        <circle
-          cx="18"
-          cy="18"
-          r="15.9155"
-          fill="none"
-          strokeWidth="3"
-          strokeLinecap="round"
-          pathLength={100}
-          strokeDasharray={`${score} 100`}
-          className={tone.stroke}
-        />
-      </svg>
-      <span aria-hidden="true" className={`mo-editor-score-ring-value ${tone.text}`}>
+    <span onClick={onClick} className={`mo-keep mo-editor-score-ring ${tone.ring}`}>
+      <SiteCircularProgressIndicator value={score / 100} label={label} />
+      <span aria-hidden="true" className="mo-type-label-large mo-editor-score-ring-value">
         {score}
       </span>
     </span>
@@ -3010,37 +3000,10 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
   const good = items.filter((i) => i.ok);
   const score = scoreOf(items);
   const tone = toneOf(score);
-  // The number counts up with the ring (from what it shows to the score, over the ring's 1.2 s, easing out), and goes
-  // on to a new score the same way; at once for those who want less motion.
-  const [shown, setShown] = useState(0);
-  const from = useRef(0);
-  useEffect(() => {
-    if (!seen) return;
-    const start = from.current;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches || start === score) {
-      from.current = score;
-      return setShown(score);
-    }
-    const t0 = performance.now();
-    let frame = 0;
-    const step = (now: number) => {
-      const p = Math.min(1, (now - t0) / 1200);
-      const value = Math.round(start + (score - start) * (1 - (1 - p) ** 3));
-      from.current = value;
-      setShown(value);
-      if (p < 1) frame = requestAnimationFrame(step);
-    };
-    frame = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(frame);
-  }, [seen, score]);
-  const mark = (ok: boolean) =>
-    ok ? (
-      <span aria-hidden="true" className="mo-keep mo-editor-check-good-dot" />
-    ) : (
-      <svg aria-hidden="true" viewBox="0 0 12 12" className="mo-keep mo-editor-check-bad-mark">
-        <path d="M6 1 11.5 11H.5Z" />
-      </svg>
-    );
+  const mark = (ok: boolean) => {
+    const own = statusTones[ok ? 'good' : 'bad'];
+    return <MaterialIcon name={own.icon} size={20} className={`mo-keep ${own.mark}`} />;
+  };
   const row = (item: Check) => {
     const shown = open === item.text;
     const text = (
@@ -3059,7 +3022,7 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
         trailing={
           <MaterialIcon
             name="keyboard_arrow_down"
-            size={18}
+            size={20}
             className={`mo-keep mo-editor-fold-arrow ${shown ? 'mo-editor-arrow-flipped' : ''}`}
           />
         }
@@ -3070,31 +3033,17 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
       <ListItem key={item.text} leading={mark(item.ok)} headline={text} />
     );
   };
-  // The ring: its circle is 2πr = 100 long (r = 15.9155), so the score is how much of it is drawn.
+  // The ring fills (the part's own motion) when it comes into view; the number shows the score at once.
   return (
     <div>
       <div className="mo-stack mo-editor-score">
-        <div ref={ring} className="mo-editor-score-ring-large">
-          <svg viewBox="0 0 36 36" aria-hidden="true" className="mo-editor-score-ring-svg">
-            <circle cx="18" cy="18" r="15.9155" className={tone.fill} />
-            <circle
-              cx="18"
-              cy="18"
-              r="15.9155"
-              fill="none"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              pathLength={100}
-              strokeDasharray={`${seen ? score : 0} 100`}
-              className={`mo-editor-score-arc ${seen && score > 0 ? '' : 'mo-editor-score-arc-hidden'} ${tone.stroke}`}
-            />
-          </svg>
-          <span aria-hidden="true" className={`mo-type-display-small mo-editor-score-ring-value-large ${tone.text}`}>
-            {shown}
+        <div ref={ring} className={`mo-editor-score-ring-large ${tone.ring}`}>
+          <SiteCircularProgressIndicator value={seen ? score / 100 : 0} label={t.common.check.score(good.length, items.length)} />
+          <span aria-hidden="true" className="mo-type-display-small mo-editor-score-ring-value-large">
+            {score}
           </span>
         </div>
-        {title && <h3 className="mo-type-title-large mo-editor-score-title">{title}</h3>}
-        <span className="mo-visually-hidden">{t.common.check.score(good.length, items.length)}</span>
+        {title && <h3 className="mo-type-title-large">{title}</h3>}
       </div>
       {bad.length > 0 && <Group title={`${t.common.check.notOk} (${bad.length})`}>{bad.map(row)}</Group>}
       {good.length > 0 && <Group title={`${t.common.check.ok} (${good.length})`}>{good.map(row)}</Group>}

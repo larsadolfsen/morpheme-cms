@@ -26,7 +26,7 @@
 
   /* A grid's children may shrink below their content (the theme's base rule for .grid, which the old markup used). */
   :is(
-      .mo-editor-date-time-field,
+      .mo-editor-date-time-field-row,
       .mo-editor-swatch-grid,
       .mo-editor-icon-picker-grid,
       .mo-editor-choice-cards,
@@ -60,9 +60,7 @@
     display: block;
   }
   .mo-editor-field-hint {
-    display: block;
     margin-block-end: var(--mo-ref-space-100);
-    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-supporting-text {
     display: block;
@@ -126,11 +124,14 @@
 
   /* The date and time field, the colour field and the colour sheet. */
   .mo-editor-date-time-field {
+    container-type: inline-size;
+  }
+  .mo-editor-date-time-field-row {
     display: grid;
     gap: var(--mo-ref-space-150);
   }
-  @media (width >= 37.5rem) {
-    .mo-editor-date-time-field {
+  @container (width >= 24rem) {
+    .mo-editor-date-time-field-row {
       grid-template-columns: 1fr auto;
     }
   }
@@ -237,7 +238,7 @@
   }
   .mo-editor-color-dots {
     display: flex;
-    gap: var(--mo-ref-space-75);
+    gap: var(--mo-ref-space-100);
   }
   .mo-editor-color-dot {
     inline-size: 1.5rem;
@@ -289,11 +290,6 @@
   }
   .mo-editor-colors-preview-heading {
     font-weight: 500;
-  }
-  .mo-editor-colors-preview-hint {
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-colors-preview-text {
     font-size: var(--mo-sys-typescale-body-medium-size);
@@ -386,9 +382,11 @@
   }
   .mo-editor-fold-arrow {
     color: var(--mo-sys-color-on-surface-variant);
-    transition-property: transform, translate, scale, rotate;
-    transition-timing-function: var(--mo-sys-motion-ease);
-    transition-duration: var(--mo-sys-motion-spring-default-spatial-duration);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .mo-editor-fold-arrow {
+      transition: rotate var(--mo-sys-motion-spring-default-spatial);
+    }
   }
   .mo-editor-fold-arrow-open {
     rotate: 90deg;
@@ -570,44 +568,27 @@
   .mo-editor-section {
     margin-block-end: var(--mo-ref-space-400);
   }
-  .mo-editor-check-good-fill {
-    fill: var(--mo-comp-editor-status-good-surface);
+  /* The score's tone (CS2's status colours, deviation EP1): the ring's indicator, its number and a check's mark. */
+  .mo-editor-score-good {
+    --mo-comp-circular-progress-indicator-active: var(--mo-comp-editor-status-good);
+    --mo-editor-score-text: var(--mo-comp-editor-status-good-text);
   }
-  .mo-editor-check-good-stroke {
-    stroke: var(--mo-comp-editor-status-good);
+  .mo-editor-score-average {
+    --mo-comp-circular-progress-indicator-active: var(--mo-comp-editor-status-average);
+    --mo-editor-score-text: var(--mo-comp-editor-status-average-text);
   }
-  .mo-editor-check-good-text {
-    color: var(--mo-comp-editor-status-good-text);
+  .mo-editor-score-bad {
+    --mo-comp-circular-progress-indicator-active: var(--mo-comp-editor-status-bad);
+    --mo-editor-score-text: var(--mo-comp-editor-status-bad-text);
   }
-  .mo-editor-check-average-fill {
-    fill: var(--mo-comp-editor-status-average-surface);
+  .mo-editor-check-good-mark {
+    color: var(--mo-comp-editor-status-good);
   }
-  .mo-editor-check-average-stroke {
-    stroke: var(--mo-comp-editor-status-average);
-  }
-  .mo-editor-check-average-text {
-    color: var(--mo-comp-editor-status-average-text);
-  }
-  .mo-editor-check-bad-fill {
-    fill: var(--mo-comp-editor-status-bad-surface);
-  }
-  .mo-editor-check-bad-stroke {
-    stroke: var(--mo-comp-editor-status-bad);
-  }
-  .mo-editor-check-bad-text {
-    color: var(--mo-comp-editor-status-bad-text);
-  }
-  .mo-editor-check-good-dot {
-    margin-inline: var(--mo-ref-space-25);
-    inline-size: 0.75rem;
-    block-size: 0.75rem;
-    border-radius: var(--mo-sys-shape-corner-full);
-    background-color: var(--mo-comp-editor-status-good);
+  .mo-editor-check-average-mark {
+    color: var(--mo-comp-editor-status-average);
   }
   .mo-editor-check-bad-mark {
-    inline-size: 1rem;
-    block-size: 1rem;
-    fill: var(--mo-comp-editor-status-bad);
+    color: var(--mo-comp-editor-status-bad);
   }
   .mo-editor-check-fix {
     padding-inline: var(--mo-ref-space-200);
@@ -631,15 +612,12 @@
     inline-size: 2.5rem;
     block-size: 2.5rem;
   }
+  /* The part's size is flexible, 24 to 240 dp (progress indicators, Guidelines). */
   .mo-editor-score-ring-large {
+    --mo-comp-circular-progress-indicator-size: 7rem;
     position: relative;
     inline-size: 7rem;
     block-size: 7rem;
-  }
-  .mo-editor-score-ring-svg {
-    inline-size: 100%;
-    block-size: 100%;
-    rotate: -90deg;
   }
   .mo-editor-score-ring-value,
   .mo-editor-score-ring-value-large {
@@ -647,28 +625,8 @@
     inset: 0;
     display: grid;
     place-items: center;
+    color: var(--mo-editor-score-text);
     font-variant-numeric: tabular-nums;
-  }
-  .mo-editor-score-ring-value {
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    font-weight: 500;
-  }
-  .mo-editor-score-arc {
-    transition-property: stroke-dasharray;
-    transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
-    transition-duration: 1200ms;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .mo-editor-score-arc {
-      transition-property: none;
-    }
-  }
-  .mo-editor-score-arc-hidden {
-    opacity: 0%;
-  }
-  .mo-editor-score-title {
-    font-weight: 500;
   }
 
   /* The share preview, the carousel and the lightbox. */
@@ -725,18 +683,16 @@
     min-block-size: 0;
     flex: 1;
     overflow: hidden;
-    border: 0 solid var(--mo-sys-color-outline-variant);
-    border-block-start-width: 1px;
-    background-color: color-mix(in oklab, var(--mo-sys-color-outline-variant) 40%, transparent);
+    background-color: var(--mo-sys-color-surface-container);
   }
-  /* The block's page is drawn on white, as the site draws it. */
+  /* The block's page is drawn on a surface role (dark in dark mode). */
   .mo-editor-block-preview-iframe {
     position: absolute;
     top: 0;
     left: 50%;
     transform-origin: top;
     border: 0 solid;
-    background-color: #fff;
+    background-color: var(--mo-sys-color-surface);
   }
 
   /* The screen (Screen.tsx's columns), the side sheet beside it and the section list. */

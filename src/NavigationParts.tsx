@@ -143,11 +143,10 @@ export default function NavigationParts() {
                 key={String(stuck)}
                 {...named(eg(stuck ? 2 : 1))}
                 data-stuck={stuck || undefined}
-                className="mo-editor-nav-app-bar"
-              >
-                <span className="mo-editor-nav-app-bar-title">{stuck ? say.stuck : say.name}</span>
-                <SiteIconButton icon="menu" label={say.open} />
-              </SiteAppBar>
+                kind="small"
+                headline={stuck ? say.stuck : say.name}
+                trailing={<SiteIconButton icon="menu" label={say.open} />}
+              />
             ))}
             <SiteAppBar
               {...named(eg(3))}

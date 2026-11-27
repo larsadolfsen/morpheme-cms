@@ -1191,10 +1191,6 @@
     padding: var(--mo-ref-space-100);
     margin: calc(-1 * var(--mo-ref-space-100));
   }
-  /* A part in a sample row has the room of the row's gap round it, so its tap area (theme/styles/ui/target-size.css) stops half way to the next part. */
-  .mo-editor-sample-row > * {
-    --mo-sys-target-gap: var(--mo-ref-space-200);
-  }
   /* Below another part the stack's own space (--mo-ref-space-200) still holds between the two rows' content. */
   .mo-editor-sample-stack-4 > .mo-editor-sample-row:not(:last-child) {
     margin-block-end: calc(var(--mo-ref-space-200) - var(--mo-ref-space-100));
@@ -1346,10 +1342,6 @@
     margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
 
-  .mo-editor-scroll-target {
-    scroll-margin-block-start: 6rem;
-  }
-
   .mo-editor-settings-block {
     display: block;
   }
@@ -1372,10 +1364,6 @@
 
   .mo-editor-settings-inset {
     padding-inline: var(--mo-ref-space-200);
-  }
-
-  .mo-editor-settings-muted {
-    color: var(--mo-sys-color-on-surface-variant);
   }
 
   .mo-editor-settings-parts-list {

@@ -4,7 +4,8 @@
 import { useEffect, useState } from 'react';
 import { ConflictError, type RepoFile } from './github';
 import FormFrame from './FormFrame';
-import { Button } from './ui';
+import { Button, SupportingText } from './ui';
+import { SiteCard, SiteLoadingIndicator } from './themeUi';
 import { pickImage } from './images';
 import { BRAND_FILES, FAVICON, iconFiles, LOGO, logoFile, openImage, solid, type Image } from './brand';
 import type { Env } from './App';
@@ -126,13 +127,15 @@ export default function BrandForm({ env }: { env: Env }) {
       onSave={save}
     >
       <section>
-        <h2 className="mo-editor-brand-heading">{t.company.brand.logo}</h2>
-        <p className="mo-editor-brand-hint">{t.company.brand.logoHint}</p>
+        <h2 className="mo-type-title-medium mo-editor-brand-heading">{t.company.brand.logo}</h2>
+        <SupportingText medium className="mo-editor-brand-hint">
+          {t.company.brand.logoHint}
+        </SupportingText>
         <div className="mo-editor-brand-column">
-          <div data-logo-preview className="mo-editor-brand-logo-preview">
+          <SiteCard kind="outlined" data-logo-preview="" className="mo-editor-brand-logo-preview">
             <span aria-hidden="true" className="mo-keep mo-editor-brand-logo-mark" style={mask} />
-            <span className="mo-editor-brand-logo-name">{siteName}</span>
-          </div>
+            <span className="mo-type-title-medium">{siteName}</span>
+          </SiteCard>
           <div className="mo-editor-brand-actions">
             <Button kind="outlined" disabled={saving} onClick={newLogo}>
               {t.company.brand.newLogo}
@@ -141,15 +144,18 @@ export default function BrandForm({ env }: { env: Env }) {
         </div>
       </section>
       <section>
-        <h2 className="mo-editor-brand-heading">{t.company.brand.icon}</h2>
-        <p className="mo-editor-brand-hint">{t.company.brand.iconHint}</p>
+        <h2 className="mo-type-title-medium mo-editor-brand-heading">{t.company.brand.icon}</h2>
+        <SupportingText medium className="mo-editor-brand-hint">
+          {t.company.brand.iconHint}
+        </SupportingText>
         <div className="mo-editor-brand-column">
-          <img
-            data-icon-preview
-            src={icon}
-            alt=""
-            className={`mo-keep mo-editor-brand-icon ${drawing ? 'mo-editor-brand-icon-drawing' : ''}`}
-          />
+          <span className="mo-editor-brand-icon-box">
+            {drawing ? (
+              <SiteLoadingIndicator label="" aria-hidden />
+            ) : (
+              <img data-icon-preview src={icon} alt="" className="mo-keep mo-editor-brand-icon" />
+            )}
+          </span>
           <div className="mo-editor-brand-actions">
             <Button kind="outlined" disabled={saving || drawing} onClick={async () => newIcon(await pick(), false)}>
               {t.company.brand.newIcon}

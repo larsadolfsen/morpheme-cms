@@ -1,0 +1,7 @@
+{
+  "id": "carousel-header",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Karruseloverskrift",
+  "text": "En karrusel kan nu have en overskrift, der siger, hvad den viser. Skriv en Overskrift over kortene, så viser en pil ved siden af alle kort i to kolonner, og tilbage-pilen vender tilbage. Uden overskrift står knappen Vis alle under rækken som før."
+}
