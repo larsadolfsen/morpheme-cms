@@ -59,7 +59,7 @@ Until the path is built (batch B below), an urgent fix waits, or the owner decid
      **the editor in Material 3** (`plans/2026-11-21-0-19-6-editor-in-material-3.md`, 8 batches) and **the UI fixes left**
      (`plans/2026-11-22-0-19-7-ui-fixes.md`: the demo-blocks rule of A, B5 to B18, C20).
 
-  Owner, 25 Nov 2026, after 0.19.6 was released: "everything we have started ships along saras fix as 0.19.7, and then the rest in 0.19.8" (`plans/2026-11-22-0-19-7-ui-fixes.md`, *Release*). The Icons screens and the pack's own page are 0.31.0 (owner, 25 Nov 2026: "finish and keep it for 0.31").
+  Owner, 25 Nov 2026, after 0.19.6 was released: "everything we have started ships along saras fix as 0.19.7, and then the rest in 0.19.8" (`plans/2026-11-22-0-19-7-ui-fixes.md`, *Release*). The Icons screens and the pack's own page are 0.32.0 (owner, 25 Nov 2026: "finish and keep it for 0.31").
 - **0.20 keeps four items** (safe updates, store auto-updates, an app's Worker code in a sandbox, UI fixes) as its batches, released once
   as 0.20.0.
 - **The PMs:** `/pm 0.19.6`, `/pm 0.19.7`, then the PM of 0.19.8, then `/pm 0.20`.
