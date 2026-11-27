@@ -175,7 +175,6 @@ function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, Small> | n
       decoding="async"
       draggable={false}
       className="mo-cover"
-      onLoad={(e) => e.currentTarget.setAttribute('data-loaded', '')}
       onError={() => thumb && setFailed(true)}
     />
   );

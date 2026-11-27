@@ -518,17 +518,6 @@
   .mo-editor-reveal {
     animation: editor-enter var(--mo-sys-motion-spring-fast-spatial);
   }
-
-  .mo-editor-fade-in {
-    opacity: 0;
-    transition:
-      opacity var(--mo-sys-motion-spring-default-effects),
-      scale var(--mo-sys-motion-spring-default-spatial);
-  }
-
-  .mo-editor-fade-in[data-loaded] {
-    opacity: 1;
-  }
 }
 
 @keyframes editor-sheet-in {
