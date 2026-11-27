@@ -811,9 +811,10 @@ async function checkCardsCarousel(width, height) {
         rowLeft: Math.round(rb.left),
         rowWidth: Math.round(rb.width),
         showAll: (() => {
-          const b = el.querySelector('[data-cards-show-all]');
-          return !!b && getComputedStyle(b.closest('.mo-block-cards__show-all')).display !== 'none';
+          const box = el.querySelector('.mo-block-cards__show-all');
+          return !!box && getComputedStyle(box).display !== 'none';
         })(),
+        header: !!el.querySelector('.mo-block-cards__header'),
         indicators: el.querySelectorAll('[data-carousel-indicator], [data-carousel-dot]').length,
         count: el.querySelectorAll('[data-carousel-item]').length,
       };
@@ -829,7 +830,8 @@ async function checkCardsCarousel(width, height) {
     if (isMaterialTheme() && !(stillFullScreen && l.layout === 'full-screen') && l.radius !== '28px')
       problems.push(`${at}: the item's corners are ${l.radius}, not 28px`);
     // M3, Carousel, Accessibility: a Show all button below the carousel, at every width. A full-screen one shows it from 840 px, where it is the hero.
-    const wantShow = !(stillFullScreen && l.layout === 'full-screen');
+    // With a header the arrow beside it does the same and the button under the row is not drawn (the header's own unit below).
+    const wantShow = !l.header && !(stillFullScreen && l.layout === 'full-screen');
     if (l.showAll !== wantShow) problems.push(`${at}: ${l.showAll ? 'it has' : 'it has no'} "Show all" (wanted: ${wantShow})`);
     if (phone) {
       // Multi-aspect ratio: leading padding 16dp, the cards of different widths (each as wide as its image's aspect ratio makes it).
@@ -855,16 +857,19 @@ async function checkCardsCarousel(width, height) {
     const one = carousels.nth(i);
     const kind = await one.evaluate((el) => el.querySelector('[data-carousel]')?.getAttribute('data-carousel-layout') ?? 'uncontained');
     if (
-      !(await one
-        .locator('[data-cards-show-all]')
-        .evaluate((b) => getComputedStyle(b.closest('.mo-block-cards__show-all')).display !== 'none'))
+      !(await one.evaluate((el) => {
+        const box = el.querySelector('.mo-block-cards__show-all');
+        return !!box && getComputedStyle(box).display !== 'none';
+      }))
     )
       continue;
     await one.scrollIntoViewIfNeeded();
     const card = one.locator('[data-carousel-item]').first();
     await card.evaluate((el) => (el.querySelector('a[href], button') ?? el).focus());
     await page.keyboard.press('ArrowDown');
-    const onShowAll = await one.evaluate((el) => document.activeElement === el.querySelector('[data-cards-show-all]'));
+    const onShowAll = await one.evaluate(
+      (el) => document.activeElement === el.querySelector('.mo-block-cards__show-all [data-cards-show-all]'),
+    );
     if (!onShowAll)
       problems.push(`${label} (${kind}, carousel ${i + 1}): Down from a card did not move the focus to that carousel's "Show all"`);
   }
@@ -1089,6 +1094,89 @@ async function checkPostMeta(width, height, scheme) {
   }
   if (new Set(rows.map((x) => x.gap)).size > 1)
     problems.push(`${label}: the gap between the meta and the title is not the same in every row`);
+  await page.close();
+}
+
+/** A carousel with a header (M3, Carousel, Accessibility: "If the carousel has a header, you can use an arrow icon button instead. Place the arrow icon directly next to the header or in the same row. Make sure the header is also displayed on the page of all carousel items."): the arrow is on the header's row and named after it, it shows every item in place with the header kept and the arrow turned back, the keyboard works it, and no `Show all` is drawn under the row. */
+async function checkCardsHeader(width, height) {
+  const label = `${width}px cards carousel header`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const root = page.locator('[data-cards-carousel].mo-has-header').first();
+  if (!(await root.count())) return (problems.push(`${label}: no Cards carousel with a header on the Blocks page`), page.close());
+  await root.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  const { lang, where } = await pageLanguage(page);
+  const say = blocksOf(lang).cards;
+  const state = () =>
+    root.evaluate((el) => {
+      const arrow = el.querySelector('[data-cards-arrow]');
+      const head = el.querySelector('.mo-block-cards__heading');
+      const a = arrow?.getBoundingClientRect();
+      const h = head?.getBoundingClientRect();
+      const visible = (n) => !!n && getComputedStyle(n).display !== 'none' && getComputedStyle(n).visibility !== 'hidden';
+      return {
+        header: head?.textContent.trim() ?? null,
+        name: arrow?.getAttribute('aria-label') ?? null,
+        expanded: arrow?.getAttribute('aria-expanded') ?? null,
+        isButton: arrow?.tagName === 'BUTTON',
+        sameRow: !!a && !!h && Math.abs(a.top + a.height / 2 - (h.top + h.height / 2)) <= 4,
+        headerFirst: !!a && !!h && (getComputedStyle(el).direction === 'rtl' ? h.left > a.left : h.left < a.left),
+        headerLeft: h ? Math.round(h.left - el.getBoundingClientRect().left) : null,
+        forward: visible(arrow?.querySelector('.mo-block-cards__arrow-forward')),
+        back: visible(arrow?.querySelector('.mo-block-cards__arrow-back')),
+        showAll: !!el.querySelector('.mo-block-cards__show-all'),
+        stacked: el.hasAttribute('data-expanded'),
+        columns: getComputedStyle(el.querySelector('[data-carousel-items]')).gridTemplateColumns.split(' ').length,
+        focus: document.activeElement === arrow,
+        headerShown: visible(head) && h.height > 0,
+      };
+    });
+  const closed = await state();
+  const wantName = say.showAllOf(closed.header ?? '');
+  if (!closed.header || !closed.isButton) problems.push(`${label}: the header or its arrow button is missing (${JSON.stringify(closed)})`);
+  if (!closed.sameRow || !closed.headerFirst)
+    problems.push(`${label}: the arrow is not on the header's row after the header (${JSON.stringify(closed)})`);
+  if (isMaterialTheme() && closed.headerLeft !== 16)
+    problems.push(`${label}: the header is ${closed.headerLeft}px from the leading edge, not 16px`);
+  if (closed.name !== wantName)
+    problems.push(
+      `${label}: the arrow is named "${closed.name}", not "${wantName}" (the page's language is "${lang}", read from ${where})`,
+    );
+  if (closed.expanded !== 'false' || !closed.forward || closed.back || closed.stacked)
+    problems.push(`${label}: the closed arrow is not a forward arrow with aria-expanded=false (${JSON.stringify(closed)})`);
+  if (closed.showAll) problems.push(`${label}: a "Show all" is drawn under the row of a carousel whose header has the arrow`);
+  // The keyboard works it: Enter shows every item in place, with the header kept, a back arrow named "Show fewer", and the focus on the arrow; Space returns.
+  await root.locator('[data-cards-arrow]').focus();
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  const open = await state();
+  const fewer = say.showFewerOf(open.header ?? '');
+  if (!open.stacked || open.columns !== 2)
+    problems.push(`${label}: the arrow did not show every item in two columns in place (${JSON.stringify(open)})`);
+  if (!open.headerShown || open.header !== closed.header)
+    problems.push(`${label}: the all-items view does not show the header (${JSON.stringify(open)})`);
+  if (open.expanded !== 'true' || !open.back || open.forward || open.name !== fewer)
+    problems.push(`${label}: the all-items view has no back arrow named "${fewer}" with aria-expanded=true (${JSON.stringify(open)})`);
+  if (!open.focus) problems.push(`${label}: the focus left the arrow when it was pressed`);
+  if (open.showAll) problems.push(`${label}: the all-items view has a "Show all" under the cards`);
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(300);
+  const again = await state();
+  if (again.stacked || again.expanded !== 'false' || again.name !== wantName || !again.forward)
+    problems.push(`${label}: Space on the back arrow did not return the carousel (${JSON.stringify(again)})`);
+  // Up from a card goes to the arrow above the row.
+  await root
+    .locator('[data-carousel-item]')
+    .first()
+    .evaluate((el) => (el.querySelector('a[href], button') ?? el).focus());
+  await page.keyboard.press('ArrowUp');
+  if (!(await root.evaluate((el) => document.activeElement === el.querySelector('[data-cards-arrow]'))))
+    problems.push(`${label}: Up from a card did not move the focus to the header's arrow`);
+  if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
+    problems.push(`${label}: the page scrolls sideways`);
   await page.close();
 }
 
@@ -1773,6 +1861,7 @@ export function register(unit) {
     [1280, 900],
   ]) {
     unit(`checkCardsCarousel ${width}`, () => checkCardsCarousel(width, height));
+    unit(`checkCardsHeader ${width}`, () => checkCardsHeader(width, height));
     unit(`checkCardsSpacing ${width}`, () => checkCardsSpacing(width, height));
     unit(`checkCardGutter ${width}`, () => checkCardGutter(width, height));
     unit(`checkCardMediaCorners ${width}`, () => checkCardMediaCorners(width, height));

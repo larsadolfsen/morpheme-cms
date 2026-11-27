@@ -484,6 +484,10 @@ export const blocks = {
     layoutHeroCenterHint: 'Centered, large visual items.',
     layoutFullScreen: 'Full-screen',
     layoutFullScreenHint: 'Immersive experiences, one edge-to-edge item at a time.',
+    /** The carousel's optional header: with one, an arrow beside it shows every item (Material 3), instead of `Show all` under the row. */
+    header: 'Header',
+    headerHint: 'A title above the carousel. With one, an arrow next to it shows every card, instead of Show all under the row.',
+    headerPlaceholder: 'Header',
     carouselChip: 'Carousel',
     /** On the site and in the drawings (in the site's language): for screen readers and the button under the carousel. */
     carousel: 'carousel',
@@ -491,6 +495,8 @@ export const blocks = {
     slideOf: (n: number, of: number) => `${n} of ${of}`,
     showAll: 'Show all',
     showFewer: 'Show fewer',
+    showAllOf: (header: string) => `Show all ${header}`,
+    showFewerOf: (header: string) => `Show fewer ${header}`,
     cardsLabel: 'Cards',
     color: 'Color',
     colorSurface: 'Surface',

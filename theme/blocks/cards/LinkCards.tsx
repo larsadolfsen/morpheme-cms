@@ -10,6 +10,7 @@ import type { CardsLayout, LinkCard } from '@morphemecms/cms/src/standard/cards/
 import { siteT } from '@morphemecms/cms/src/i18n';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import Button from '@theme/ui/Button';
+import IconButton from '@theme/ui/IconButton';
 import Carousel from '@theme/ui/Carousel';
 import Video from '@theme/blocks/video/View';
 import Card, { CardMedia as MediaBox, cardKinds, type CardKind } from '@theme/ui/Card';
@@ -85,6 +86,16 @@ function mediaOf(card: LinkCard) {
   return undefined;
 }
 
+/** The header's arrow: forward to show every item, back (drawn instead, by the theme, while the items are all shown) to show fewer; an icon button takes one icon, so both are in it. */
+function ArrowIcons({ size, className }: { size?: number; className?: string }) {
+  return (
+    <>
+      <Svg name="arrow_forward" size={size} className={[className, 'mo-block-cards__arrow-forward'].filter(Boolean).join(' ')} />
+      <Svg name="arrow_back" size={size} className={[className, 'mo-block-cards__arrow-back'].filter(Boolean).join(' ')} />
+    </>
+  );
+}
+
 export default function LinkCards({
   items,
   more,
@@ -92,6 +103,7 @@ export default function LinkCards({
   color,
   phone,
   layout,
+  header,
   label,
   className,
 }: {
@@ -103,6 +115,8 @@ export default function LinkCards({
   phone?: string;
   /** The carousel's Material 3 layout: uncontained without one. */
   layout?: CardsLayout;
+  /** The carousel's header (M3, Carousel, Accessibility): with one, an arrow icon button beside it shows every item, and `Show all` under the row is not drawn. */
+  header?: string;
   /** What the carousel is called for screen readers. */
   label?: string;
   className?: string;
@@ -196,11 +210,29 @@ export default function LinkCards({
   };
   if (phone === 'carousel' && items.length >= 2)
     return (
-      <div className={['mo-block-cards__carousel', colored, className].filter(Boolean).join(' ')} data-cards-carousel="">
+      <div
+        className={['mo-block-cards__carousel', header && 'mo-has-header', colored, className].filter(Boolean).join(' ')}
+        data-cards-carousel=""
+      >
+        {header && (
+          <div className="mo-block-cards__header">
+            <span className="mo-block-cards__heading">{header}</span>
+            <IconButton
+              icon={<ArrowIcons />}
+              label={say.showAllOf(header)}
+              aria-expanded="false"
+              className="mo-block-cards__arrow"
+              data-cards-show-all=""
+              data-cards-arrow=""
+              data-all={say.showAllOf(header)}
+              data-fewer={say.showFewerOf(header)}
+            />
+          </div>
+        )}
         <Carousel
           layout={layout === 'hero-center' ? 'hero' : layout}
           alignment={layout === 'hero-center' ? 'center' : 'start'}
-          label={label || say.cardsLabel}
+          label={label || header || say.cardsLabel}
           roleDescription={say.carousel}
           itemsFocusable
           itemRoleDescription={say.slide}
@@ -213,13 +245,13 @@ export default function LinkCards({
             focusable: !card.href && card.buttons.length === 0,
           }))}
         />
-        {
+        {!header && (
           <div className="mo-block-cards__show-all">
             <Button kind="text" aria-expanded="false" data-cards-show-all="" data-all={say.showAll} data-fewer={say.showFewer}>
               {say.showAll}
             </Button>
           </div>
-        }
+        )}
       </div>
     );
   return (

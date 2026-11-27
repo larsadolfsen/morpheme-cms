@@ -1,4 +1,5 @@
-// What "Cards" do in a browser on the site: a carousel (`phone`, LinkCards.tsx, on every screen size) has `Show all`, which turns the row into the stacked
+// What "Cards" do in a browser on the site: a carousel (`phone`, LinkCards.tsx, on every screen size) has `Show all` (or, with a header, the arrow next to it, which
+// does the same and names its state in its label), which turns the row into the stacked
 // cards in place and back (focus stays on the button), and the arrow keys, which move focus from one card to the next or the one before
 // (the cards are not tab stops except through their link or first button, and a text-only card itself). Run on every page by the theme's
 // Base.astro (blockScripts, packages/editor/site/blockScripts.ts); without such a block it does nothing.
@@ -10,7 +11,10 @@ export default function cards() {
     const all = button.getAttribute('aria-expanded') !== 'true';
     button.setAttribute('aria-expanded', String(all));
     root.toggleAttribute('data-expanded', all);
-    button.textContent = (all ? button.dataset.fewer : button.dataset.all) ?? '';
+    // `Show all` says its state in its text; the header's arrow (an icon) in its name.
+    const say = (all ? button.dataset.fewer : button.dataset.all) ?? '';
+    if (button.hasAttribute('data-cards-arrow')) button.setAttribute('aria-label', say);
+    else button.textContent = say;
     button.focus();
   });
 
@@ -24,10 +28,11 @@ export default function cards() {
       const tabbable = [
         ...document.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, select, textarea, [tabindex="0"]'),
       ].filter((el) => el.offsetParent !== null);
-      // The carousel's own stops are its cards; `Show all` under it is the control Down leaves to.
+      // The carousel's own stops are its cards; `Show all` under it is the control Down leaves to. The header's arrow is above the cards: Up leaves to it, Down to what follows.
       const showAll = root.querySelector<HTMLElement>('[data-cards-show-all]');
+      const below = showAll && !showAll.hasAttribute('data-cards-arrow') ? showAll : null;
       const inside = tabbable.filter((el) => root.contains(el) && el !== showAll);
-      const after = showAll && tabbable.includes(showAll) ? showAll : tabbable[tabbable.indexOf(inside[inside.length - 1]) + 1];
+      const after = below && tabbable.includes(below) ? below : tabbable[tabbable.indexOf(inside[inside.length - 1]) + 1];
       const target = e.key === 'ArrowDown' ? after : tabbable[tabbable.indexOf(inside[0]) - 1];
       if (!target) return;
       e.preventDefault();

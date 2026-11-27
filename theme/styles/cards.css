@@ -481,6 +481,40 @@
   .mo-js .mo-block-cards__show-all > .mo-button {
     margin-inline-end: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
   }
+  /* M3, Carousel, Accessibility: "If the carousel has a header, you can use an arrow icon button instead [of Show all]. Place the arrow icon directly next to the header or in the
+     same row. Make sure the header is also displayed on the page of all carousel items." and "Headers should align with the leading edge, and the arrow icon should have a size of 48dp."
+     The header (.mo-block-cards__header) is the row above the carousel: its text at the leading edge (the row's 16dp padding), the 48dp arrow icon button (the theme's, small = 48dp
+     touch target) next to it. The arrow is drawn only with script (it toggles data-expanded, script.ts); it shows the forward arrow, and the back arrow while every item is shown. */
+  .mo-block-cards__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-inline: 1rem 0;
+  }
+  .mo-block-cards__heading {
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
+  }
+  .mo-block-cards__arrow {
+    display: none;
+    flex: none;
+  }
+  .mo-js .mo-block-cards__arrow {
+    display: inline-flex;
+  }
+  .mo-block-cards__arrow-back,
+  .mo-block-cards__arrow[aria-expanded='true'] .mo-block-cards__arrow-forward {
+    display: none;
+  }
+  .mo-block-cards__arrow[aria-expanded='true'] .mo-block-cards__arrow-back {
+    display: block;
+  }
+  /* A full-screen carousel shows one item and needs no arrow either (M3); the header stays. */
+  .mo-js .mo-block-cards__carousel:has(.mo-carousel.mo-is-full-screen) .mo-block-cards__arrow {
+    display: none;
+  }
   /* A full-screen carousel shows one item and needs no Show all (M3); from 840 px or in landscape it is drawn as the hero, which has it (carouselLayout.ts swaps the class). */
   .mo-js .mo-block-cards__carousel:has(.mo-carousel.mo-is-full-screen) .mo-block-cards__show-all {
     display: none;
@@ -500,6 +534,10 @@
     .mo-block-cards__carousel[data-expanded] .mo-carousel .mo-carousel__items {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+  }
+  /* With a header the items stand two by two at every width (the owner's decision for the arrow's view). */
+  .mo-block-cards__carousel.mo-has-header[data-expanded] .mo-carousel .mo-carousel__items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .mo-block-cards__carousel[data-expanded] .mo-carousel__item {
     width: auto;
