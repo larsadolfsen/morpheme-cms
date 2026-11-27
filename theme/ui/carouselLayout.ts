@@ -156,6 +156,15 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
   let lead = 0;
   let toStart = 0;
   let toEnd = 0;
+  // Read once in measure(), never per frame: reading offsetLeft or scrollWidth after the last frame's style writes forces a layout in the middle of a scroll.
+  let at: number[] = [];
+  let max = 0;
+  // What was last written for each item (shift, inset, text fade): only a changed value is written, so a frame that changes nothing costs no style work.
+  const written: { shift: number; inset: number; mask: number }[] = items.map(() => ({ shift: NaN, inset: NaN, mask: NaN }));
+  // A fast scroll (a flick) moves the row further than this each frame: then only the shape (shift, inset) follows it, and the text fade settles when it slows.
+  const FAST = 24;
+  let last = 0;
+  let settle = 0;
 
   function measure() {
     const style = getComputedStyle(row!);
@@ -176,6 +185,7 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
     if (layout === 'hero' && alignment === 'center' && items.length > 2)
       row!.style.paddingInlineEnd = `${padEnd + gap + lengthOf(root, '--mo-comp-carousel-small-item-max-width', 56)}px`;
     row!.style.setProperty('--mo-comp-carousel-item-width', `${large}px`);
+    rests.delete(row!);
     const edge = { start: pad, end: padEnd };
     normal = stateOf(sizes, width, gap, large, 'first', edge);
     // Scrolled to the start, the large ones first (a hero) or, center-aligned, the leading small one and then the large one (small, large, small); to the end, the large ones last or,
@@ -209,6 +219,10 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
     row!.style.scrollPaddingInlineStart = `${lead + pad}px`;
     toStart = start.offsets[0] - normal.offsets[0];
     toEnd = normal.offsets[0] - end.offsets[0];
+    const first = items[0]?.offsetLeft ?? 0;
+    at = items.map((item) => item.offsetLeft - first);
+    max = row!.scrollWidth - row!.clientWidth;
+    written.forEach((w) => (w.shift = w.inset = w.mask = NaN));
     update();
   }
 
@@ -223,7 +237,10 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
       return;
     }
     const s = row!.scrollLeft;
-    const max = row!.scrollWidth - row!.clientWidth;
+    const fast = Math.abs(s - last) > FAST;
+    last = s;
+    clearTimeout(settle);
+    if (fast) settle = window.setTimeout(update, 80);
     let state = start;
     if (max > 0) {
       // When the row is too short for both, each shift takes its share of it.
@@ -233,12 +250,11 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
       state = s < a ? mix(start, normal, s / a) : s > max - b ? mix(normal, end, (s - (max - b)) / b) : normal;
     }
     const { lines, offsets } = state;
-    const first = items[0]?.offsetLeft ?? 0;
     items.forEach((item, i) => {
       const mask = masks[i];
       if (!mask) return;
       // Where its centre is in the row's window, and which two keylines it is between.
-      const c = item.offsetLeft - first + large / 2 - s;
+      const c = at[i] + large / 2 - s;
       let loc: number;
       let size: number;
       const last = lines.length - 1;
@@ -250,16 +266,20 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
         loc = lerp(lines[j].loc, lines[j + 1].loc, t);
         size = lerp(lines[j].size, lines[j + 1].size, t);
       }
-      mask.style.transform = `translateX(${loc - c}px)`;
-      mask.style.setProperty('--mo-comp-carousel-mask-inset', `${Math.max(0, (large - size) / 2)}px`);
-      item.style.setProperty('--mo-comp-carousel-mask', String(Math.max(0, Math.min(1, 1 - size / large))));
+      const w = written[i];
+      const shift = Math.round((loc - c) * 100) / 100;
+      const inset = Math.round(Math.max(0, (large - size) / 2) * 100) / 100;
+      const fade = Math.round(Math.max(0, Math.min(1, 1 - size / large)) * 1000) / 1000;
+      if (shift !== w.shift) mask.style.transform = `translateX(${(w.shift = shift)}px)`;
+      if (inset !== w.inset) mask.style.setProperty('--mo-comp-carousel-mask-inset', `${(w.inset = inset)}px`);
+      if (!fast && fade !== w.mask) item.style.setProperty('--mo-comp-carousel-mask', String((w.mask = fade)));
     });
   }
 
   let frame = 0;
+  // One update a frame, from the scroll position as it is then: a scroll event arriving before the frame runs does not queue another.
   const onScroll = () => {
-    cancelAnimationFrame(frame);
-    frame = requestAnimationFrame(update);
+    if (!frame) frame = requestAnimationFrame(() => ((frame = 0), update()));
   };
   row.addEventListener('scroll', onScroll, { passive: true });
   reduce.addEventListener('change', update);
@@ -269,6 +289,7 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
 
   return () => {
     cancelAnimationFrame(frame);
+    clearTimeout(settle);
     row.removeEventListener('scroll', onScroll);
     reduce.removeEventListener('change', update);
     resized.disconnect();
@@ -301,11 +322,27 @@ export function scrollFor(row: HTMLElement, i: number) {
   return target ? target.offsetLeft - items[0].offsetLeft - lead : 0;
 }
 
+// What shownItem needs of a row, measured once: it runs on every scroll frame, and measuring forces a layout. Dropped when the row is resized or its
+// items change (and by carouselLayout, which sizes the items).
+const rests = new WeakMap<HTMLElement, ReturnType<typeof restOf> & { max: number }>();
+const watched = new WeakSet<HTMLElement>();
+function restCached(row: HTMLElement) {
+  if (!watched.has(row)) {
+    watched.add(row);
+    const drop = () => void rests.delete(row);
+    new ResizeObserver(drop).observe(row);
+    new MutationObserver(drop).observe(row, { childList: true, subtree: true });
+  }
+  let r = rests.get(row);
+  if (!r) rests.set(row, (r = { ...restOf(row), max: row.scrollWidth - row.clientWidth }));
+  return r;
+}
+
 /** The item a carousel's row shows where it rests, for its page indicator. */
 export function shownItem(row: HTMLElement) {
-  const { items, lead, step } = restOf(row);
+  const { items, lead, step, max } = restCached(row);
   if (items.length < 2) return 0;
-  const end = row.scrollLeft >= row.scrollWidth - row.clientWidth - 2;
+  const end = row.scrollLeft >= max - 2;
   // Several items can be in view at once: at the end, the last one is the chosen one.
   return end ? items.length - 1 : Math.max(0, Math.min(items.length - 1, Math.round((row.scrollLeft + lead) / step)));
 }

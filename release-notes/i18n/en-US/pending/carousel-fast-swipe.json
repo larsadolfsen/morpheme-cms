@@ -1,0 +1,6 @@
+{
+  "id": "carousel-fast-swipe",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A carousel no longer flickers when you swipe it fast"
+}

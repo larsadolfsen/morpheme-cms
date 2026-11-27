@@ -509,6 +509,60 @@ async function checkCardIconText(width, height, scheme) {
   await page.close();
 }
 
+/** Scrolling a carousel never forces a layout (the flicker on a fast swipe): while the row scrolls, the layout script reads no offsetLeft, offsetWidth, scrollWidth or getBoundingClientRect, and a frame that moves nothing writes no style. Every carousel on the Blocks page, 375 px, touch. */
+async function checkCarouselScrollCost() {
+  const label = '375px carousel scroll cost';
+  const page = await browser.newPage({ viewport: { width: 375, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const n = await page.locator('[data-carousel-items]').count();
+  for (let k = 0; k < n; k++) {
+    const r = await page.evaluate(async (idx) => {
+      const row = document.querySelectorAll('[data-carousel-items]')[idx];
+      const reads = [];
+      const spy = (proto, name) => {
+        const d = Object.getOwnPropertyDescriptor(proto, name);
+        Object.defineProperty(proto, name, {
+          configurable: true,
+          get() {
+            reads.push(name);
+            return d.get.call(this);
+          },
+        });
+        return () => Object.defineProperty(proto, name, d);
+      };
+      const undo = [
+        spy(HTMLElement.prototype, 'offsetLeft'),
+        spy(HTMLElement.prototype, 'offsetWidth'),
+        spy(Element.prototype, 'scrollWidth'),
+      ];
+      const gbr = Element.prototype.getBoundingClientRect;
+      Element.prototype.getBoundingClientRect = function () {
+        reads.push('getBoundingClientRect');
+        return gbr.call(this);
+      };
+      const max = row.scrollWidth - row.clientWidth;
+      // One warm-up scroll first: a row is measured once when it is first shown or resized, which is not what is checked.
+      row.style.scrollSnapType = 'none';
+      row.scrollLeft = max * 0.1;
+      await new Promise((res) => setTimeout(res, 300));
+      reads.length = 0;
+      for (const f of [0.25, 0.6, 0.9, 0.3]) {
+        row.style.scrollSnapType = 'none';
+        row.scrollLeft = max * f;
+        await new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
+      }
+      undo.forEach((u) => u());
+      Element.prototype.getBoundingClientRect = gbr;
+      row.style.scrollSnapType = '';
+      return { max, reads: [...new Set(reads)] };
+    }, k);
+    if (r.max > 0 && r.reads.length)
+      problems.push(`${label}: carousel ${k} reads ${r.reads.join(', ')} while it scrolls, which forces a layout each frame`);
+  }
+  await page.close();
+}
+
 /** Cards that are a carousel (`phone`, on the demo's Blocks page; since 0.19.8 on every screen size): at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), labelled, with no page indicator (M3 prints none); each layout the block offers (`layout`: multi-browse, hero, center-aligned hero, full-screen) is on the page, its items with M3's 28dp corners, and `Show all` is under every one but the full-screen one; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 840 and 1280 px it is the same row, with more cards in view (the hero keeps one small item), `Show all` under it, and a full-screen carousel is the hero. */
 async function checkCardsCarousel(width, height) {
   const label = `${width}px cards carousel`;
@@ -1621,6 +1675,7 @@ export function register(unit) {
   ])
     unit(`checkCardDivider ${width}`, () => checkCardDivider(width, height));
   unit('checkCardsElevation 768', () => checkCardsElevation(768, 1024));
+  unit('checkCarouselScrollCost 375', () => checkCarouselScrollCost());
   unit('checkCardsCarousel 768', () => checkCardsCarousel(768, 900));
   unit('checkCardsCarousel 600', () => checkCardsCarousel(600, 900));
   unit('checkCardsCarousel 840', () => checkCardsCarousel(840, 900));
