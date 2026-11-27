@@ -185,13 +185,13 @@ export default function OwnListSheet({
                 <div className="mo-editor-own-field-held">
                   <SupportingText>{t.ownList.held(held)}</SupportingText>
                   {held > 0 && (
-                    <Button kind="text" disabled={busy} onClick={() => void remove(f.id, t.ownList.removeData)}>
+                    <Button kind="outlined" disabled={busy} onClick={() => void remove(f.id, t.ownList.removeData)}>
                       {t.ownList.removeData}
                     </Button>
                   )}
                 </div>
               ) : (
-                <Button kind="text" disabled={busy} onClick={() => void remove(f.id, t.ownList.removeField)}>
+                <Button kind="outlined" disabled={busy} onClick={() => void remove(f.id, t.ownList.removeField)}>
                   {t.ownList.removeField}
                 </Button>
               )}

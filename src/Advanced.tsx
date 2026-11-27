@@ -8,7 +8,7 @@
 // build plan can only be turned on when Cloudflare says the account has Workers Paid (the Worker asks, /api/plan); under it, why not.
 import { useEffect, useState } from 'react';
 import Screen from './Screen';
-import { EmptyNote, GroupTitle, LinkButton, MenuRow, Notice, ProblemNote, SupportingText, SwitchRow } from './ui';
+import { EmptyNote, GroupTitle, MenuRow, Notice, ProblemNote, SupportingText, SwitchRow } from './ui';
 import { DRAFTS } from '../lib/versions.mjs';
 import { ConflictError, type RepoFile } from './github';
 import type { Env } from './App';
@@ -31,7 +31,6 @@ import { config } from '@site/editor';
 import { buildSettingsOf, withBuildSetting, type BuildSetting } from './buildSettings';
 import { BUILD_SETTINGS_PATH } from '../lib/build-settings.mjs';
 import { siteT, t } from './i18n';
-import { materialIcon } from './icon';
 
 export const CACHING_ROUTE = 'developer/caching';
 
@@ -244,17 +243,9 @@ export default function Advanced({ env }: { env: Env }) {
               {paid && !settings.paidBuilds && paid !== 'yes' && (
                 <SupportingText className="mo-editor-supporting">{t.advanced.plan[paid]}</SupportingText>
               )}
-              <LinkButton
-                href={BILLING_URL}
-                target="_blank"
-                rel="noopener"
-                kind="text"
-
-                icon={materialIcon('open_in_new')}
-                className="mo-setting-list__action"
-              >
+              <a className="mo-link mo-setting-list__action" href={BILLING_URL} target="_blank" rel="noopener">
                 {t.advanced.billing}
-              </LinkButton>
+              </a>
             </>
           )}
         </div>

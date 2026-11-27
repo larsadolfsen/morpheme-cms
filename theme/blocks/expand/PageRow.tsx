@@ -3,7 +3,6 @@
 // (`more`, e.g. "Depression som ung", as chips). A site's own rows (this site's front
 // page, home/Topics.astro).
 import type { PageRowView } from '@morphemecms/cms/src/standard/expand/view';
-import Button from '@theme/ui/Button';
 import Chip from '@theme/ui/Chip';
 
 export default function PageRow(row: PageRowView) {
@@ -11,9 +10,9 @@ export default function PageRow(row: PageRowView) {
     <>
       <p className="mo-block-accordion__row-text">{row.text}</p>
       <div className="mo-block-accordion__row-links">
-        <Button kind="text" href={row.href}>
+        <a className="mo-link" href={row.href}>
           {row.link}
-        </Button>
+        </a>
         {row.more?.map((m) => (
           <Chip key={m.href} href={m.href} label={m.label} />
         ))}

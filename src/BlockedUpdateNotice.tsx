@@ -7,7 +7,7 @@ import { t } from './i18n';
 import { blockedUpdate } from './cmsBlocked.mjs';
 import { blockedText, type Blocked } from './blockedText';
 import { CMS_ROUTE } from './CmsPage';
-import { LinkButton, Notice } from './ui';
+import { Notice } from './ui';
 
 export function BlockedUpdateNotice() {
   const [blocked, setBlocked] = useState<Blocked | null>(null);
@@ -27,9 +27,9 @@ export function BlockedUpdateNotice() {
       <Notice
         title={t.cms.blockedTitle}
         action={
-          <LinkButton kind="text" href={`#${CMS_ROUTE}`} aria-label={t.library.readMoreOn(t.cms.blockedTitle)}>
+          <a className="mo-link" href={`#${CMS_ROUTE}`} aria-label={t.library.readMoreOn(t.cms.blockedTitle)}>
             {t.library.readMore}
-          </LinkButton>
+          </a>
         }
       >
         {blockedText(blocked)}

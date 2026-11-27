@@ -213,7 +213,7 @@ export default function LinkCards({
         />
         {
           <div className="mo-block-cards__show-all">
-            <Button kind="text" aria-expanded="false" data-cards-show-all="" data-all={say.showAll} data-fewer={say.showFewer}>
+            <Button kind="outlined" aria-expanded="false" data-cards-show-all="" data-all={say.showAll} data-fewer={say.showFewer}>
               {say.showAll}
             </Button>
           </div>

@@ -40,7 +40,7 @@ export default function MoreRows({
         <div
           className={className ? `mo-block-more__button mo-block-list__button ${className}` : 'mo-block-more__button mo-block-list__button'}
         >
-          <Button kind="text" aria-controls={id} aria-expanded="false" onClick={() => root.current && showMoreRows(root.current)}>
+          <Button kind="outlined" aria-controls={id} aria-expanded="false" onClick={() => root.current && showMoreRows(root.current)}>
             {label}
           </Button>
         </div>

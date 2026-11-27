@@ -6,9 +6,13 @@ export default function ListButton({ button, className }: { button?: { label: st
   if (!button) return null;
   return (
     <div className={className ? `mo-block-list__button ${className}` : 'mo-block-list__button'}>
-      <Button kind="text" href={button.href || undefined}>
-        {button.label}
-      </Button>
+      {button.href ? (
+        <a className="mo-link" href={button.href}>
+          {button.label}
+        </a>
+      ) : (
+        <Button kind="outlined">{button.label}</Button>
+      )}
     </div>
   );
 }

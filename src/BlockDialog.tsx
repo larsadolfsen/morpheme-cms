@@ -774,7 +774,7 @@ export function useBlockDialog(
       )}
       {block!.type === IMAGE && removeImage.current && (
         <Button
-          kind="text"
+          kind="outlined"
           onClick={() => {
             const remove = removeImage.current;
             done(null);

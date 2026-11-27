@@ -34,7 +34,7 @@ export function StoreConnectedRow({ site, onDisconnected }: { site: string; onDi
           supporting={site}
         />
       </ul>
-      <Button kind="text" disabled={busy} onClick={disconnectNow}>
+      <Button kind="outlined" disabled={busy} onClick={disconnectNow}>
         {t.apps.disconnect}
       </Button>
     </>
