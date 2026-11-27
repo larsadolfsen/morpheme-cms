@@ -16,7 +16,7 @@
 // The buttons that run (add, rename, delete, upload new) show the loading indicator while they do.
 // The funnel in Filer also filters by a tag (fileTagFilter.mjs; only tags some file has).
 // The clock in the top bar, "Deleted files", opens the files that were deleted (Deleted.tsx).
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactElement } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type ReactElement } from 'react';
 import { replace, up } from './nav';
 import { moveRedirects, REDIRECTS } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES } from './redirectData';
@@ -26,10 +26,14 @@ import { CreateFab } from './CreateFab';
 import Screen from './Screen';
 import {
   Button,
+  ChipSet,
   InputChip,
   Choice,
   Filters,
   IconButton,
+  Group,
+  GroupTitle,
+  Checkbox,
   TextField,
   listClass,
   SupportingText,
@@ -176,8 +180,7 @@ function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, Small> | n
       alt=""
       decoding="async"
       draggable={false}
-      className="mo-editor-fade-in mo-cover"
-      onLoad={(e) => e.currentTarget.setAttribute('data-loaded', '')}
+      className="mo-cover"
       onError={() => thumb && setFailed(true)}
     />
   );
@@ -196,8 +199,8 @@ function FileTile({ src, selected, ...rest }: { src: string; selected?: boolean;
       {...rest}
     >
       <span className="mo-stack mo-editor-media-file-tile">
-        <Icon size={36} className="mo-keep mo-editor-media-muted" />
-        <span className="mo-clamp-2 mo-editor-media-file-name">{nameOfSrc(src)}</span>
+        <Icon size={40} className="mo-keep mo-editor-media-muted" />
+        <span className="mo-type-body-small mo-clamp-2 mo-editor-media-file-name">{nameOfSrc(src)}</span>
       </span>
     </SiteCard>
   );
@@ -250,15 +253,15 @@ function Tile({
         </SiteImageTile>
       )}
       {row && (
-        <span
-          aria-hidden="true"
-          data-tile-mark={selected ? 'on' : 'off'}
-          className={`mo-editor-media-tile-mark ${selecting ? 'mo-editor-media-tile-mark-on' : 'mo-editor-media-tile-mark-hover'}`}
-          onClick={() => row.onSelectedChange?.()}
-        >
-          <span className={`mo-editor-media-tile-check ${selected ? 'mo-editor-media-tile-check-on' : 'mo-editor-media-tile-check-off'}`}>
-            {selected && <AnyIcon name="check" size={18} />}
-          </span>
+        // The tile itself is the check box for the keyboard and a screen reader (role=checkbox above); this box is its sight: not a second stop.
+        <span className={`mo-editor-media-tile-mark ${selecting ? 'mo-editor-media-tile-mark-on' : 'mo-editor-media-tile-mark-hover'}`}>
+          <Checkbox
+            label={fileLabel('image', nameOfSrc(src))}
+            hideLabel
+            tabIndex={-1}
+            checked={selected}
+            onChange={() => row.onSelectedChange?.()}
+          />
         </span>
       )}
     </li>
@@ -463,7 +466,7 @@ function Gallery({
         date={!all && dateChoice}
       />
       {selection?.selecting && (
-        <div className="mo-editor-media-count">
+        <ChipSet label={t.media.selection}>
           {/* Material's photo grid: a count with a cross above the grid; the cross, or the count, unselects all. */}
           <SiteChip
             kind="input"
@@ -473,20 +476,20 @@ function Gallery({
             onRemove={selection.clear}
             onClick={selection.clear}
           />
-        </div>
+        </ChipSet>
       )}
       {chips.length > 0 && (
-        <div className="mo-editor-media-chips">
+        <ChipSet label={t.media.filters}>
           {chips.map((c) => (
             <InputChip key={c.label} removeLabel={t.media.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}
             </InputChip>
           ))}
-        </div>
+        </ChipSet>
       )}
       {groups.map((g) => (
         <section key={g.key ?? 'all'} className="mo-editor-media-group">
-          {g.key !== null && <h2 className="mo-editor-media-group-title">{sort === 'name' ? g.key : dateName(g.key)}</h2>}
+          {g.key !== null && <GroupTitle>{sort === 'name' ? g.key : dateName(g.key)}</GroupTitle>}
           <Grid srcs={g.items} picked={picked} onPick={onPick} selection={selection} />
         </section>
       ))}
@@ -582,9 +585,9 @@ export function useMediaPicker(
               }}
             />
             {selection.count > 0 && (
-              <div className="mo-editor-media-pick-bar">
+              <SiteToolbar label={t.media.pick} kind="docked" className="mo-editor-media-pick-bar">
                 <Button onClick={finish}>{t.media.addPicked(selection.count)}</Button>
-              </div>
+              </SiteToolbar>
             )}
           </>
         ) : null}
@@ -894,65 +897,57 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
           rename(src);
         }}
       >
-        <label htmlFor="media-name" className="mo-editor-media-label">
-          {t.media.name}
-        </label>
-        <div className="mo-row mo-editor-media-name-row">
-          {editing ? (
-            <>
-              <TextField
-                id="media-name"
-                className="mo-fill"
-                value={name}
-                autoFocus
-                autoComplete="off"
-                onChange={(e) => setName(e.target.value)}
-              />
-              <span className="mo-editor-media-name-ending">{endingOf(src)}</span>
-              <IconButton
-                icon={materialIcon('close')}
-                label={t.common.cancel}
-                onClick={() => {
-                  setName(stemOf(src));
-                  setEditing(false);
-                }}
-              />
-              <IconButton
-                type="submit"
-                icon={materialIcon('check')}
-                label={t.media.saveName}
-                kind="filled"
-                busy={renaming}
-                disabled={renaming || name === stemOf(src) || !slugify(name) || slugify(name) === stemOf(src)}
-              />
-            </>
-          ) : (
-            <>
-              <span className="mo-fill mo-editor-media-name-text">{fileName(src)}</span>
-              {code && !code.includes(src) && (
-                <IconButton icon={materialIcon('edit')} label={t.media.kinds[kindOf(src)].rename} onClick={() => setEditing(true)} />
-              )}
-            </>
-          )}
-        </div>
+        <TextField
+          id="media-name"
+          label={t.media.name}
+          suffix={endingOf(src)}
+          autoComplete="off"
+          {...(editing
+            ? { value: name, autoFocus: true, onChange: (e: ChangeEvent<HTMLInputElement>) => setName(e.target.value) }
+            : { value: stemOf(src), readOnly: true })}
+          trailing={
+            editing ? (
+              <>
+                <IconButton
+                  icon={materialIcon('close')}
+                  label={t.common.cancel}
+                  onClick={() => {
+                    setName(stemOf(src));
+                    setEditing(false);
+                  }}
+                />
+                <IconButton
+                  type="submit"
+                  icon={materialIcon('check')}
+                  label={t.media.saveName}
+                  kind="filled"
+                  busy={renaming}
+                  disabled={renaming || name === stemOf(src) || !slugify(name) || slugify(name) === stemOf(src)}
+                />
+              </>
+            ) : code && !code.includes(src) ? (
+              <IconButton icon={materialIcon('edit')} label={t.media.kinds[kindOf(src)].rename} onClick={() => setEditing(true)} />
+            ) : undefined
+          }
+        />
         {editing && name !== stemOf(src) && slugify(name) && slugify(name) !== name && (
           <SupportingText className="mo-editor-media-saved-as">{t.media.savedAs(`${slugify(name)}${endingOf(src)}`)}</SupportingText>
         )}
       </form>
       {!fileFirst && <FileView src={shownAt(src)} name={fileName(src)} />}
-      <div>
-        <p className="mo-editor-media-used-title">{t.media.usedOn}</p>
-        {usedBy.length || code?.includes(src) ? (
-          <ul className={listClass}>
-            {usedBy.map((f) => (
-              <ListItem key={f.path} href={`#${f.path}`} onClick={wide ? closeFile : undefined} headline={f.name} />
-            ))}
-            {code?.includes(src) && <ListItem disabled headline={t.media.siteDesign} />}
-          </ul>
-        ) : (
-          <p className="mo-editor-media-muted">{t.media.noPages}</p>
-        )}
-      </div>
+      {usedBy.length || code?.includes(src) ? (
+        <Group title={t.media.usedOn}>
+          {usedBy.map((f) => (
+            <ListItem key={f.path} href={`#${f.path}`} onClick={wide ? closeFile : undefined} headline={f.name} />
+          ))}
+          {code?.includes(src) && <ListItem disabled headline={t.media.siteDesign} />}
+        </Group>
+      ) : (
+        <div>
+          <GroupTitle>{t.media.usedOn}</GroupTitle>
+          <p className="mo-type-body-medium mo-editor-media-muted">{t.media.noPages}</p>
+        </div>
+      )}
       {kindOf(src) === 'image' && <MediaAlt key={src} src={src} files={files} env={env} />}
       <MediaTags key={src} src={src} files={files} env={env} />
       {code && !used.has(src) && (

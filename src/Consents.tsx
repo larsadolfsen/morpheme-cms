@@ -162,7 +162,7 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
         found && <IconLink icon={materialIcon('download')} label={t.consents.download} href={`${CONSENT_API}?format=csv`} download />
       }
     >
-      <p className="mo-editor-note">{t.consents.intro}</p>
+      <p className="mo-type-body-medium mo-editor-note">{t.consents.intro}</p>
       <SearchRow
         value={query}
         onChange={setQuery}

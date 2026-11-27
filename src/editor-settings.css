@@ -60,7 +60,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -69,7 +68,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -145,7 +143,7 @@
 
   .mo-editor-colors-columns {
     display: grid;
-    gap: var(--mo-ref-space-250);
+    gap: var(--mo-ref-space-300);
     & > * {
       min-inline-size: 0;
     }
@@ -223,7 +221,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -232,7 +229,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -298,7 +294,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -307,7 +302,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -368,7 +362,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -377,7 +370,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -423,7 +415,7 @@
 
   :where(.mo-editor-flow-5 > :not(:last-child)) {
     margin-block-start: 0;
-    margin-block-end: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-flow-5
     > :not(
@@ -438,7 +430,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -447,7 +438,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -508,7 +498,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -517,7 +506,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -588,22 +576,10 @@
     }
   }
 
-  .mo-editor-image-result {
-    display: block;
-    aspect-ratio: 1 / 1;
-    inline-size: 100%;
-    overflow: hidden;
-    border-radius: 0.5rem;
-    background-color: var(--mo-sys-color-surface-container-high);
-    &:disabled {
-      opacity: 60%;
-    }
-  }
-
   .mo-editor-image-results {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--mo-ref-space-75);
+    gap: var(--mo-ref-space-100);
     & > * {
       min-inline-size: 0;
     }
@@ -616,7 +592,6 @@
   @media (width >= 52.5rem) {
     .mo-editor-image-results {
       grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
-      gap: var(--mo-ref-space-100);
     }
   }
 
@@ -683,7 +658,7 @@
   }
   :where(.mo-editor-note-article > :not(:last-child)) {
     margin-block-start: 0;
-    margin-block-end: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-note-article
     > :not(
@@ -698,7 +673,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -707,7 +681,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -764,7 +737,7 @@
   }
   :where(.mo-editor-note-section > :not(:last-child)) {
     margin-block-start: 0;
-    margin-block-end: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-note-section
     > :not(
@@ -779,7 +752,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -788,7 +760,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -857,7 +828,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -866,7 +836,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -959,7 +928,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -968,7 +936,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -1048,7 +1015,7 @@
   }
   :where(.mo-editor-post-head > :not(:last-child)) {
     margin-block-start: 0;
-    margin-block-end: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-post-head
     > :not(
@@ -1063,7 +1030,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -1072,7 +1038,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -1216,7 +1181,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -1225,7 +1189,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -1289,7 +1252,6 @@
       .mo-editor-field-hint,
       .mo-editor-field-label,
       .mo-editor-field-title,
-      .mo-editor-filter-chips,
       .mo-editor-filter-row,
       .mo-editor-first-run,
       .mo-editor-group,
@@ -1298,7 +1260,6 @@
       .mo-editor-intro,
       .mo-editor-library-apps,
       .mo-editor-library-empty,
-      .mo-editor-library-filters,
       .mo-editor-library-section,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
@@ -1403,7 +1364,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--mo-ref-space-250);
+    gap: var(--mo-ref-space-300);
     padding-inline: var(--mo-ref-space-300);
     padding-block-end: env(safe-area-inset-bottom);
     text-align: center;
@@ -1423,17 +1384,6 @@
       align-items: flex-start;
       gap: var(--mo-ref-space-300);
     }
-  }
-
-  .mo-editor-target-icon {
-    margin-block-start: var(--mo-ref-space-50);
-    flex-shrink: 0;
-  }
-
-  .mo-editor-target-row {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--mo-ref-space-75);
   }
 
   .mo-editor-text-anchor {

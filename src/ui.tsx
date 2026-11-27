@@ -464,7 +464,9 @@ export function TextField({
   invalid,
   invalidFallback,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & InField & Invalid & { invalidFallback?: string; ref?: Ref<HTMLInputElement> }) {
+}: InputHTMLAttributes<HTMLInputElement> &
+  InField &
+  Invalid & { invalidFallback?: string; suffix?: string; trailing?: ReactNode; ref?: Ref<HTMLInputElement> }) {
   return (
     <SiteTextField
       label={label}
@@ -1105,27 +1107,35 @@ export function FormField({
  * on and off (Show/Hide) is a SwitchRow instead. */
 export function Checkbox({
   label,
+  hideLabel,
   hint,
   checked,
   indeterminate,
   className,
+  tabIndex,
   onChange,
 }: {
   label: string;
+  /** Only a screen reader says the name (a box in a bar that names it), as on the Switch. */
+  hideLabel?: boolean;
   hint?: ReactNode;
   checked: boolean;
   /** Neither ticked nor not: some of the choices it stands over are ticked. */
   indeterminate?: boolean;
   className?: string;
+  /** -1 for a box that only shows what another control already does (a tile's mark). */
+  tabIndex?: -1;
   onChange: (checked: boolean) => void;
 }) {
   return (
     <SiteCheckbox
       label={label}
+      hideLabel={hideLabel}
       supporting={hint}
       checked={checked}
       indeterminate={indeterminate}
       className={className}
+      tabIndex={tabIndex}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.checked)}
     />
   );
@@ -2771,12 +2781,15 @@ export function ChoiceRow({
   headline,
   supporting,
   trailing,
+  lines,
   onClick,
 }: {
   selected: boolean;
   headline: ReactNode;
   supporting?: ReactNode;
   trailing?: ReactNode;
+  /** Three, when the supporting text has two lines. */
+  lines?: 3;
   onClick: () => void;
 }) {
   return (
@@ -2785,6 +2798,7 @@ export function ChoiceRow({
       aria-pressed={selected}
       headline={headline}
       supporting={supporting}
+      lines={lines}
       trailing={
         <span className="mo-row mo-editor-choice-row">
           {trailing}

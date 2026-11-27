@@ -126,15 +126,7 @@
   }
   /* The search row or the tabs above a list: the space before the list. */
   .mo-editor-list-lead {
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
-  }
-  /* The chips of the chosen filters, under the search row. */
-  .mo-editor-filter-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--mo-ref-space-100);
-    margin-block-start: calc(var(--mo-ref-space-100) * -1);
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-chips {
     display: flex;
@@ -375,10 +367,12 @@
     margin-block-end: var(--mo-ref-space-100);
     flex-shrink: 0;
   }
+  /* The move buttons end the row 16 px from its end edge, 8 px apart, as the other row-end controls (Material 3, Lists: Specs). */
   .mo-editor-move-buttons {
     display: flex;
     flex-shrink: 0;
-    padding-inline-end: 0.375rem;
+    gap: var(--mo-ref-space-100);
+    padding-inline-end: var(--mo-ref-space-200);
   }
   /* A paragraph of an app's description or news: the space after it, but not after the last. */
   .mo-editor-app-text {
@@ -411,12 +405,6 @@
 
   /* ---- A deleted file's view and the release notes ---- */
 
-  .mo-editor-file-name {
-    display: flex;
-    align-items: center;
-    gap: var(--mo-ref-space-150);
-    font-weight: 500;
-  }
   .mo-editor-file-preview {
     inline-size: 100%;
     max-block-size: 45dvh;
