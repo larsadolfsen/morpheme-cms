@@ -674,9 +674,6 @@
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
-  .mo-editor-block-dialog-list {
-    margin-inline: -0.75rem;
-  }
   :where(.mo-editor-block-dialog-fields > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-250);
   }

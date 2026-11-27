@@ -32,8 +32,6 @@ export default function NewListDialog({ files, open, onClose }: { files: RepoFil
       setInPane(wide);
       if (!wide && el && !el.open) {
         el.showModal();
-        // No button or field has the focus to begin with, so none looks chosen (as the editor's other dialogs).
-        el.focus();
       }
     } else {
       if (el?.open) el.close();

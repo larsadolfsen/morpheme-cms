@@ -74,13 +74,9 @@ export function Ask() {
   const choices = question?.choices ?? [];
   // More than one answer: one under the other, the main one first, as they would not fit in a row;
   // one answer: "Cancel" before it in a row. The main one is filled, the others, and "Cancel",
-  // white with a frame, all alike. No button has the focus to begin with (the dialog has it), so none
-  // of them looks chosen; Esc is still "Cancel".
+  // white with a frame, all alike. The shared Dialog moves the focus to the first control when it opens (Material 3); Esc is still "Cancel".
   const row = !!question?.confirmLast;
   const many = choices.length > 1 && !row;
-  useEffect(() => {
-    if (question && !question.input) dialog.current?.focus();
-  }, [question]);
   return (
     <Dialog
       ref={dialog}

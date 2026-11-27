@@ -756,7 +756,7 @@ export function useBlockDialog(
       {block!.type === IMAGE && crop && !data.page && !!values.src && (
         // The aspect ratio is one row: its value and an arrow; it opens the crop view over the sheet, and Save there brings the new ratio and crop
         // back here (the sheet's own Save keeps them in the page: one change, one Save).
-        <ul className="mo-editor-block-dialog-list">
+        <ul>
           <ListItem
             headline={t.media.crop.ratio}
             count={String(values.format ?? '') || t.media.crop.original}
