@@ -958,6 +958,8 @@ async function checkBlockMove(width) {
       continue;
     }
     if (!(await button.first().isDisabled())) problems.push(`${label}: ${name} is not disabled for blocks that are apart`);
+    // In the ⋮ the disabled row is M3's disabled menu item, which prints no reason: only a tool on the bar carries it.
+    if (!(await page.locator('.mo-editor-tools').getByRole('button', { name }).count())) continue;
     const reason = await button.first().getAttribute('aria-description');
     if (!/next to each other/.test(reason ?? '')) problems.push(`${label}: ${name} has no reason ("${reason}")`);
     if (!/next to each other/.test((await button.first().getAttribute('title')) ?? '')) problems.push(`${label}: ${name} has no title`);
