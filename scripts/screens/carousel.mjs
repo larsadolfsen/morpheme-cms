@@ -253,6 +253,69 @@ async function checkCarouselGap(width, height) {
   await page.close();
 }
 
+/** Every item of a multi-browse or hero carousel can be the large one (M3: "items automatically change size and snap into place to maintain the same layout"; the owner, 28 Nov 2026: the last items were never large): the row is scrolled to the place where each item rests, and that item is then the widest one in view, as wide as the large item at the start. */
+async function checkCarouselEveryItemLarge(width, height) {
+  const label = `${width}px carousel every item large`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const n = await page.locator('[data-carousel-items]').count();
+  let checked = 0;
+  for (let k = 0; k < n; k++) {
+    const r = await page.evaluate(async (idx) => {
+      const row = document.querySelectorAll('[data-carousel-items]')[idx];
+      const carousel = row.closest('[data-carousel]');
+      const layout = carousel.dataset.carouselLayout;
+      // A hero aligned to the centre starts with its small item before the large one (M3: "two small carousel items, with a large item centered"): item 0 is small there by design.
+      if (!['multi-browse', 'hero'].includes(layout) || carousel.dataset.carouselAlignment === 'center') return null;
+      const items = [...row.querySelectorAll('[data-carousel-item]')];
+      const masks = items.map((li) => li.querySelector('[data-carousel-mask]'));
+      if (items.length < 2 || row.scrollWidth <= row.clientWidth) return null;
+      row.scrollIntoView({ block: 'center' });
+      row.style.scrollSnapType = 'none';
+      row.style.scrollBehavior = 'auto';
+      const frame = () => new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
+      const lead =
+        (parseFloat(getComputedStyle(row).scrollPaddingInlineStart) || 0) - (parseFloat(getComputedStyle(row).paddingInlineStart) || 0);
+      const widths = () => {
+        const w = row.getBoundingClientRect();
+        return masks.map((m) => {
+          const b = m.getBoundingClientRect();
+          const inset = Number(/inset\(\S+ (-?[\d.]+)px/.exec(getComputedStyle(m).clipPath)?.[1] ?? 0);
+          return Math.max(0, Math.min(b.right - inset, w.right) - Math.max(b.left + inset, w.left));
+        });
+      };
+      row.scrollLeft = 0;
+      await frame();
+      const largest = Math.max(...widths());
+      const max = row.scrollWidth - row.clientWidth;
+      const out = [];
+      for (let i = 0; i < items.length; i++) {
+        const to = items[i].offsetLeft - items[0].offsetLeft - lead;
+        row.scrollLeft = Math.min(Math.max(0, to), max);
+        await frame();
+        const w = widths();
+        out.push({ i, reached: Math.abs(row.scrollLeft - to) <= 1 || to < 0, own: Math.round(w[i]), widest: Math.round(Math.max(...w)) });
+      }
+      row.style.scrollSnapType = '';
+      row.style.scrollBehavior = '';
+      return { layout, largest: Math.round(largest), out };
+    }, k);
+    if (!r) continue;
+    checked++;
+    for (const o of r.out) {
+      if (!o.reached) problems.push(`${label}: carousel ${k} (${r.layout}) cannot be scrolled to where item ${o.i} rests`);
+      else if (o.own < o.widest - 1 || o.own < r.largest - 1)
+        problems.push(
+          `${label}: carousel ${k} (${r.layout}) shows item ${o.i} ${o.own} px wide where it rests, the widest in view is ${o.widest} px and a large item ${r.largest} px`,
+        );
+    }
+  }
+  if (checked < 2) problems.push(`${label}: only ${checked} multi-browse or hero carousels were checked`);
+  await page.close();
+}
+
 /** The Carousel block (the demo's Blocks page, /blocks/carousel/), on every screen size: at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), labelled, with no page indicator (M3 prints none); each layout the block offers (`layout`: multi-browse, hero, center-aligned hero, full-screen) is on the page, its items with M3's 28dp corners, and `Show all` is under every one but the full-screen one; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 840 and 1280 px it is the same row, with more cards in view (the hero keeps one small item), `Show all` under it, and a full-screen carousel is the hero. */
 async function checkCarousel(width, height) {
   const label = `${width}px carousel`;
@@ -1122,6 +1185,13 @@ export function register(unit) {
   unit('checkCarouselNoScript 390', () => checkCarouselNoScript(390, 844));
   unit('checkCarouselGap 390', () => checkCarouselGap(390, 800));
   unit('checkCarouselGap 1280', () => checkCarouselGap(1280, 900));
+  for (const [w, h] of [
+    [360, 800],
+    [390, 800],
+    [412, 900],
+    [1280, 900],
+  ])
+    unit(`checkCarouselEveryItemLarge ${w}`, () => checkCarouselEveryItemLarge(w, h));
   unit('checkCarousel 768', () => checkCarousel(768, 900));
   unit('checkCarousel 600', () => checkCarousel(600, 900));
   unit('checkCarousel 840', () => checkCarousel(840, 900));

@@ -40,4 +40,10 @@ export const allow = [
     reason:
       "a carousel item's label: its side padding is 1rem plus the item's mask inset (a px value set while the item changes size, theme/ui/carouselLayout.ts), so the text stays inside the visible part of the item; it is not a layout space",
   },
+  {
+    selector: 'ul.mo-carousel__items',
+    props: ['padding'],
+    reason:
+      "a multi-browse or hero carousel's room after its last item: what is left of the row after that item rests where the first one does (theme/ui/carouselLayout.ts), so the last item can be the large one; the row's width decides it, it is not a layout space",
+  },
 ];
