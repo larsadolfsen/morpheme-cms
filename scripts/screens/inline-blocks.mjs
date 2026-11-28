@@ -442,9 +442,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       .locator('.mo-editor-inline-list-row-active .mo-block-cards__card-actions .mo-editor-inline-card-next-button')
       .allTextContents();
     if (next.join() !== 'Add button') problems.push(`${label}: the active card's action area has "${next}", not "Add button"`);
-    // On the bar, or in the ⋮ where the bar has no room (the M3 docked toolbar's 16 dp padding).
-    if (width >= 1000 && !(await barOrMore(page, 'Link').count()))
-      problems.push(`${label}: the toolbar has no Link while the card is still empty`);
+    // The Link tool is a text tool: at 1280 it is on the bar or in the ⋮ by the bar's inside width, and the card's own context holds no Link, so `checkTextBar 1280` (text-bar.mjs) checks it there.
     // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
     const fields = await page.evaluate(() =>
       [...document.querySelectorAll('.mo-editor-inline-list-row-active [data-field]')].map((f) => f.dataset.field),
