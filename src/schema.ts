@@ -27,6 +27,8 @@ export type Only = {
   /** Also while that field is itself not in use (its own `only` says no): a card's buttons by its link, which a video has not. */
   loose?: boolean;
   and?: Only;
+  /** Also in use while this holds instead (the carousel's alt text: an image item, or a video item with a thumbnail). */
+  or?: Only;
 };
 
 export type Field = {
@@ -53,9 +55,9 @@ export type Field = {
   address?: 'page' | 'post';
   /** What is used when it is empty, shown greyed in it (string, text). */
   placeholder?: (site: SiteData) => string;
-  /** An alt text field (string, text): the name of the image field beside it. While it is empty, the Library's text for that image is shown
+  /** An alt text field (string, text): the name of the image field beside it (or of several: the first that has an image). While it is empty, the Library's text for that image is shown
    * greyed in it, with the line that says it is used (src/imageAlt.mjs). */
-  libraryText?: string;
+  libraryText?: string | string[];
   /** Edited elsewhere: a link there under the label. */
   edit?: Edit;
   required?: boolean;

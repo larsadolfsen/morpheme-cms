@@ -771,7 +771,99 @@ async function checkCarouselCardSwitch(width, height) {
   await page.close();
 }
 
+/** A video item takes its own thumbnail, as the Video block does: Media set to Video shows a Thumbnail in the item's sheet, Alt text only once one is set; the image chosen is the item's still. */
+async function checkCarouselVideoThumbnail(width, height) {
+  const label = `${width}px carousel video thumbnail`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Images, videos or cards swiped sideways.' }).first().click();
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
+  await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Video"]').dispatchEvent('click');
+  await page.waitForTimeout(900);
+  await chooseKind(page, 'Video');
+  await page.waitForTimeout(600);
+  const sheet = () => page.locator('dialog[open], .mo-editor-side-sheet').last();
+  const text = async () => (await sheet().innerText()).replace(/\s+/g, ' ');
+  if (!/Thumbnail/.test(await text())) problems.push(`${label}: the sheet of a video item has no Thumbnail`);
+  if (/Alt text/.test(await text())) problems.push(`${label}: the video item has an Alt text before it has a thumbnail`);
+  await sheet().getByLabel('Video link').first().fill('https://www.youtube.com/watch?v=aqz-KE-bpKQ');
+  await page.waitForTimeout(700);
+  if (/Alt text/.test(await text())) problems.push(`${label}: the video item has an Alt text before it has a thumbnail (with a link)`);
+  // Change link has the link and the Thumbnail.
+  await sheet().getByRole('button', { name: 'Change link', exact: true }).click();
+  await page.waitForTimeout(500);
+  await sheet()
+    .locator('button', { hasText: /^Select image$/ })
+    .first()
+    .click();
+  await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+  await page.locator('dialog[open] [data-media-tile]').first().click();
+  const use = page.locator('dialog[open]').getByRole('button', { name: /^(Use|Choose|Select)/ });
+  if (await use.count()) await use.first().click();
+  await page.waitForTimeout(900);
+  if (!/Alt text/.test(await text())) problems.push(`${label}: the video item has no Alt text once it has a thumbnail (${await text()})`);
+  const still = () => page.locator('.mo-editor-inline-carousel .mo-block-video__facade-image').first().getAttribute('src');
+  const src = await still();
+  const host = (() => {
+    try {
+      return new URL(src ?? '', 'http://localhost').hostname;
+    } catch {
+      return '';
+    }
+  })();
+  if (!src || host === 'ytimg.com' || host.endsWith('.ytimg.com') || src.includes('/_video/'))
+    problems.push(`${label}: the item draws "${src}", not the chosen thumbnail`);
+  await page.screenshot({ path: join(shots, `carousel-video-thumbnail-${width}.png`) });
+  // Removing it (the image field's own Remove, in Change link) brings the video's own still back, and the Alt text goes.
+  await sheet().getByRole('button', { name: 'Change link', exact: true }).click();
+  await page.waitForTimeout(500);
+  await sheet()
+    .getByRole('button', { name: /^Remove/ })
+    .first()
+    .click({ timeout: 3000 })
+    .catch(() => {});
+  await page.waitForTimeout(700);
+  if (/Alt text/.test(await text())) problems.push(`${label}: the Alt text stays after the thumbnail is removed`);
+  if ((await still().catch(() => '')) === src) problems.push(`${label}: the item still draws the thumbnail after it is removed`);
+  await page.close();
+}
+
+/** On the site a video item with a thumbnail draws it, with the play button and the title, and asks YouTube and Vimeo for nothing before a click (the Blocks page of the carousel, the last video item). */
+async function checkCarouselVideoThumbnailSite(width, height) {
+  const label = `${width}px carousel video thumbnail (site)`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const asked = [];
+  page.on('request', (r) => {
+    if (/(^|\.)(youtube(-nocookie)?\.com|ytimg\.com|youtu\.be|vimeo\.com|vimeocdn\.com)$/.test(new URL(r.url()).hostname))
+      asked.push(r.url());
+  });
+  if (!(await onTestPage(page, label))) return page.close();
+  const item = page.locator('.mo-block-carousel .mo-block-video__facade-image[src*="braies"]').first();
+  if (!(await item.count())) problems.push(`${label}: no video item draws its own thumbnail on the carousel's Blocks page`);
+  else {
+    const frame = item.locator('xpath=ancestor::*[contains(@class,"mo-block-video")][1]');
+    if (!(await frame.locator('svg').count())) problems.push(`${label}: the video item with a thumbnail has no play button`);
+    if (!/own thumbnail/.test(await frame.innerText())) problems.push(`${label}: the video item with a thumbnail has lost its title`);
+    if (typeof (await item.getAttribute('alt')) !== 'string' || !(await item.getAttribute('alt')))
+      problems.push(`${label}: the thumbnail has no alt text from the item`);
+  }
+  if (asked.length) problems.push(`${label}: YouTube or Vimeo was asked before a click (${asked[0]})`);
+  await page.close();
+}
+
 export function register(unit) {
+  unit('checkCarouselVideoThumbnail 1280', () => checkCarouselVideoThumbnail(1280, 900));
+  unit('checkCarouselVideoThumbnailSite 1280', () => checkCarouselVideoThumbnailSite(1280, 900));
   unit('checkCarouselScrollCost 375', () => checkCarouselScrollCost());
   unit('checkCarouselMediaSheet 1280', () => checkCarouselMediaSheet(1280, 900));
   unit('checkCarouselCardSwitch 1280', () => checkCarouselCardSwitch(1280, 900));

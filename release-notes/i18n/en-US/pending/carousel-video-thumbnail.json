@@ -1,0 +1,7 @@
+{
+  "id": "carousel-video-thumbnail",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Carousel video thumbnail",
+  "text": "A video in a carousel can show your own image before it plays. Set Media to Video, press Change link and add a Thumbnail. Without one, the video’s own thumbnail shows, and the video’s provider is only contacted when a visitor plays it."
+}
