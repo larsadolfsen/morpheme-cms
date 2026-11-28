@@ -2095,7 +2095,11 @@ function blockCard(
     const blockValue = () => ({
       ...Object.fromEntries(blockNames.map((n) => [n, node.attrs.props[n] ?? blockFields.find((f) => f.name === n)?.default ?? ''])),
       // An item's media choice (the Carousel) depends on the block's layout (its aspect ratio only in the multi-aspect ratio layout).
-      ...(spec!.itemMedia ? { layout: layoutOf(node.attrs.props) } : {}),
+      ...(spec!.itemMedia
+        ? layoutOf(node.attrs.props) === 'multi-aspect-ratio'
+          ? { layout: 'uncontained', multiAspectRatio: 'true' }
+          : { layout: layoutOf(node.attrs.props) }
+        : {}),
     });
     // The row's other values are under them, read only (a button's text for its style's sample, choiceSamples.tsx); a save writes the
     // named fields alone (setFields).

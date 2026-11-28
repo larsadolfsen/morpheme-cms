@@ -19,13 +19,27 @@ import { ASPECTS, aspectProp, cutOf, DEFAULT_RATIO, ratioProp, VIDEO_ASPECT } fr
 
 export { ASPECTS, DEFAULT_ASPECT, DEFAULT_RATIO, VIDEO_ASPECT, aspectProp, ratioProp } from '../cards/cut.mjs';
 
-/** The layouts, as Material 3 names them, in its order; the block starts as the first (Multi-browse). */
+/** The four layouts, as Material 3 names them (Guidelines: "There are four carousel layouts: Multi-browse, Uncontained, Hero, Full-screen"); the block starts as the first (Multi-browse). */
+export const blockLayouts = ['multi-browse', 'uncontained', 'hero', 'full-screen'] as const;
+export type BlockLayout = (typeof blockLayouts)[number];
+
+/** The layouts as the theme draws them: M3's two designs ("Uncontained multi-aspect ratio", "Center-aligned hero") are layouts of their own there. */
 export const carouselLayouts = ['multi-browse', 'uncontained', 'multi-aspect-ratio', 'hero', 'hero-center', 'full-screen'] as const;
 export type CarouselLayout = (typeof carouselLayouts)[number];
 export const DEFAULT_LAYOUT: CarouselLayout = 'multi-browse';
 
-/** The layout as the block says (Multi-browse without one). */
-export const layoutOf = (props: Record<string, any>): CarouselLayout => carouselLayouts.find((l) => l === props.layout) ?? DEFAULT_LAYOUT;
+const on = (v: unknown) => v === true || v === 'true';
+
+/**
+ * The layout as the block says: one of M3's four, and for Uncontained the setting `Multi-aspect ratio`, for Hero the setting `Center-aligned` (Multi-browse without a layout).
+ * A value an earlier Cards block stored (`multi-aspect-ratio`, `hero-center`) is read as its layout with its setting on.
+ */
+export const layoutOf = (props: Record<string, any>): CarouselLayout => {
+  const l = props.layout;
+  if (l === 'multi-aspect-ratio' || (l === 'uncontained' && on(props.multiAspectRatio))) return 'multi-aspect-ratio';
+  if (l === 'hero-center' || (l === 'hero' && on(props.centerAligned))) return 'hero-center';
+  return blockLayouts.find((x) => x === l) ?? DEFAULT_LAYOUT;
+};
 
 /** The layouts in which an item can be a card ("Uncontained ... can be customized to show more text or other UI above or below each item without the text being masked or cropped"). */
 export const cardLayouts: CarouselLayout[] = ['uncontained', 'multi-aspect-ratio'];
