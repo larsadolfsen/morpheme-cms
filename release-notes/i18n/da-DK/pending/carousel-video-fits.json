@@ -1,0 +1,7 @@
+{
+  "id": "carousel-video-fits",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Videoer i karrusel",
+  "text": "En video i en karrusel efterlader ikke længere tom plads under sig. I layoutet med flere billedformater er hvert punkt lige så bredt som sit eget billede eller sin egen video, fra 9:16 til 16:9, og hele billedet vises altid. Vælg et format, eller lad Automatisk give billedets eget format (16:9 for en video)."
+}

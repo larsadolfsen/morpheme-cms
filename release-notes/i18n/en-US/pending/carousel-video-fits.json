@@ -1,0 +1,7 @@
+{
+  "id": "carousel-video-fits",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Carousel videos",
+  "text": "A video in a carousel no longer leaves empty space under it. In the multi-aspect ratio layout, each item is as wide as its own image or video, from 9:16 to 16:9, and the whole image always shows. Pick a ratio, or leave Automatic for the image’s own shape (16:9 for a video)."
+}

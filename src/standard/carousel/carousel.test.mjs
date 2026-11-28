@@ -41,7 +41,7 @@ const bundle = async (name) => {
   });
   return import(pathToFileURL(outfile).href);
 };
-const { viewOf } = await bundle('view');
+const { viewOf, itemsOf } = await bundle('view');
 const { inUse } = await bundle('check');
 
 const YOUTUBE = 'https://www.youtube.com/watch?v=aqz-KE-bpKQ';
@@ -113,4 +113,51 @@ test('the alt text is in use for an image item, and for a video item only while 
   assert.equal(used({ media: 'video', thumbnail: '/images/a.jpg' }), true);
   assert.equal(used({ media: 'icon', thumbnail: '/images/a.jpg' }), false);
   assert.equal(used({ media: 'none' }), false);
+});
+
+test('in the multi-aspect ratio layout a video item is as wide as its own video: its aspect, else 16:9; an image is as wide as its own shape, else the aspect picked', () => {
+  const items = (list) => viewOf({ layout: 'multi-aspect-ratio', items: list }, data).items;
+  const [landscape, portrait, square, image, imageSet] = items([
+    { media: 'video', video: YOUTUBE },
+    { media: 'video', video: YOUTUBE, aspect: '9:16' },
+    { media: 'video', video: YOUTUBE, aspect: '1:1' },
+    { media: 'image', image: '/images/a.jpg' },
+    { media: 'image', image: '/images/a.jpg', aspect: '2:3' },
+  ]);
+  assert.equal(landscape.aspect, 16 / 9);
+  assert.equal(portrait.aspect, 9 / 16);
+  assert.equal(square.aspect, 1);
+  // An image of unknown size has no width yet (the theme sizes it from the loaded image); one picked is as picked.
+  assert.equal(image.aspect, undefined);
+  assert.equal(imageSet.aspect, 2 / 3);
+  // An image of known size is as wide as its own shape, never cut to a ratio.
+  const how = { image: (src) => ({ src, width: 2100, height: 900 }), video: () => null, buttons: () => [] };
+  const [sized, picked, outside] = itemsOf(
+    [
+      { media: 'image', image: '/images/a.jpg' },
+      { media: 'image', image: '/images/a.jpg', aspect: '1:1' },
+      { media: 'image', image: '/images/a.jpg' },
+    ],
+    'multi-aspect-ratio',
+    '3:2',
+    how,
+  );
+  assert.equal(sized.aspect, 2100 / 900);
+  assert.equal(sized.image.crop, undefined);
+  assert.equal(picked.aspect, 1);
+  // A shape outside 9:16 to 16:9 is passed on as it is: the layout clamps the width and the theme contains the image.
+  assert.equal(outside.aspect, 2100 / 900);
+  // Only this layout sets a width from it.
+  assert.equal(itemOf({ aspect: '9:16' }).aspect, undefined);
+});
+
+test('the aspect field is shown for an image and a video, and offers Automatic', () => {
+  const block = read('./index.tsx')
+    .replace(/\s+/g, ' ')
+    .replace(/,\s*([}\]])/g, ' $1');
+  assert.match(
+    block,
+    /name: 'aspect'.*only: \{ field: 'layout', is: \['multi-aspect-ratio'\], and: \{ field: 'media', is: \['', 'video'\] \} \}/,
+  );
+  assert.match(block, /options: \[\{ label: t\.blocks\.carousel\.aspectAuto, value: '' \}/);
 });
