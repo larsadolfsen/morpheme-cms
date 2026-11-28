@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 import { clickPreview, openEditor, virtualFile } from '../built-site.mjs';
+import { isMaterialTheme } from '../theme-statement.mjs';
 import { installedApps } from '../../lib/apps.mjs';
 import { appCheckPage } from '../../lib/appCheckPage.mjs';
 import { CORE_PAGE_FILE, coreBlocksPage } from '../core-blocks-page.mjs';
@@ -556,7 +557,8 @@ async function checkInsertBlock(width, height = 800) {
   const check = (state, got) => {
     const where = `${label} (${state})`;
     if (!got.insert) return void problems.push(`${where}: no Insert block on the bar (${got.names})`);
-    if (Math.abs(got.insert.width - 40) > 0.6 || Math.abs(got.insert.height - 40) > 0.6)
+    // Material 3's small icon button is 40 dp; another theme sets its own size (--mo-comp-icon-button-small-container-height), so only Material is held to it.
+    if (isMaterialTheme() && (Math.abs(got.insert.width - 40) > 0.6 || Math.abs(got.insert.height - 40) > 0.6))
       problems.push(`${where}: Insert block is ${got.insert.width} x ${got.insert.height}, not 40 x 40`);
     if (got.icon !== 'add_block')
       problems.push(`${where}: Insert block has icon ${got.icon}, not the add-block icon (widgets with a plus)`);

@@ -200,6 +200,22 @@ for (const list of ['highlights', 'testimonials'])
     for (const name of readdirSync(from)) make(`src/data/${list}/${name}`, readFileSync(join(from, name), 'utf8'));
   }
 
+// The site's default buttons (Blocks › Buttons): the demo has two, a starter has none, and the Style check needs a first one to open.
+{
+  let blocks = {};
+  try {
+    blocks = JSON.parse(readFileSync(join(ROOT, 'src/data/blocks.json'), 'utf8'));
+  } catch {}
+  if (!blocks.buttons?.items?.length)
+    make(
+      'src/data/blocks.json',
+      JSON.stringify({
+        ...blocks,
+        buttons: { ...blocks.buttons, items: [{ label: '', to: 'booking', kind: 'filled', icon: 'arrow_forward' }] },
+      }),
+    );
+}
+
 // CHROMIUM_PATH: another Chromium than Playwright's own (one installed for another version of Playwright).
 // `--list` only prints the units' names and never opens a page, so it launches no browser (a job without one can list the units).
 export const browser = LIST_ONLY ? null : await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });

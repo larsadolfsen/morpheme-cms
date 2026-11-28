@@ -9,7 +9,8 @@ import { problems } from './context.mjs';
 export function shortfall(criterion, part, message) {
   const kind = kindOf({ criterion }, activeTheme());
   if (kind === 'theme') console.log(`theme value ${criterion} (${part}), measured, not failed: ${message}`);
-  else if (kind === 'colour' && isMaterialTheme())
-    console.log(`colour ${criterion} (${part}), the colour editor's, not failed: ${message}`); // on Material's demo colours only; no other theme prints a colour
-  else problems.push(message);
+  else if (kind === 'colour') {
+    // Material's demo colours are printed; another theme's are the site's own and are not printed. A colour never fails (owner, 26 Nov 2026: only the base theme adheres to WCAG).
+    if (isMaterialTheme()) console.log(`colour ${criterion} (${part}), the colour editor's, not failed: ${message}`);
+  } else problems.push(message);
 }
