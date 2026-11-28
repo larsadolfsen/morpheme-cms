@@ -22,28 +22,39 @@ const ENTRIES = {
     ['(min-width: 616px)', '(100vw - 4rem) / 2'],
     [null, `(${NARROW}) * 0.86`],
   ],
-  // A hero item is the row less a small item and a gap.
+  // A hero's large item is the row less a small item and a gap, but never wider than twice its height: a wider row gets more large items (carouselLayout.ts, arrangement).
   hero: [
+    ['(min-width: 600px)', `min(${PAGE} - 7rem, ${2 * 320}px)`],
+    [null, '100vw - 6rem'],
+  ],
+  // The same with one or two items, where one large item takes the row.
+  'hero-short': [
     ['(min-width: 600px)', `${PAGE} - 7rem`],
     [null, '100vw - 6rem'],
   ],
-  // One item is the whole row: out to a phone's edges, the page's width from medium.
+  // A center-aligned hero has exactly one large item between two small ones and two gaps.
+  'hero-center': [
+    ['(min-width: 600px)', `${PAGE} - 11rem`],
+    [null, '100vw - 10rem'],
+  ],
+  // One item is the whole row: out to a phone's edges, the page's width from medium. From 840 px and in landscape it is drawn as a hero (FULL_SCREEN_AS_HERO in carouselLayout.ts).
   'full-screen': [
+    ['((min-width: 52.5rem) or (orientation: landscape))', `min(${PAGE} - 7rem, ${2 * 320}px)`],
     ['(min-width: 600px)', WIDE],
     [null, '100vw'],
   ],
 };
 
-/** The layouts with a `sizes` of their own (hero-center is drawn as a hero; multi-aspect-ratio has a width for each item). */
-export const LAYOUTS = [...Object.keys(ENTRIES), 'hero-center', 'multi-aspect-ratio'];
+/** The layouts with a `sizes` of their own (multi-aspect-ratio has a width for each item). */
+export const LAYOUTS = [...Object.keys(ENTRIES).filter((k) => k !== 'hero-short'), 'multi-aspect-ratio'];
 
-/** `sizes` of an image in `layout`. multi-aspect-ratio: the item's own width (`aspect` is width / height, 9:16 to 16:9). `crop`: the part of the image shown, as percent of its width: the image is drawn that much wider than its box.
- * @param {string} layout @param {{ aspect?: number; crop?: number }} [options] @returns {string} */
-export function sizesOf(layout, { aspect = 1, crop } = {}) {
+/** `sizes` of an image in `layout`. multi-aspect-ratio: the item's own width (`aspect` is width / height, 9:16 to 16:9). `count`: the carousel's items (a hero of one or two has one large item, as wide as the row allows). `crop`: the part of the image shown, as percent of its width: the image is drawn that much wider than its box.
+ * @param {string} layout @param {{ aspect?: number; crop?: number; count?: number }} [options] @returns {string} */
+export function sizesOf(layout, { aspect = 1, crop, count = 3 } = {}) {
   const entries =
     layout === 'multi-aspect-ratio'
       ? [[null, `${Math.round(aspect * ITEM_HEIGHT_PX)}px`]]
-      : (ENTRIES[layout === 'hero-center' ? 'hero' : layout] ?? ENTRIES.uncontained);
+      : (ENTRIES[layout === 'hero' && count <= 2 ? 'hero-short' : layout] ?? ENTRIES.uncontained);
   const scale = crop && crop > 0 && crop < 100 ? Math.round((100 / crop) * 100) / 100 : 1;
   const length = (size) => (scale !== 1 ? `calc(${size} * ${scale})` : /[ ]/.test(size) ? `calc(${size})` : size);
   return entries.map(([media, size]) => `${media ? `${media} ` : ''}${length(size)}`).join(', ');

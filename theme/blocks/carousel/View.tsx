@@ -36,7 +36,19 @@ function ArrowIcons() {
 }
 
 /** An item's image: told how wide its layout draws it (sizes.mjs), and the first one at the top of the page loaded at once, every other when it comes near. */
-function Picture({ item, cut, layout, first }: { item: CarouselItem; cut: boolean; layout: CarouselView['layout']; first: boolean }) {
+function Picture({
+  item,
+  cut,
+  layout,
+  first,
+  count,
+}: {
+  item: CarouselItem;
+  cut: boolean;
+  layout: CarouselView['layout'];
+  first: boolean;
+  count: number;
+}) {
   const image = item.image!;
   const crop = image.crop && cut ? image.crop : undefined;
   return (
@@ -44,7 +56,7 @@ function Picture({ item, cut, layout, first }: { item: CarouselItem; cut: boolea
       style={crop ? cutStyle(crop) : undefined}
       src={image.src}
       srcSet={image.srcset}
-      sizes={image.srcset ? sizesOf(layout, { aspect: item.aspect, crop: crop?.[2] }) : undefined}
+      sizes={image.srcset ? sizesOf(layout, { aspect: item.aspect, crop: crop?.[2], count }) : undefined}
       width={image.width}
       height={image.height}
       alt={image.alt ?? ''}
@@ -68,7 +80,7 @@ export default function CarouselBlock({ view, label }: { view: CarouselView; lab
     const media =
       item.media === 'image' && item.image ? (
         <MediaBox ratio={ratioOf(item.ratio)}>
-          <Picture item={item} cut layout={layout} first={i === firstImage} />
+          <Picture item={item} cut layout={layout} first={i === firstImage} count={items.length} />
         </MediaBox>
       ) : item.media === 'video' && item.video ? (
         <Video view={item.video} />
@@ -107,7 +119,7 @@ export default function CarouselBlock({ view, label }: { view: CarouselView; lab
       <>
         {image && (
           <span className="mo-block-carousel__item-media">
-            <Picture item={item} cut={layout === 'multi-aspect-ratio'} layout={layout} first={i === firstImage} />
+            <Picture item={item} cut={layout === 'multi-aspect-ratio'} layout={layout} first={i === firstImage} count={items.length} />
           </span>
         )}
         {video && (

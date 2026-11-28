@@ -112,6 +112,7 @@ async function checkCarouselImages(width, height, scale) {
           : c.dataset.carouselLayout
         : 'uncontained',
       multiAspect: c.classList.contains('mo-is-multi-aspect'),
+      count: c.querySelectorAll('.mo-carousel__item').length,
       images: [...c.querySelectorAll('img:not(.mo-block-video__facade-image)')].map((img) => ({
         loading: img.getAttribute('loading'),
         priority: img.getAttribute('fetchpriority'),
@@ -120,6 +121,10 @@ async function checkCarouselImages(width, height, scale) {
         height: img.getAttribute('height'),
         drawn: img.getBoundingClientRect().width,
         natural: img.complete ? img.naturalWidth : 0,
+        widths: img.srcset
+          .split(',')
+          .map((x) => parseInt(x.trim().split(/\s+/)[1], 10))
+          .filter(Boolean),
         src: img.currentSrc.split('/').pop(),
       })),
     })),
@@ -139,9 +144,16 @@ async function checkCarouselImages(width, height, scale) {
         );
       if (!img.width || !img.height) problems.push(`${label}: ${where} has no width and height, so the page shifts when it loads`);
       // A layout's own `sizes`; a multi-aspect ratio item's is its own width in px.
-      const expected = c.multiAspect ? null : sizesOf(c.layout);
+      const expected = c.multiAspect ? null : sizesOf(c.layout, { count: c.count });
       if (c.multiAspect ? !/^(\d+px|calc\(\d+px \* [\d.]+\))$/.test(img.sizes ?? '') : img.sizes !== expected)
         problems.push(`${label}: ${where} has sizes "${img.sizes}", not its layout's ${expected ?? 'width in px'}`);
+      // The file is the smallest of the image's own sizes that covers what is drawn (with 10% for the margins of `sizes`): never a bigger one, the original included.
+      const need = img.drawn * scale * 1.1;
+      const best = Math.min(...img.widths.filter((w) => w >= need), Math.max(...img.widths));
+      if (img.natural && img.drawn > 1 && img.widths.length && img.natural > best)
+        problems.push(
+          `${label}: ${where} loaded ${img.src}, ${img.natural} px wide, where ${best} px covers the ${Math.round(img.drawn)} px it is drawn at ${scale}x`,
+        );
       if (img.natural && img.drawn > 1 && img.natural > 3 * img.drawn * scale)
         problems.push(
           `${label}: ${where} loaded ${img.src}, ${img.natural} px wide, for an image drawn ${Math.round(img.drawn)} px wide at ${scale}x (more than 3 times what is shown)`,
@@ -923,7 +935,8 @@ async function checkCarouselVideoThumbnailSite(width, height) {
   else {
     const frame = item.locator('xpath=ancestor::*[contains(@class,"mo-block-video")][1]');
     if (!(await frame.locator('svg').count())) problems.push(`${label}: the video item with a thumbnail has no play button`);
-    if (!/own thumbnail/.test(await frame.innerText())) problems.push(`${label}: the video item with a thumbnail has lost its title`);
+    if (!/own thumbnail/.test((await frame.textContent()) ?? ''))
+      problems.push(`${label}: the video item with a thumbnail has lost its title`);
     if (typeof (await item.getAttribute('alt')) !== 'string' || !(await item.getAttribute('alt')))
       problems.push(`${label}: the thumbnail has no alt text from the item`);
   }
