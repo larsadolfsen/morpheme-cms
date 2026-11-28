@@ -337,6 +337,7 @@ async function checkCarouselFullScreen(width, height) {
         gap: cs.columnGap,
         rowWidth: Math.round(row.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)),
         itemWidth: Math.round(item.getBoundingClientRect().width),
+        radius: getComputedStyle(item.querySelector('.mo-block-carousel__item') ?? item).borderTopLeftRadius,
       };
     });
     return {
@@ -359,6 +360,8 @@ async function checkCarouselFullScreen(width, height) {
       if (row.gap !== '16px') problems.push(`${label}: a full-screen row has ${row.gap} between items, not 16px`);
       if (Math.abs(row.itemWidth - row.rowWidth) > 1)
         problems.push(`${label}: a full-screen item is ${row.itemWidth} px of the row's ${row.rowWidth} px`);
+      if (phone && isMaterialTheme() && row.radius !== '0px')
+        problems.push(`${label}: a full-screen item has corners (${row.radius}) on a phone`);
     }
   }
   await page.close();

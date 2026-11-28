@@ -60,6 +60,10 @@
   }
   /* The caption sits inside the item, above the site's fixed action bar (6rem of room under the page on a phone, site-action.css). */
   @media (width < 37.5rem) {
+    /* Out to the phone's edges without corners (the theme's token, none for Material). */
+    .mo-block-carousel .mo-carousel.mo-is-full-screen .mo-block-carousel__item {
+      border-radius: var(--mo-comp-carousel-full-screen-radius, 0);
+    }
     .mo-block-carousel .mo-carousel.mo-is-full-screen .mo-block-carousel__item-label {
       padding-block-end: 6rem;
     }
