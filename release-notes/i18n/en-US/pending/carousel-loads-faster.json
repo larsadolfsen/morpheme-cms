@@ -1,0 +1,7 @@
+{
+  "id": "carousel-loads-faster",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Image loading",
+  "text": "Pages feel fast from the first moment. Every image on your site shows a small blurred preview of itself while its file loads, the image at the top loads first, and the rest wait until visitors scroll near. Nothing changes in the editor."
+}

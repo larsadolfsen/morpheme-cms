@@ -3,14 +3,20 @@
 // text on the pages. Rendered with Astro's Markdown pipeline, like the pages (GitHub-flavoured
 // Markdown, typographic quotes).
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
+import { rehypeResponsiveImages } from '@morphemecms/cms/site/images.mjs';
 
 interface Props {
   body: string;
   class?: string;
+  /** The first image of the text is the page's first picture (at the top of the home page): loaded at once with high priority. */
+  eagerFirst?: boolean;
 }
-const { body, class: className } = Astro.props;
+const { body, class: className, eagerFirst = false } = Astro.props;
 
-const processor = await createMarkdownProcessor();
+const processor = await createMarkdownProcessor({
+  // A text block's images get their sizes and blurred preview like the page's; none is loaded first unless the page says so (`eagerFirst`).
+  rehypePlugins: [[rehypeResponsiveImages, { sizes: '(min-width: 800px) 720px, calc(100vw - 40px)', eagerFirst }]],
+});
 const html = (await processor.render(body ?? '')).code;
 ---
 

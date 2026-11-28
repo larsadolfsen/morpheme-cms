@@ -14,9 +14,9 @@ export function facadeWithThumbnail(video: NonNullable<ReturnType<typeof videoOf
   if (!thumbnail) return view;
   // A local image: the video's provider is still only contacted when the visitor presses play.
   // `alt` is the Library's text ("" when it marks the image decorative) unless the block has its own.
-  const { src, srcset, alt: library } = imageOf(thumbnail);
+  const { src, srcset, placeholder, alt: library } = imageOf(thumbnail);
   const alt = props.alt?.trim() ? thumbnailAlt(props) : (library ?? '');
-  return { ...view, still: { src, ...(srcset ? { srcset } : {}), alt } };
+  return { ...view, still: { src, ...(srcset ? { srcset } : {}), ...(placeholder ? { placeholder } : {}), alt } };
 }
 
 export const load: Load<VideoView> = async (props) => {

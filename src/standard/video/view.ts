@@ -13,7 +13,7 @@ export type VideoView = {
   href: string;
   player: string;
   title: string;
-  still: { src: string; srcset?: string; alt?: string } | null;
+  still: { src: string; srcset?: string; placeholder?: string; alt?: string } | null;
   /** In the editor: YouTube's or Vimeo's still, for when the site has none. */
   stillElsewhere?: () => Promise<string | null>;
 };

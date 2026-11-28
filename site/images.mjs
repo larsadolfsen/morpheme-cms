@@ -73,6 +73,15 @@ export function responsive(src) {
   return { srcset, width: info.width, height: info.height };
 }
 
+/** An image's blurred preview, a `data:` URI of 20 px (made by scripts/responsive-images.mjs), or undefined. */
+export const placeholderOf = (src) => load()[src]?.blur;
+
+/** The same as an inline `style` string (Img.astro, the Markdown plugin): the blurred preview as the image's background, or ''. */
+export const previewCss = (src) => {
+  const blur = placeholderOf(src);
+  return blur ? `background-image:url(${blur});background-size:cover;background-position:center` : '';
+};
+
 // The sizes of an image shown `scale` times wider than its box (cut to a format, crop.mjs), e.g.
 // a list like "720px, calc(100vw - 40px)" twice as wide.
 const scaled = (sizes, scale) =>
@@ -88,7 +97,7 @@ const scaled = (sizes, scale) =>
 /** Rehype plugin: adds srcset, sizes, width/height and lazy loading to content images, cuts an image to
  * its format (crop.mjs): in a box of that format, or itself of it without a crop, and draws a decorative
  * one with alt="". */
-export function rehypeResponsiveImages({ sizes }) {
+export function rehypeResponsiveImages({ sizes, eagerFirst = true }) {
   return (tree, file) => {
     // A blog post's layout shows its featured image above the text unless the text has the same image
     // (heroImage). Then that one is the first image on screen, and every image in the text can wait.
@@ -99,7 +108,7 @@ export function rehypeResponsiveImages({ sizes }) {
       node.children?.forEach(collect);
     };
     collect(tree);
-    let first = !(featured && !sources.some((src) => samePicture(src, featured)));
+    let first = eagerFirst && !(featured && !sources.some((src) => samePicture(src, featured)));
     const visit = (node, parent, index) => {
       if (node.type === ELEMENT && node.tagName === 'img' && typeof node.properties?.src === 'string') {
         const { src, format, crop, decorative } = splitPicture(node.properties.src);
@@ -124,7 +133,7 @@ export function rehypeResponsiveImages({ sizes }) {
           first = false;
         } else node.properties.loading ??= 'lazy';
         node.properties.decoding ??= 'async';
-        if (cut) node.properties.style = cut.img;
+        node.properties.style = [cut?.img, previewCss(src)].filter(Boolean).join(';') || node.properties.style;
         if (cut?.box && parent)
           parent.children[index] = {
             type: ELEMENT,

@@ -1,0 +1,7 @@
+{
+  "id": "carousel-loads-faster",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Indlæsning af billeder",
+  "text": "Siderne føles hurtige fra første øjeblik. Hvert billede på hjemmesiden viser en lille udtværet forhåndsvisning, mens filen hentes. Billedet øverst hentes først, og resten venter, til besøgende scroller tæt på. Intet ændrer sig i editoren."
+}

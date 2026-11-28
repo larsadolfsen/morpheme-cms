@@ -120,7 +120,9 @@ async function make({ file, url, outBase }) {
     written++;
   }
   entries[`_s/${shareRel}`] = shareKey;
-  return { url, entries, entry: { width, height, variants, share: `/images/_s/${shareRel}` } };
+  // A blurred preview, 20 px wide (about 300 bytes), inlined where an image is drawn so its colours and shape show before the file arrives (a block's `placeholder`).
+  const blur = `data:image/webp;base64,${(await sharp(file).resize({ width: 20 }).webp({ quality: 20 }).toBuffer()).toString('base64')}`;
+  return { url, entries, entry: { width, height, variants, share: `/images/_s/${shareRel}`, blur } };
 }
 
 // A small pool: the images are made side by side, and sharp's own threads (sharp.concurrency()) are counted, so the machine is not oversubscribed.
