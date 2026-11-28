@@ -237,9 +237,9 @@ async function checkChoiceGroupFields(width, locale) {
     await page.waitForTimeout(300);
     const groups = await here.evaluate(choiceGroupsIn);
     seen.push(...groups.map((g) => g.name));
-    // Blog posts 1, Testimonials 1, Cards 4, Image grid 3, Expandable list 2 (the Segmented list is an Expandable list): the fixture's blocks in their order.
+    // Blog posts 1, Testimonials 1, Cards 3, Image grid 3, Expandable list 2 (the Segmented list is an Expandable list): the fixture's blocks in their order.
     // List and Expandable list have two, Design and Leading (what leads the rows, one choice for the block as the media of Cards); every other block has one.
-    const expected = [1, 1, 4, 3, 2][i];
+    const expected = [1, 1, 3, 3, 2][i];
     if (groups.length !== expected)
       problems.push(
         `${label} ${name}: ${groups.length} choice groups in its settings, not ${expected} (${groups.map((g) => g.name).join(', ')})`,
