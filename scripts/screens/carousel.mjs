@@ -701,9 +701,80 @@ async function checkCarouselMediaSheet(width, height) {
   await page.close();
 }
 
+// An item becomes a card with the Card button in an uncontained layout, and the block's variant (Outlined, Filled, Elevated) changes it; switching the kind back
+// to Image or Video makes it a plain item again, and the buttons stored on it return when it is a card again.
+async function checkCarouselCardSwitch(width, height) {
+  const label = `${width}px carousel card switch`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Images, videos or cards swiped sideways.' }).first().click();
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
+  const slot = (name) => page.locator(`.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="${name}"]`);
+  // In Multi-browse an item cannot be a card: no Card button.
+  if ((await slot('Card').count()) > 0) problems.push(`${label}: Multi-browse has a Card button, which only the uncontained layouts have`);
+  await page.getByRole('button', { name: 'Block settings' }).first().click();
+  await page.waitForTimeout(900);
+  await page
+    .locator('dialog[open] button, .mo-editor-side-sheet button', { hasText: /^Multi-browse$/ })
+    .first()
+    .click();
+  await page.waitForTimeout(300);
+  await page
+    .locator('dialog[open] *, .mo-editor-menu *, [role="listbox"] *', { hasText: /^Uncontained$/ })
+    .last()
+    .click();
+  await page.waitForTimeout(500);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  const isCard = () =>
+    page.evaluate(
+      () => !!document.querySelector('.mo-editor-inline-carousel .mo-card, .mo-editor-inline-carousel [class*="mo-block-carousel__card"]'),
+    );
+  if (await isCard()) problems.push(`${label}: a plain item is drawn as a card before the Card button is pressed`);
+  await slot('Card').click();
+  await page.waitForTimeout(500);
+  if (!(await isCard())) problems.push(`${label}: the Card button does not make the item a card in the Uncontained layout`);
+  if ((await slot('Card').getAttribute('aria-pressed')) !== 'true') problems.push(`${label}: the Card button is not pressed on a card`);
+  // The block's variant changes the card.
+  for (const [name, cls] of [
+    ['Filled', 'mo-is-filled'],
+    ['Elevated', 'mo-is-elevated'],
+    ['Outlined', 'mo-is-outlined'],
+  ]) {
+    await page.getByRole('button', { name: 'Block settings' }).first().click();
+    await page.waitForTimeout(700);
+    await page.getByRole('radio', { name, exact: true }).dispatchEvent('click');
+    await page.waitForTimeout(300);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(400);
+    if ((await page.locator(`.mo-editor-inline-carousel .mo-card.${cls}`).count()) === 0)
+      problems.push(`${label}: ${name} does not change the card`);
+  }
+  // Switching the media kind keeps the item a card.
+  for (const kind of ['Video', 'Image']) {
+    await slot(kind).dispatchEvent('click');
+    await page.waitForTimeout(400);
+    await page.keyboard.press('Escape');
+    if (!(await isCard())) problems.push(`${label}: ${kind} makes the card a plain item`);
+  }
+  await slot('Card').click();
+  await page.waitForTimeout(500);
+  if (await isCard()) problems.push(`${label}: the Card button pressed again does not make the card a plain item`);
+  await page.close();
+}
+
 export function register(unit) {
   unit('checkCarouselScrollCost 375', () => checkCarouselScrollCost());
   unit('checkCarouselMediaSheet 1280', () => checkCarouselMediaSheet(1280, 900));
+  unit('checkCarouselCardSwitch 1280', () => checkCarouselCardSwitch(1280, 900));
   unit('checkCarouselGap 390', () => checkCarouselGap(390, 800));
   unit('checkCarouselGap 1280', () => checkCarouselGap(1280, 900));
   unit('checkCarousel 768', () => checkCarousel(768, 900));

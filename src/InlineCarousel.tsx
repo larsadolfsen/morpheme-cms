@@ -91,7 +91,13 @@ export default function InlineCarousel({
   const type: CardKind = cardKinds.find((k) => k === props.design) ?? 'outlined';
   const colored = type === 'filled' && props.color ? `mo-block-carousel__${props.color}` : undefined;
   const more = String(sharedIn(data.site, 'carousel', shared.values).more);
-  const patch = (i: number, p: Item) => onChange({ items: items.map((r, j) => (j === i ? { ...r, ...p } : r)), active: i, focus: null });
+  // A new block has no stored item yet, only the empty one shown to type in (`next`): a change to it makes it the item.
+  const patch = (i: number, p: Item) =>
+    onChange({
+      items: i >= items.length ? [...items, { title: '', ...p }] : items.map((r, j) => (j === i ? { ...r, ...p } : r)),
+      active: i,
+      focus: null,
+    });
 
   // The active card's action area: each button's text is typed on the button itself (its target, style and icon are in its menu), and the next button is always there,
   // empty and faded (`Add button`; no fixed maximum). Backspace in an empty one drops it, Enter adds the next.
