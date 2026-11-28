@@ -42,6 +42,17 @@ async function menuIconProblems(page) {
   });
 }
 
+/** The theme's small icon button in dp, as the editor measures it (MarkdownEditor.tsx, textBar.mjs ICON): Material 40, another theme its own. */
+const iconSizeOf = (page) =>
+  page.evaluate(() => {
+    const probe = document.createElement('span');
+    probe.style.cssText = 'position:absolute;visibility:hidden;width:var(--mo-comp-icon-button-small-container-height, 2.5rem)';
+    document.querySelector('.mo-editor-tools').appendChild(probe);
+    const w = probe.getBoundingClientRect().width;
+    probe.remove();
+    return w;
+  });
+
 /** The text's one bar (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, PR 1). On a phone, with the cursor in text: one bar, 44 dp tall, every button 44 x 44 dp, never scrolling, no divider, the text tools at the left (Bold, Italic, Text style, List: as many as fit beside the right group) and Undo, Redo, Insert block and the ⋮ at the right end (354 dp wide at 375 px, 352 inside: all four text tools on the bar and the ⋮ reads Alignment, Link, Color; at 360 px Lists is the first row in the ⋮); the ⋮ is a pop-up menu (not a sheet) inside the visible screen, with rows of 44 dp, which keeps the cursor and closes on Escape; Undo works; the bar has the same height idle; the Text style menu has at most 8 rows of 44 dp, a page's first heading offers Main heading, a blog post Heading and Subheading, a list item no heading rows and no Quote, a heading no list rows and no Quote. On a computer all tools are on the bar and there is no ⋮. */
 async function checkTextBar(width = 360) {
   const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -132,7 +143,13 @@ async function checkTextBar(width = 360) {
     // The text tools stand at the left in the owner's order (Bold, Italic, Text style, List), as many as the width budget lets in beside Undo, Redo,
     // Insert block and the ⋮ (planBar, src/textBar.mjs); the first one that does not fit is in the ⋮.
     const labels = { bold: 'Bold', italic: 'Italic', style: 'Text style', list: 'List' };
-    const plan = planBar({ width: inText.innerWidth, context: Object.keys(labels), fixed: ['undo', 'redo', 'insert'], more: true });
+    const plan = planBar({
+      width: inText.innerWidth,
+      context: Object.keys(labels),
+      fixed: ['undo', 'redo', 'insert'],
+      more: true,
+      icon: await iconSizeOf(page),
+    });
     const got = inText.names.slice(0, -4).map((n) => n.split(':')[0]);
     const want = plan.bar.context.map((id) => labels[id]);
     if (got.join() !== want.join()) problems.push(`${label}: the bar has ${got.join()} at the left, not ${want.join()}`);
@@ -580,6 +597,7 @@ async function checkTextBarFit(width) {
   await page.click('.ProseMirror');
   await page.keyboard.type('Fro');
   await page.waitForSelector('.mo-editor-tools button[aria-label="Bold"]', { timeout: 5000 });
+  const icon = await iconSizeOf(page);
   const idOf = (name) => {
     if (name.startsWith('Text style')) return 'style';
     if (name === 'List' || name.startsWith('List:')) return 'list';
@@ -608,8 +626,10 @@ async function checkTextBarFit(width) {
     problems.push(`${label}: the bar overflows its box (last button ends at ${bar.buttons.at(-1).right}, box at ${bar.barRight - 1})`);
   for (const b of bar.buttons) {
     const id = idOf(b.name) ?? { Undo: 'undo', Redo: 'redo', 'Insert block': 'insert', More: 'more' }[b.name];
-    if (id && Math.abs(b.w + 8 - toolWidth(id)) > 0.6)
-      problems.push(`${label}: ${b.name} is drawn ${b.w} dp wide, TOOL_WIDTH says ${toolWidth(id)} with its 8 dp gap (src/textBar.mjs)`);
+    if (id && Math.abs(b.w + 8 - toolWidth(id, {}, icon)) > 0.6)
+      problems.push(
+        `${label}: ${b.name} is drawn ${b.w} dp wide, TOOL_WIDTH says ${toolWidth(id, {}, icon)} with its 8 dp gap (src/textBar.mjs)`,
+      );
   }
   if (onBar.join() !== TEXT.slice(0, onBar.length).join())
     problems.push(`${label}: the bar's text tools are not in order (${onBar.join()})`);
@@ -644,8 +664,8 @@ async function checkTextBarFit(width) {
   if (hasMore && !rest.length && !inMenu.length) {
     // A ⋮ with no text tool in it is only allowed while Section settings or another row is in it.
   }
-  if (rest.length && free >= toolWidth(rest[0]) - 0.6)
-    problems.push(`${label}: a gap of ${free} dp on the bar, the next tool (${rest[0]}) is ${toolWidth(rest[0])} dp`);
+  if (rest.length && free >= toolWidth(rest[0], {}, icon) - 0.6)
+    problems.push(`${label}: a gap of ${free} dp on the bar, the next tool (${rest[0]}) is ${toolWidth(rest[0], {}, icon)} dp`);
   console.log(`${label}: ${bar.inner} dp inside; on the bar ${onBar.join(', ')}; in the ⋮ ${rest.join(', ') || '-'}; free ${free} dp`);
   await page.close();
 }
