@@ -14,6 +14,7 @@ import Video from '@theme/blocks/video/View';
 import Button from '@theme/ui/Button';
 import Card, { CardMedia as MediaBox, cardKinds, type CardKind } from '@theme/ui/Card';
 import Carousel from '@theme/ui/Carousel';
+import { aspectOf } from '@theme/ui/carouselLayout';
 import IconButton from '@theme/ui/IconButton';
 
 /** The image of an item cut to the part the owner chose (crop.mjs: percent of the image from the left, from the top, its width and height): wider than its box and moved. */
@@ -37,7 +38,15 @@ function ArrowIcons() {
   );
 }
 
-function Picture({ item, cut }: { item: CarouselItem; cut: boolean }) {
+/** An image that has loaded gives its item its own width (the editor's preview, which does not know the image's size beforehand; the site writes it in): its natural width / height, kept within M3's range by the layout. */
+const widen = (img: HTMLImageElement) => {
+  if (img.naturalWidth && img.naturalHeight)
+    img
+      .closest<HTMLElement>('[data-carousel-item]')
+      ?.style.setProperty('--mo-comp-carousel-item-aspect', String(aspectOf(img.naturalWidth / img.naturalHeight)));
+};
+
+function Picture({ item, cut, onSize }: { item: CarouselItem; cut: boolean; onSize?: (img: HTMLImageElement) => void }) {
   const image = item.image!;
   return (
     <img
@@ -50,6 +59,7 @@ function Picture({ item, cut }: { item: CarouselItem; cut: boolean }) {
       alt={image.alt ?? ''}
       loading="lazy"
       decoding="async"
+      onLoad={onSize ? (e) => onSize(e.currentTarget) : undefined}
     />
   );
 }
@@ -105,7 +115,7 @@ export default function CarouselBlock({ view, label }: { view: CarouselView; lab
       <>
         {image && (
           <span className="mo-block-carousel__item-media">
-            <Picture item={item} cut={layout === 'multi-aspect-ratio'} />
+            <Picture item={item} cut={false} onSize={layout === 'multi-aspect-ratio' && item.aspect === undefined ? widen : undefined} />
           </span>
         )}
         {video && (

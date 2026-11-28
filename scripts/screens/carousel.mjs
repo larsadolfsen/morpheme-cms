@@ -868,7 +868,43 @@ async function checkCarouselVideoThumbnailSite(width, height) {
   await page.close();
 }
 
+/** Multi-aspect ratio: each item is as wide as its own picture, within 9:16 to 16:9, one row height for all, and the whole picture is shown (contained, never cut). */
+async function checkCarouselMultiAspect(width, height) {
+  const label = `${width}px carousel multi-aspect ratio`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const root = page.locator('.mo-block-carousel:has(img[alt^="A mountain, "])').first();
+  if (!(await root.count())) {
+    problems.push(`${label}: no carousel with the ratio images on the Blocks page`);
+    return page.close();
+  }
+  await root.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1200);
+  const items = await root.evaluate((el) =>
+    [...el.querySelectorAll('[data-carousel-item] img[alt^="A mountain, "]')].map((img) => {
+      const li = img.closest('[data-carousel-item]').getBoundingClientRect();
+      return { alt: img.alt, w: li.width, h: li.height, fit: getComputedStyle(img).objectFit, cropped: img.style.transform !== '' };
+    }),
+  );
+  const want = { '9:16': 9 / 16, '1:1': 1, '4:3': 4 / 3, '16:9': 16 / 9, '21:9': 16 / 9, '1:3': 9 / 16 };
+  if (items.length !== 6) problems.push(`${label}: expected 6 images, found ${items.length}`);
+  const row = items[0]?.h;
+  for (const it of items) {
+    const key = /A mountain, ([\d:]+)/.exec(it.alt)?.[1] ?? '';
+    const ratio = it.w / it.h;
+    if (!(key in want) || Math.abs(ratio - want[key]) > 0.03)
+      problems.push(`${label}: ${key} is ${ratio.toFixed(2)} wide / high, not ${want[key]?.toFixed(2)}`);
+    if (Math.abs(it.h - row) > 1) problems.push(`${label}: ${key} is ${it.h}px high, the row is ${row}px`);
+    if (it.fit !== 'contain') problems.push(`${label}: ${key} is drawn with object-fit ${it.fit}, not contain`);
+    if (it.cropped) problems.push(`${label}: ${key} is cut`);
+  }
+  await page.close();
+}
+
 export function register(unit) {
+  unit('checkCarouselMultiAspect 390', () => checkCarouselMultiAspect(390, 800));
+  unit('checkCarouselMultiAspect 1280', () => checkCarouselMultiAspect(1280, 900));
   unit('checkCarouselVideoThumbnail 1280', () => checkCarouselVideoThumbnail(1280, 900));
   unit('checkCarouselVideoThumbnailSite 1280', () => checkCarouselVideoThumbnailSite(1280, 900));
   unit('checkCarouselScrollCost 375', () => checkCarouselScrollCost());

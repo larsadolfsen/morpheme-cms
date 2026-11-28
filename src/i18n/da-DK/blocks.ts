@@ -551,7 +551,7 @@ export const blocks: Messages['blocks'] = {
       'En titel over karrusellen. Med en overskrift viser en pil ved siden af den alle elementer i stedet for Vis alle under rækken.',
     headerPlaceholder: 'Overskrift',
     ratioHint: 'Alle kortenes billeder bruger det.',
-    aspectHint: 'Dette punkts billede eller video bruger det. En video uden er 16:9.',
+    aspectHint: 'Dette punkts bredde. Auto bruger billedets egen form, 16:9 for en video; hele billedet vises altid.',
     aspectAuto: 'Automatisk',
     items: 'Elementer',
     item: 'element',
