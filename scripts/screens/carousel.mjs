@@ -664,7 +664,7 @@ async function checkCarouselMediaSheet(width, height) {
   await sheet().getByRole('button', { name: 'Alt text', exact: true }).click();
   await page.waitForTimeout(400);
   // The aspect ratio is the item's own only in the multi-aspect ratio layout: in Multi-browse the Alt text view has no Aspect ratio row.
-  if ((await sheet().getByText('Aspect ratio', { exact: true }).count()) > 0)
+  if (/Aspect ratio/i.test(await sheet().innerText()))
     problems.push(`${label}: the Alt text view of a plain item in Multi-browse has an Aspect ratio, which only the multi-aspect ratio layout has`);
   await sheet().getByLabel('Alt text').first().fill('A test picture');
   await page.waitForTimeout(500);
