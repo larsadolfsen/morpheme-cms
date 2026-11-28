@@ -809,9 +809,12 @@ async function checkCarouselMediaSheet(width, height) {
   await page.waitForTimeout(400);
   await page.locator('.mo-editor-inline-card-media').first().dispatchEvent('click');
   await page.waitForTimeout(900);
-  const cuttable = await names();
-  if (!cuttable.includes('Crop'))
-    problems.push(`${label}: in the multi-aspect ratio layout the sheet of an image has no Crop (${cuttable.join(', ')})`);
+  // A plain item shows its whole image in this layout, so there is nothing to cut: no Crop (a card keeps its Crop).
+  const whole = await names();
+  if (whole.includes('Crop'))
+    problems.push(
+      `${label}: in the multi-aspect ratio layout the sheet of a plain item's image has a Crop, but the whole image shows (${whole.join(', ')})`,
+    );
   await page.close();
 }
 
@@ -1037,7 +1040,74 @@ async function checkHomeFirstImage(width, height) {
   await page.close();
 }
 
+/** A video item's box is the video's box, and no item is wider than the page's content (the owner's phone, 28 Nov 2026: a grey band above the video from the text's margin, and a 16:9 item wider than the screen): in the multi-aspect ratio carousel of videos every item's video starts at the item's top and is as high as the item, and the item is at most as wide as the carousel. */
+async function checkCarouselVideoBox(width, height) {
+  const label = `${width}px carousel video box`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const root = page.locator('.mo-block-carousel:has(.mo-is-multi-aspect .mo-block-video__facade)').first();
+  if (!(await root.count())) {
+    problems.push(`${label}: no multi-aspect ratio carousel of videos on the Blocks page`);
+    return page.close();
+  }
+  await root.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(800);
+  const m = await root.evaluate((el) => {
+    const room = el.querySelector('.mo-carousel').getBoundingClientRect().width;
+    const items = [...el.querySelectorAll('[data-carousel-item]')].map((li) => {
+      const box = li.getBoundingClientRect();
+      const video = li.querySelector('.mo-block-video__facade')?.getBoundingClientRect();
+      return { w: box.width, h: box.height, videoTop: video ? video.top - box.top : null, videoH: video?.height ?? null };
+    });
+    return { room, vw: document.documentElement.clientWidth, sw: document.documentElement.scrollWidth, items };
+  });
+  const videos = m.items.filter((i) => i.videoH !== null);
+  if (!videos.length) problems.push(`${label}: no video item in it`);
+  for (const [i, it] of videos.entries()) {
+    if (Math.abs(it.videoTop) > 1) problems.push(`${label}: video ${i + 1} starts ${Math.round(it.videoTop)}px below its item's top`);
+    if (Math.abs(it.videoH - it.h) > 1)
+      problems.push(`${label}: video ${i + 1} is ${Math.round(it.videoH)}px high, its item ${Math.round(it.h)}px`);
+  }
+  for (const [i, it] of m.items.entries())
+    if (it.w > m.room + 1) problems.push(`${label}: item ${i + 1} is ${Math.round(it.w)}px wide, the carousel ${Math.round(m.room)}px`);
+  if (m.sw > m.vw) problems.push(`${label}: the page is ${m.sw}px wide on a ${m.vw}px screen`);
+  await page.close();
+}
+
+/** No item is wider than the screen (the owner, 28 Nov 2026): in every multi-aspect ratio carousel on the Blocks page (images, videos, mixed, uncontained) each item is at most the carousel's width, which is the screen minus both margins on a phone, and the page does not scroll sideways. */
+async function checkCarouselWidthCap(width, height) {
+  const label = `${width}px carousel width cap`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  await page.waitForTimeout(800);
+  const m = await page.evaluate(() => {
+    const vw = document.documentElement.clientWidth;
+    const lists = [...document.querySelectorAll('.mo-carousel.mo-is-multi-aspect')].map((c) => {
+      const room = c.getBoundingClientRect().width;
+      return { room, widths: [...c.querySelectorAll('[data-carousel-item]')].map((li) => li.getBoundingClientRect().width) };
+    });
+    return { vw, sw: document.documentElement.scrollWidth, lists };
+  });
+  if (m.lists.length < 4)
+    problems.push(
+      `${label}: only ${m.lists.length} multi-aspect ratio carousels on the Blocks page (expected the images, videos, mixed and uncontained ones)`,
+    );
+  for (const [n, l] of m.lists.entries())
+    for (const [i, w] of l.widths.entries()) {
+      if (w > l.room + 1)
+        problems.push(`${label}: carousel ${n + 1}, item ${i + 1} is ${Math.round(w)}px wide, the carousel ${Math.round(l.room)}px`);
+      if (w > m.vw - 32 + 1)
+        problems.push(`${label}: carousel ${n + 1}, item ${i + 1} is ${Math.round(w)}px wide on a ${m.vw}px screen with 16px margins`);
+    }
+  if (m.sw > m.vw) problems.push(`${label}: the page is ${m.sw}px wide on a ${m.vw}px screen`);
+  await page.close();
+}
+
 export function register(unit) {
+  for (const w of [360, 390, 412, 1280]) unit(`checkCarouselWidthCap ${w}`, () => checkCarouselWidthCap(w, 900));
+  for (const w of [360, 390, 412, 1280]) unit(`checkCarouselVideoBox ${w}`, () => checkCarouselVideoBox(w, 900));
   unit('checkHomeFirstImage 390', () => checkHomeFirstImage(390, 844));
   unit('checkHomeFirstImage 1280', () => checkHomeFirstImage(1280, 900));
   unit('checkCarouselMultiAspect 390', () => checkCarouselMultiAspect(390, 800));

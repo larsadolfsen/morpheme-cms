@@ -37,6 +37,11 @@
     height: var(--mo-comp-carousel-height, 14rem);
     padding-block: 0.5rem;
   }
+  /* Multi-aspect ratio: one row height for every item, as high as the theme says but never so high that the widest item (its aspect, --mo-comp-carousel-widest, set by Carousel.tsx)
+     is wider than the carousel (the page's content width): an item is never larger than the screen. */
+  .mo-block-carousel .mo-carousel.mo-is-multi-aspect .mo-carousel__items {
+    height: min(var(--mo-comp-carousel-height, 14rem), calc(100cqw / var(--mo-comp-carousel-widest, 1)));
+  }
   /* A full-screen one is as high as the theme says a full screen is (portrait on a phone, M3, Carousel, Specs), not as high as a contained row. */
   .mo-block-carousel .mo-carousel.mo-is-full-screen .mo-carousel__items {
     height: var(--mo-comp-carousel-full-screen-height, min(75svh, 36rem));

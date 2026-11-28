@@ -38,10 +38,23 @@ function ArrowIcons() {
 
 /** An image that has loaded gives its item its own width (the editor's preview, which does not know the image's size beforehand; the site writes it in): its natural width / height, kept within M3's range by the layout. */
 const widen = (img: HTMLImageElement) => {
-  if (img.naturalWidth && img.naturalHeight)
-    img
-      .closest<HTMLElement>('[data-carousel-item]')
-      ?.style.setProperty('--mo-comp-carousel-item-aspect', String(aspectOf(img.naturalWidth / img.naturalHeight)));
+  if (!img.naturalWidth || !img.naturalHeight) return;
+  const item = img.closest<HTMLElement>('[data-carousel-item]');
+  item?.style.setProperty('--mo-comp-carousel-item-aspect', String(aspectOf(img.naturalWidth / img.naturalHeight)));
+  // The row is as high as its widest item allows (the theme keeps it within the screen).
+  const row = item?.closest<HTMLElement>('[data-carousel-items]');
+  if (row)
+    row.style.setProperty(
+      '--mo-comp-carousel-widest',
+      String(
+        Math.max(
+          1,
+          ...[...row.querySelectorAll<HTMLElement>('[data-carousel-item]')].map(
+            (li) => Number(li.style.getPropertyValue('--mo-comp-carousel-item-aspect')) || 1,
+          ),
+        ),
+      ),
+    );
 };
 
 /** An item's image: told how wide its layout draws it (sizes.mjs), the ones in the first screen of the page loaded at once, every other when it comes near. */

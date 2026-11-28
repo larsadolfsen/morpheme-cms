@@ -43,13 +43,15 @@
   }
   /* In a card the video is its media: flush against the card's top and sides (the card's wrapper clips the corners), none of the text's margin
      above or below it, which left a gap over the still. */
-  .mo-prose :is(.mo-block-cards__card-video, .mo-block-cards__card .mo-card__media-slot) .mo-block-video__facade {
+  .mo-prose
+    :is(.mo-block-cards__card-video, .mo-block-cards__card .mo-card__media-slot, .mo-block-carousel__item-media)
+    .mo-block-video__facade {
     margin-block: 0;
     border-radius: 0;
   }
   /* The played video (the iframe that takes the link's place, Base.astro) keeps the still's box: the text's margin around an iframe and its corners
      (.mo-prose iframe, base.css and global.css) would make the card grow when the video starts. */
-  .mo-prose :is(.mo-block-cards__card-video, .mo-block-cards__card .mo-card__media-slot) iframe {
+  .mo-prose :is(.mo-block-cards__card-video, .mo-block-cards__card .mo-card__media-slot, .mo-block-carousel__item-media) iframe {
     display: block;
     margin-block: 0;
     border-radius: 0;
