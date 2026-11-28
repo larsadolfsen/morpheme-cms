@@ -30,17 +30,22 @@ export function inUse(
 ): boolean {
   if (!field.only) return true;
   const here = [...asked, field];
-  for (let only: Only | undefined = field.only; only; only = only.and) {
-    const name = only.field;
-    let at: Around = { fields, value, around };
-    while (at.around && !at.fields.some((f) => f.name === name)) at = at.around;
-    const by = at.fields.find((f) => f.name === name);
-    const holds =
-      only.is.includes(String(at.value?.[name] ?? by?.default ?? '')) !== !!only.not &&
-      (!by || by === field || only.loose || here.includes(by) || inUse(by, at.fields, at.value, at.around, here));
-    if (!holds) return false;
-  }
-  return true;
+  const holdsAll = (first: Only): boolean => {
+    for (let only: Only | undefined = first; only; only = only.and) {
+      const name = only.field;
+      let at: Around = { fields, value, around };
+      while (at.around && !at.fields.some((f) => f.name === name)) at = at.around;
+      const by = at.fields.find((f) => f.name === name);
+      const holds =
+        only.is.includes(String(at.value?.[name] ?? by?.default ?? '')) !== !!only.not &&
+        (!by || by === field || only.loose || here.includes(by) || inUse(by, at.fields, at.value, at.around, here));
+      if (!holds) return false;
+    }
+    return true;
+  };
+  // `or`: the other way for it to be in use.
+  for (let only: Only | undefined = field.only; only; only = only.or) if (holdsAll(only)) return true;
+  return false;
 }
 
 // The block an item of a list of blocks is (undefined for a type the editor does not know).

@@ -77,6 +77,8 @@ export type CarouselItemProps = {
   aspect?: string;
   alt?: string;
   video?: string;
+  /** A video item's own still (an image of the site), as the Video block's. */
+  thumbnail?: string;
   title?: string;
   subhead?: string;
   text?: string;
@@ -96,7 +98,7 @@ export const itemsOf = (
   blockRatio: string,
   how: {
     image: (src: string) => Image;
-    video: (url: string, title: string) => VideoView | null;
+    video: (item: CarouselItemProps) => VideoView | null;
     buttons: (item: CarouselItemProps, i: number) => ButtonView[];
   },
 ): CarouselItem[] =>
@@ -105,7 +107,7 @@ export const itemsOf = (
     const card = item.card === true && cardLayouts.includes(layout);
     const perItem = layout === 'multi-aspect-ratio';
     const ratio = perItem ? aspectProp(item.aspect) : blockRatio;
-    const video = media === 'video' && item.video ? how.video(item.video, item.title ?? '') : null;
+    const video = media === 'video' && item.video ? how.video(item) : null;
     const page = media !== 'video' && !!item.href;
     // Only a card has an action area; an item with a page is one link, with no buttons.
     const buttons = card && !page ? how.buttons(item, i) : [];
@@ -140,7 +142,7 @@ export const itemsOf = (
 export const shownItems = (items: CarouselItemProps[], data: BlockData, layout: CarouselLayout, ratio: string = DEFAULT_RATIO) =>
   itemsOf(items, layout, ratio, {
     image: (src) => ({ src: shownAt(src), ...libraryAltPart(data.libraryAlt?.(src)) }),
-    video: (url, title) => videoViewOf({ url, title }, data),
+    video: (item) => videoViewOf({ url: item.video, title: item.title, thumbnail: item.thumbnail, alt: item.alt }, data),
     // A button that has no text yet (the next one, being made on the card) is not drawn.
     buttons: (item) =>
       (item.buttons ?? []).map((b) => ({ href: b.href ?? '', text: textOf(b, data), kind: kindOf(b), icon: b.icon })).filter((b) => b.text),

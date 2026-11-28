@@ -44,8 +44,8 @@ Cards in the Elevated variant: a shadow, no outline. In the uncontained layouts 
 
 ## Carousel of videos
 
-An item can be a video in every layout; it keeps its own play button.
-<div data-block="carousel" data-props="{&quot;layout&quot;:&quot;uncontained&quot;,&quot;items&quot;:[{&quot;media&quot;:&quot;video&quot;,&quot;video&quot;:&quot;https://www.youtube.com/watch?v=aqz-KE-bpKQ&quot;,&quot;title&quot;:&quot;A sample video&quot;},{&quot;media&quot;:&quot;video&quot;,&quot;video&quot;:&quot;https://www.youtube.com/watch?v=aqz-KE-bpKQ&quot;,&quot;title&quot;:&quot;The same video again&quot;},{&quot;media&quot;:&quot;video&quot;,&quot;video&quot;:&quot;https://www.youtube.com/watch?v=aqz-KE-bpKQ&quot;,&quot;title&quot;:&quot;And once more&quot;}]}"></div>
+An item can be a video in every layout; it keeps its own play button. A video item can have a thumbnail of its own, as the Video block can: the last one does.
+<div data-block="carousel" data-props="{&quot;layout&quot;:&quot;uncontained&quot;,&quot;items&quot;:[{&quot;media&quot;:&quot;video&quot;,&quot;video&quot;:&quot;https://www.youtube.com/watch?v=aqz-KE-bpKQ&quot;,&quot;title&quot;:&quot;A sample video&quot;},{&quot;media&quot;:&quot;video&quot;,&quot;video&quot;:&quot;https://www.youtube.com/watch?v=aqz-KE-bpKQ&quot;,&quot;title&quot;:&quot;The same video again&quot;},{&quot;media&quot;:&quot;video&quot;,&quot;video&quot;:&quot;https://www.youtube.com/watch?v=aqz-KE-bpKQ&quot;,&quot;title&quot;:&quot;And once more&quot;},{&quot;media&quot;:&quot;video&quot;,&quot;video&quot;:&quot;https://www.youtube.com/watch?v=aqz-KE-bpKQ&quot;,&quot;thumbnail&quot;:&quot;/images/editions/braies.webp&quot;,&quot;alt&quot;:&quot;A turquoise lake below steep mountains&quot;,&quot;title&quot;:&quot;With its own thumbnail&quot;}]}"></div>
 
 ## Uncontained multi-aspect ratio carousel
 
