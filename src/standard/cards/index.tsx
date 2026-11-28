@@ -11,7 +11,6 @@ import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { buttonList } from '../buttons/fields';
 import { FORMATS } from '../../../lib/crop.mjs';
-import { ASPECTS, DEFAULT_ASPECT } from './cut.mjs';
 import { example } from './shared';
 
 export default defineBlock({
@@ -26,7 +25,7 @@ export default defineBlock({
   inline: {
     item: 'items',
     fields: ['title', 'subhead', 'text'],
-    media: ['icon', 'iconColor', 'image', 'alt', 'aspect', 'video'],
+    media: ['icon', 'iconColor', 'image', 'alt', 'video'],
     blockMedia: ['media'],
     link: 'href',
     onItem: ['buttons', 'divider'],
@@ -52,48 +51,6 @@ export default defineBlock({
         { label: t.blocks.cards.designFilled, value: 'filled', icon: materialIcon('circle') },
         { label: t.blocks.cards.designElevated, value: 'elevated', icon: materialIcon('shapes') },
       ],
-    },
-    // How the cards show, on every screen size: a grid (the empty choice), or swiped sideways in a carousel (uncontained, Material 3's layout for
-    // text-heavy items, adapting to the carousel's width). The name `phone` and its value stay as stored (no migration). Fewer than two cards is never a carousel (view.ts).
-    {
-      name: 'phone',
-      label: t.blocks.cards.phone,
-      type: 'select',
-      segments: true,
-      hint: t.blocks.cards.phoneHint,
-      options: [
-        { label: t.blocks.cards.phoneStacked, value: '' },
-        { label: t.blocks.cards.phoneCarousel, value: 'carousel', hint: t.blocks.cards.phoneVariantHint },
-      ],
-    },
-    // The carousel's layout, Material 3's (m3.material.io/components/carousel): uncontained is the empty choice, so a site saved before the
-    // choice keeps its look. Shown only with the carousel; each layout is a version of the block of its own under Blocks (`versions`).
-    {
-      name: 'layout',
-      label: t.blocks.cards.layout,
-      type: 'select',
-      versions: true,
-      only: { field: 'phone', is: ['carousel'] },
-      options: [
-        // M3's order and names (m3.material.io/components/carousel/guidelines, Layouts): Multi-browse, Uncontained, Hero, Center-aligned hero, Full-screen, each hint M3's "Best used for";
-        // the uncontained multi-aspect ratio layout is a variant of Uncontained and follows it. Every layout is offered for every card: the editor decides (owner, 25 Nov 2026). The widths of its
-        // items come from their images' aspect ratios; an item without an image is square.
-        { label: t.blocks.cards.layoutMultiBrowse, value: 'multi-browse', hint: t.blocks.cards.layoutMultiBrowseHint },
-        { label: t.blocks.cards.layoutUncontained, value: '', hint: t.blocks.cards.layoutUncontainedHint },
-        { label: t.blocks.cards.layoutMultiAspect, value: 'multi-aspect-ratio', hint: t.blocks.cards.layoutMultiAspectHint },
-        { label: t.blocks.cards.layoutHero, value: 'hero', hint: t.blocks.cards.layoutHeroHint },
-        { label: t.blocks.cards.layoutHeroCenter, value: 'hero-center', hint: t.blocks.cards.layoutHeroCenterHint },
-        { label: t.blocks.cards.layoutFullScreen, value: 'full-screen', hint: t.blocks.cards.layoutFullScreenHint },
-      ],
-    },
-    // The carousel's optional header (M3, Carousel, Accessibility: "If the carousel has a header, you can use an arrow icon button instead" of Show all). Empty is
-    // today's look: no header, `Show all` under the row. Shown only with the carousel; typed in place above it (InlineCards.tsx).
-    {
-      name: 'header',
-      label: t.blocks.cards.header,
-      type: 'string',
-      hint: t.blocks.cards.headerHint,
-      only: { field: 'phone', is: ['carousel'] },
     },
     // A filled card is Material's surface container until another container is picked.
     {
@@ -130,7 +87,7 @@ export default defineBlock({
       type: 'select',
       default: '3:2',
       hint: t.blocks.cards.ratioHint,
-      only: { field: 'media', is: ['image'], and: { field: 'layout', is: ['multi-aspect-ratio'], not: true, loose: true } },
+      only: { field: 'media', is: ['image'] },
       options: FORMATS.map((f) => ({ label: f, value: f })),
     },
     {
@@ -159,16 +116,6 @@ export default defineBlock({
           hint: t.blocks.picture.altHint,
           libraryText: 'image',
           only: { field: 'media', is: ['image'] },
-        },
-        // The card's own aspect ratio, only in the multi-aspect ratio layout (the block's `ratio` is not used there and stays stored).
-        {
-          name: 'aspect',
-          label: t.blocks.cards.ratio,
-          type: 'select',
-          default: DEFAULT_ASPECT,
-          hint: t.blocks.cards.aspectHint,
-          only: { field: 'layout', is: ['multi-aspect-ratio'], and: { field: 'media', is: ['image'] } },
-          options: ASPECTS.map((f) => ({ label: f, value: f })),
         },
         {
           name: 'video',

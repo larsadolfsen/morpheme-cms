@@ -6,6 +6,7 @@ import type { BlockData, BlockProps } from './blocks';
 import type { Field } from './schema';
 import type { RowSpec } from './BlockDialog';
 import InlineCards from './InlineCards';
+import InlineCarousel from './InlineCarousel';
 import InlineTable from './InlineTable';
 import InlineNotice from './InlineNotice';
 import InlineVideo from './InlineVideo';
@@ -51,6 +52,7 @@ export type InlineViewProps = {
 export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
   list: InlineList as ComponentType<InlineViewProps>,
   cards: InlineCards,
+  carousel: InlineCarousel,
   table: InlineTable,
   notice: InlineNotice,
   video: InlineVideo,

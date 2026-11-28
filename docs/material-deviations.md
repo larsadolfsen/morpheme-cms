@@ -339,10 +339,10 @@ there is nothing to deviate from. The theme uses the nearest M3 pattern or the o
 - **Why:** an item is clipped to its mask (`overflow: hidden`, `clip-path`) and the row scrolls (`overflow-x: auto`), so a level 1 shadow would be cut off and show nothing. The PM decided on 21 Nov 2026 to leave it and record it here.
 - **Date:** 2026-11-21. **PR:** #1112.
 
-### CAR2. The Cards block's carousel has Show all below it, with or without a heading
+### CAR2. The Carousel block has Show all below it, with or without a heading
 
 - **Material:** Carousel, Accessibility (read 24 Nov 2026, m3.material.io/components/carousel/accessibility): "Material recommends adding a Show all button below the carousel" for carousels without headers, "The Show all button should have a padding of 4dp"; "If the carousel has a header, you can use an arrow icon button instead"; not required for full-screen carousels.
-- **We do:** the Cards block's carousel (`phone: 'carousel'`) has a `Show all` text button below it (4dp padding) whether or not the block has a heading, and none on the full-screen layout. It stacks the cards in place instead of opening a page of all items. M3's page indicator is not used: the block's carousel has no dots.
+- **We do:** the Carousel block has a `Show all` text button below it (4dp padding) whether or not the block has a heading, and none on the full-screen layout. It stacks the cards in place instead of opening a page of all items. M3's page indicator is not used: the block's carousel has no dots.
 - **Why:** a block has no page of its own to open, so the button stacks the cards where they stand; the text button keeps one pattern for every Cards block.
 - **Date:** 2026-11-24.
 

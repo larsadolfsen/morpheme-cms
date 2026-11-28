@@ -16,6 +16,7 @@ import { select } from '../../../lib/affected.mjs';
 export const AREAS = [
   'block-bar',
   'cards',
+  'carousel',
   'choice-groups',
   'demo-names',
   'density',
@@ -55,7 +56,7 @@ export const CORE_UNITS = [
 ];
 
 /** What draws or measures a block: the areas a change to a block's look must reach. */
-const BLOCKS = ['inline-blocks', 'lists', 'cards', 'tables', 'sections', 'block-bar', 'page-rows', 'site-checks'];
+const BLOCKS = ['inline-blocks', 'lists', 'cards', 'carousel', 'tables', 'sections', 'block-bar', 'page-rows', 'site-checks'];
 
 const s = (names) => new RegExp(`^src/(?:${names})\\.(?:tsx?|mjs|css)$`);
 
@@ -119,6 +120,7 @@ export const RULES = [
   // catch-all at the end of this group.
   [/^src\/Inline(Table)\.tsx$/, ['tables', 'inline-blocks']],
   [/^src\/Inline(Cards|ImageGrid|PriceCards|Testimonials|Posts)\.tsx$/, ['cards', 'inline-blocks', 'lists']],
+  [/^src\/InlineCarousel\.tsx$/, ['carousel', 'cards', 'inline-blocks']],
   [/^src\/Inline(List|Expand|LiveList|Steps|Buttons|Notice|Video|Single)\.tsx$/, ['inline-blocks', 'lists']],
   [/^src\/(Inline\w*|inline\w*)\.(tsx?|mjs)$/, BLOCKS],
   [

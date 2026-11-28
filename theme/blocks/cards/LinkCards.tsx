@@ -6,15 +6,10 @@
 // `className`: the site's own classes on the list, e.g. its margin.
 import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { Svg } from '@morphemecms/cms/src/icon';
-import type { CardsLayout, LinkCard } from '@morphemecms/cms/src/standard/cards/view';
-import { siteT } from '@morphemecms/cms/src/i18n';
+import type { LinkCard } from '@morphemecms/cms/src/standard/cards/view';
 import Buttons from '@theme/blocks/buttons/Buttons';
-import Button from '@theme/ui/Button';
-import IconButton from '@theme/ui/IconButton';
-import Carousel from '@theme/ui/Carousel';
 import Video from '@theme/blocks/video/View';
 import Card, { CardMedia as MediaBox, cardKinds, type CardKind } from '@theme/ui/Card';
-import { Link } from '@morphemecms/cms/src/standard/view';
 
 /** The image of a card cut to the part the owner chose (crop.mjs: percent of the image from the left, from the top, its width and height): wider than its box and moved. */
 const cutStyle = ([x, y, w]: number[]) => ({
@@ -86,44 +81,21 @@ function mediaOf(card: LinkCard) {
   return undefined;
 }
 
-/** The header's arrow: forward to show every item, back (drawn instead, by the theme, while the items are all shown) to show fewer; an icon button takes one icon, so both are in it. */
-function ArrowIcons({ size, className }: { size?: number; className?: string }) {
-  return (
-    <>
-      <Svg name="arrow_forward" size={size} className={[className, 'mo-block-cards__arrow-forward'].filter(Boolean).join(' ')} />
-      <Svg name="arrow_back" size={size} className={[className, 'mo-block-cards__arrow-back'].filter(Boolean).join(' ')} />
-    </>
-  );
-}
-
 export default function LinkCards({
   items,
   more,
   design,
   color,
-  phone,
-  layout,
-  header,
-  label,
   className,
 }: {
   items: LinkCard[];
   more: string;
   design?: string;
   color?: string;
-  /** 'carousel': the cards are swiped sideways on every screen size, adapting to the carousel's width, with `Show all` under them (the full-screen layout shows it only where it is drawn as the hero, from 840 px or in landscape). */
-  phone?: string;
-  /** The carousel's Material 3 layout: uncontained without one. */
-  layout?: CardsLayout;
-  /** The carousel's header (M3, Carousel, Accessibility): with one, an arrow icon button beside it shows every item, and `Show all` under the row is not drawn. */
-  header?: string;
-  /** What the carousel is called for screen readers. */
-  label?: string;
   className?: string;
 }) {
   const type: CardKind = cardKinds.find((k) => k === design) ?? 'outlined';
   const colored = type === 'filled' && color ? `mo-block-cards__${color}` : undefined;
-  const say = siteT.blocks.cards;
   const cardOf = (card: LinkCard) => {
     const parts = {
       kind: type,
@@ -149,111 +121,6 @@ export default function LinkCards({
       <Card {...parts} actions={card.buttons.length > 0 ? <Buttons buttons={card.buttons} /> : undefined} divider={card.divider} />
     );
   };
-  // A carousel item as Material 3 prints it (Carousel, Overview: "Contain visual items like images or video, along with optional label text"; Specs: item
-  // corner radius 28dp): the card's image or video fills the whole item, with no card surface and no outline, and the label (headline, subhead, text)
-  // sits inside the item on the image. A card with a page is one link, the whole item; one with buttons has them in the label.
-  const itemOf = (card: LinkCard) => {
-    const image = card.media === 'image' && card.image;
-    const video = card.media === 'video' && card.video;
-    const body = (
-      <>
-        {image && (
-          <span className="mo-block-cards__item-media">
-            <img
-              style={card.image!.crop && layout === 'multi-aspect-ratio' ? cutStyle(card.image!.crop) : undefined}
-              src={card.image!.src}
-              srcSet={card.image!.srcset}
-              sizes={card.image!.srcset ? sizes : undefined}
-              width={card.image!.width}
-              height={card.image!.height}
-              alt={card.image!.alt ?? ''}
-              loading="lazy"
-              decoding="async"
-            />
-          </span>
-        )}
-        {video && (
-          <span className="mo-block-cards__item-media">
-            <Video view={card.video!} />
-          </span>
-        )}
-        {card.media === 'icon' && card.icon && (
-          <Svg name={card.icon} size={28} className="mo-block-cards__item-icon" iconColor={card.iconColor} />
-        )}
-        <span className="mo-block-cards__item-label" data-carousel-fade="0.5 8" data-carousel-inset="1rem">
-          <span className="mo-block-cards__item-title" data-carousel-fade="0.1 10">
-            {card.title}
-          </span>
-          {card.subhead && <span className="mo-block-cards__item-subhead">{card.subhead}</span>}
-          {card.text && <span className="mo-block-cards__item-text">{card.text}</span>}
-          {card.href && <span className="mo-visually-hidden">{more}</span>}
-        </span>
-      </>
-    );
-    const own = ['mo-block-cards__item', !image && !video && 'mo-has-no-media'].filter(Boolean).join(' ');
-    if (card.href)
-      return (
-        <Link href={card.href} className={own}>
-          {body}
-        </Link>
-      );
-    return (
-      <div className={own}>
-        {body}
-        {card.buttons.length > 0 && (
-          <div className="mo-block-cards__item-actions">
-            <Buttons buttons={card.buttons} />
-          </div>
-        )}
-      </div>
-    );
-  };
-  if (phone === 'carousel' && items.length >= 2)
-    return (
-      <div
-        className={['mo-block-cards__carousel', header && 'mo-has-header', colored, className].filter(Boolean).join(' ')}
-        data-cards-carousel=""
-      >
-        {header && (
-          <div className="mo-block-cards__header">
-            <span className="mo-block-cards__heading">{header}</span>
-            <IconButton
-              icon={<ArrowIcons />}
-              label={say.showAllOf(header)}
-              aria-expanded="false"
-              className="mo-block-cards__arrow"
-              data-cards-show-all=""
-              data-cards-arrow=""
-              data-all={say.showAllOf(header)}
-              data-fewer={say.showFewerOf(header)}
-            />
-          </div>
-        )}
-        <Carousel
-          layout={layout === 'hero-center' ? 'hero' : layout}
-          alignment={layout === 'hero-center' ? 'center' : 'start'}
-          label={label || header || say.cardsLabel}
-          roleDescription={say.carousel}
-          itemsFocusable
-          itemRoleDescription={say.slide}
-          items={items.map((card, i) => ({
-            key: String(i),
-            label: say.slideOf(i + 1, items.length),
-            content: itemOf(card),
-            ...(layout === 'multi-aspect-ratio' ? { aspect: card.aspect } : {}),
-            // A card with a page is one link and one with buttons has them to focus; a text-only card is reached itself.
-            focusable: !card.href && card.buttons.length === 0,
-          }))}
-        />
-        {!header && (
-          <div className="mo-block-cards__show-all">
-            <Button kind="text" aria-expanded="false" data-cards-show-all="" data-all={say.showAll} data-fewer={say.showFewer}>
-              {say.showAll}
-            </Button>
-          </div>
-        )}
-      </div>
-    );
   return (
     <ul className={['mo-block-cards', colored, className].filter(Boolean).join(' ')}>
       {items.map((card, i) => (
