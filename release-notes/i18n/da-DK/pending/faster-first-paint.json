@@ -1,0 +1,7 @@
+{
+  "id": "faster-first-paint",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Hurtigere sider",
+  "text": "Dine besøgende ser siden hurtigere, fordi hver side nu kun indeholder de typografier, dens første skærmbillede skal bruge. Resten af temaet hentes én gang og huskes til alle andre sider. Din hjemmeside ser ud som før."
+}
