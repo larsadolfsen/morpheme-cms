@@ -23,6 +23,7 @@ import { remarkChecklists } from './lib/remark-checklist.mjs';
 import { remarkListHeads } from './lib/remark-list-head.mjs';
 import { remarkBlockLabels } from './lib/remark-block-label.mjs';
 import { csp, joined } from './lib/csp.mjs';
+import { criticalCss } from './lib/criticalCss.mjs';
 import { appBuilds, appFoldersPlugin } from './lib/apps.mjs';
 import { appSelf } from './site/appSelf.mjs';
 import { appCss } from './site/appCss.mjs';
@@ -112,8 +113,9 @@ export async function siteConfig() {
     site: `https://${config.domain}`,
     // Every address ends in a slash (imported ones too); keep them identical.
     trailingSlash: 'always',
-    // Inline the (small) stylesheet so it does not block the first render.
-    build: { format: 'directory', inlineStylesheets: 'always' },
+    // The whole theme stylesheet is a file the pages link and the browser caches once; only each page's critical CSS is inline
+    // (criticalCss below, lib/criticalCss.mjs).
+    build: { format: 'directory', inlineStylesheets: 'never' },
     markdown: {
       // Images inside pages and posts: responsive srcset, width/height, lazy loading.
       // Words from src/data/internal-links.json become internal links.
@@ -158,6 +160,9 @@ export async function siteConfig() {
       sitemap({
         filter: (page) => !isNoindex(new URL(page).pathname) && !elsewhere.includes(new URL(page).pathname),
       }),
+      // Each page's critical CSS inline and the whole stylesheet loaded without blocking the first render, before the policy below
+      // so the loader's hash is in it (lib/criticalCss.mjs). Without an extractor the pages keep the plain stylesheet link.
+      criticalCss(),
       // Each page's Content-Security-Policy, after it is built: only its own scripts run (packages/editor/lib/csp.mjs),
       // with what the site's measuring and its apps load from elsewhere (packages/editor/site/siteCsp.mjs).
       csp({ site: joined(...siteSources()) }),
