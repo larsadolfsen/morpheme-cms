@@ -1,6 +1,7 @@
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { clickPreview, openEditor, virtualFile } from '../built-site.mjs';
+import { clickPreview, openEditor, removeVirtualFile, virtualFile } from '../built-site.mjs';
+import { isMaterialTheme } from '../theme-statement.mjs';
 import { BUILT_PAGE, LIST_PAGE, ROOT, block, browser, has, problems, shots, site } from './support/context.mjs';
 import {
   animationsSettled,
@@ -97,6 +98,8 @@ async function checkListLeftEdge(width) {
           );
     for (const r of got.rows) {
       // Plain design: the row's layer starts 16 dp before the text's edge at every width (M3 Lists › Specs, 21 Nov 2026); Segmented design: its container is on the text's edge.
+      // M3's printed offsets are Material's; another theme sets its own (a border, a padding), so only Material is held to them.
+      if (!isMaterialTheme()) continue;
       const want = r.kind === 'plain' ? got.text - 16 : got.text;
       if (Math.abs(r.container - want) > 0.5)
         problems.push(
@@ -1730,6 +1733,24 @@ async function checkPageRowsList(width, height) {
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  // A site is not the demo: the menu tree needs a page with subpages, which only the demo's menu has. A site whose menu has none gets one made here, in memory.
+  const MENU_FILE = 'src/data/menu.json';
+  let menu = { enabled: true, items: [] };
+  try {
+    menu = JSON.parse(readFileSync(join(ROOT, MENU_FILE), 'utf8'));
+  } catch {}
+  const madeMenu = !(menu.items ?? []).some((i) => i.children?.length);
+  if (madeMenu)
+    virtualFile(
+      MENU_FILE,
+      JSON.stringify({
+        ...menu,
+        items: [
+          ...(menu.items ?? []),
+          { label: 'Check parent', href: '/zz-check-parent/', children: [{ label: 'Check child', href: '/zz-check-child/' }] },
+        ],
+      }),
+    );
   await openEditor(page, site);
   for (const hash of ['#list/pages', '#list/blog']) {
     await page.evaluate((h) => (location.hash = h), hash);
@@ -1890,6 +1911,7 @@ async function checkPageRowsList(width, height) {
         `${label}: a tap on a score ring does not open the page at "Search engines" (its heading is at ${top == null ? 'nowhere' : Math.round(top)} px of ${height})`,
       );
   } else problems.push(`${label}: no score ring shows with the Google button on`);
+  if (madeMenu) removeVirtualFile(MENU_FILE);
   await page.close();
   // In Danish (the editor follows the browser's language) the lines name the versions in Danish. The demo has no page with a waiting draft, so "Udgivet · Kladde" (the two words joined by " · " in `versionsOf`) is tested by hand.
   const da = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'da-DK' });
