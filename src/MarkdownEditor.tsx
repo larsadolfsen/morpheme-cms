@@ -2470,7 +2470,10 @@ function blockCard(
                     reopen('alt');
                   },
                 }
-              : { label: t.forms.changeIcon, action: () => reopen('pick') },
+              : k === 'video'
+                ? // A video's link and its Thumbnail (the Video block's own field) are in the picker view.
+                  { label: t.blocks.video.changeUrl, action: () => reopen('pick') }
+                : { label: t.forms.changeIcon, action: () => reopen('pick') },
             ...(image && ratioNow
               ? [
                   {
@@ -2487,7 +2490,8 @@ function blockCard(
                   },
                 ]
               : []),
-            ...(image ? [{ label: t.blocks.picture.alt, action: () => reopen('alt') }] : []),
+            // A video has Alt text only while it has a thumbnail (the Video block's rule).
+            ...(image || (k === 'video' && !!r.thumbnail) ? [{ label: t.blocks.picture.alt, action: () => reopen('alt') }] : []),
             ...(image ? [{ label: t.common.remove, kind: 'text' as const, action: () => putRow(i, { image: '', alt: '' }) }] : []),
           ],
         },

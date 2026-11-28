@@ -7,10 +7,9 @@ import type { Load } from '../view';
 import { thumbnailAlt, thumbnailOf } from './thumbnail.mjs';
 import type { VideoView } from './view';
 
-export const load: Load<VideoView> = async (props) => {
-  const video = videoOf(String(props.url ?? ''));
-  if (!video) return null;
-  const view = facadeOf(video, props.title);
+/** A video's view on the site, with the thumbnail of `props` (`thumbnail`, `alt`) as its still when it has one. The carousel's video items use it too. */
+export function facadeWithThumbnail(video: NonNullable<ReturnType<typeof videoOf>>, props: Record<string, any>, title?: string): VideoView {
+  const view = facadeOf(video, title);
   const thumbnail = thumbnailOf(props);
   if (!thumbnail) return view;
   // A local image: the video's provider is still only contacted when the visitor presses play.
@@ -18,4 +17,9 @@ export const load: Load<VideoView> = async (props) => {
   const { src, srcset, alt: library } = imageOf(thumbnail);
   const alt = props.alt?.trim() ? thumbnailAlt(props) : (library ?? '');
   return { ...view, still: { src, ...(srcset ? { srcset } : {}), alt } };
+}
+
+export const load: Load<VideoView> = async (props) => {
+  const video = videoOf(String(props.url ?? ''));
+  return video ? facadeWithThumbnail(video, props, props.title) : null;
 };

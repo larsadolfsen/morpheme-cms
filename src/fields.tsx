@@ -376,7 +376,8 @@ function FieldControl({ field, value, onChange }: Props) {
   // does or what is wrong under it, how much it should have at most); the other fields have their name over them.
   // An alt text with no text of its own shows the Library's text for the image beside it, and says that it is used.
   const around = useContext(AroundHere);
-  const library = field.libraryText ? context.libraryAlt?.(String(around?.value?.[field.libraryText] ?? '')) : undefined;
+  const imageName = [field.libraryText ?? []].flat().find((n) => String(around?.value?.[n] ?? '').trim());
+  const library = imageName ? context.libraryAlt?.(String(around?.value?.[imageName] ?? '')) : undefined;
   const fromLibrary = shownLibraryAlt(library, text);
   const inField: InField = {
     label: field.label,

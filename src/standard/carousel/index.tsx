@@ -26,7 +26,7 @@ export default defineBlock({
   inline: {
     item: 'items',
     fields: ['title', 'subhead', 'text'],
-    media: ['media', 'icon', 'iconColor', 'image', 'alt', 'aspect', 'video'],
+    media: ['media', 'icon', 'iconColor', 'image', 'alt', 'aspect', 'video', 'thumbnail'],
     itemMedia: 'media',
     link: 'href',
     onItem: ['buttons', 'divider', 'card'],
@@ -142,14 +142,6 @@ export default defineBlock({
           only: { field: 'media', is: ['icon'] },
         },
         { name: 'image', label: t.blocks.cards.image, type: 'image', only: { field: 'media', is: [''] } },
-        {
-          name: 'alt',
-          label: t.blocks.picture.alt,
-          type: 'string',
-          hint: t.blocks.picture.altHint,
-          libraryText: 'image',
-          only: { field: 'media', is: [''] },
-        },
         // The item's own aspect ratio, only in the multi-aspect ratio layout, where its width follows it (Material 3: "Item widths can range anywhere between 9:16 for min width size to 16:9 for max width").
         {
           name: 'aspect',
@@ -166,6 +158,23 @@ export default defineBlock({
           type: 'string',
           pattern: ['(youtube(-nocookie)?\\.com|youtu\\.be|vimeo\\.com)/', t.blocks.video.urlProblem],
           only: { field: 'media', is: ['video'] },
+        },
+        // The video's own still, as the Video block's `thumbnail`: an image of the site (with the image field's crop tools), drawn before the video is played.
+        {
+          name: 'thumbnail',
+          label: t.blocks.video.thumbnail,
+          type: 'image',
+          hint: t.blocks.video.thumbnailHint,
+          only: { field: 'media', is: ['video'] },
+        },
+        // The alt text of an image item, and of a video item's thumbnail (the Video block's rule: only while a thumbnail is set).
+        {
+          name: 'alt',
+          label: t.blocks.picture.alt,
+          type: 'string',
+          hint: t.blocks.picture.altHint,
+          libraryText: ['image', 'thumbnail'],
+          only: { field: 'media', is: [''], or: { field: 'media', is: ['video'], and: { field: 'thumbnail', is: [''], not: true } } },
         },
         // The label is brief and optional (M3, Guidelines: "Item text is optional and should be brief").
         { name: 'title', label: t.blocks.cards.title, type: 'string' },
