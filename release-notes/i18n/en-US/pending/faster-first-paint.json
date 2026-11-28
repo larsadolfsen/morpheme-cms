@@ -1,0 +1,7 @@
+{
+  "id": "faster-first-paint",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Faster pages",
+  "text": "Visitors see your page sooner, because each page now carries only the styles its first screen needs. The rest of the theme loads once and stays cached for every other page. Nothing changes in how your site looks."
+}

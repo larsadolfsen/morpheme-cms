@@ -38,7 +38,7 @@ export function cardDesignProblems(css) {
   return problems;
 }
 
-/** The CSS of a built site under a folder, joined: its .css files and the <style> blocks of its pages (the build inlines its stylesheets, `inlineStylesheets: 'always'`, so the CSS is in the pages, not in _astro/). */
+/** The CSS of a built site under a folder, joined: its .css files and the <style> blocks of its pages (the pages link their stylesheet in _astro/ and inline only their critical CSS, `lib/criticalCss.mjs`). */
 export function cssIn(folder) {
   const out = [];
   const walk = (dir) => {
