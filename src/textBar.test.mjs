@@ -151,3 +151,18 @@ test('a selected image at 352 dp: a wide Alt text button (widths) moves Remove i
   assert.equal(toolWidth('block:alt-text', { 'block:alt-text': 80 }), 88);
   assert.equal(toolWidth('block:alt-text'), BUTTON);
 });
+
+test('a theme with a larger icon button (Venus, 48 dp): every plain tool and the ⋮ take its size, and the planned tools never exceed the bar', () => {
+  assert.equal(toolWidth('bold', {}, 48), 56);
+  assert.equal(toolWidth('style', {}, 48), TOOL_WIDTH.style);
+  for (let width = 100; width <= 900; width += 4) {
+    const plan = planBar({ width, context: TEXT, fixed: FIXED, icon: 48 });
+    const ids = [...plan.bar.context, ...plan.bar.fixed];
+    const onBar = ids.reduce((n, id) => n + toolWidth(id, {}, 48), 0) + (plan.overflow ? 56 : 0);
+    if (plan.bar.fixed.includes('insert') && width >= 56 * 2) assert.ok(onBar <= width, `${onBar} fits ${width} dp at 48 dp buttons`);
+  }
+  const material = planBar({ width: 352, context: TEXT, fixed: FIXED });
+  const venus = planBar({ width: 352, context: TEXT, fixed: FIXED, icon: 48 });
+  assert.ok(venus.bar.context.length <= material.bar.context.length);
+  assert.deepEqual(planBar({ width: 352, context: TEXT, fixed: FIXED, icon: 40 }), material);
+});

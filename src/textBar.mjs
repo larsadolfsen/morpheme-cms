@@ -11,8 +11,12 @@
 /** The space between two tools: the toolbar's gap, 8 dp (md.comp.toolbar.docked min-spacing is 4 dp). */
 export const GAP = 8;
 
-/** An icon button, and the `⋮`, with the space after it: 40 dp (Material 3's small icon button) and the gap, which is its 48 dp target (ToolbarButton in ui.tsx). */
-export const BUTTON = 40 + GAP;
+/** The theme's small icon button, in dp, when the theme does not say (Material 3's 40 dp; `--mo-comp-icon-button-small-container-height`). A theme may set another size
+ * (Venus: 48 dp), and the bar measures it (`icon` of planBar), so no theme overflows the bar. */
+export const ICON = 40;
+
+/** An icon button, and the `⋮`, with the space after it, at the default icon size: 40 dp and the gap, which is its 48 dp target (ToolbarButton in ui.tsx). */
+export const BUTTON = ICON + GAP;
 
 /**
  * The declared width of each tool that is not a plain 44 dp icon button, in dp. A tool with a menu and a chevron (Text style, List, Alignment,
@@ -23,24 +27,25 @@ const MENU_BUTTON = 48 + GAP;
 export const TOOL_WIDTH = { style: MENU_BUTTON, list: MENU_BUTTON, align: MENU_BUTTON, color: MENU_BUTTON, 'block:count': MENU_BUTTON * 2 };
 
 /** The width of one tool in dp. `widths`: the widths of the tools whose width is their label's (a text button such as Alt text, measured once
- * per language and drawn at exactly that width: textButtonWidth in MarkdownEditor.tsx), over TOOL_WIDTH. */
-export const toolWidth = (id, widths = {}) => (widths[id] === undefined ? (TOOL_WIDTH[id] ?? BUTTON) : widths[id] + GAP);
+ * per language and drawn at exactly that width: textButtonWidth in MarkdownEditor.tsx), over TOOL_WIDTH. `icon`: the theme's small icon button in dp (ICON),
+ * the width of every plain icon button and of the `⋮`. */
+export const toolWidth = (id, widths = {}, icon = ICON) => (widths[id] === undefined ? (TOOL_WIDTH[id] ?? icon + GAP) : widths[id] + GAP);
 
 /**
  * Splits the tools between the bar and the `⋮` menu, with `spare` tools (a page's Preview) first in the main tools: they stand on the bar,
  * before the fixed tools, only while everything fits with them; else they are in the `⋮` (first of its fixed tools) and the rest is split
  * as without them, with the `⋮` on the bar.
- * @param {{ width: number, context: string[], fixed: string[], spare?: string[], more?: boolean, widths?: Record<string, number> }} input
+ * @param {{ width: number, context: string[], fixed: string[], spare?: string[], more?: boolean, widths?: Record<string, number>, icon?: number }} input
  * @returns {{ bar: { context: string[], fixed: string[] }, more: { context: string[], fixed: string[] }, overflow: boolean, free: number }}
  */
 export function planBar({ spare = [], ...input }) {
   if (!spare.length) return planTools(input);
-  const { width, context, fixed, more = false } = input;
+  const { width, context, fixed, more = false, icon = ICON } = input;
   const { widths = {} } = input;
-  const all = [...context, ...spare, ...fixed].reduce((n, id) => n + toolWidth(id, widths), 0) + (more ? BUTTON : 0);
+  const all = [...context, ...spare, ...fixed].reduce((n, id) => n + toolWidth(id, widths, icon), 0) + (more ? icon + GAP : 0);
   if (all <= width)
     return { bar: { context, fixed: [...spare, ...fixed] }, more: { context: [], fixed: [] }, overflow: more, free: width - all };
-  const plan = planTools({ width, context, fixed, more: true, widths });
+  const plan = planTools({ width, context, fixed, more: true, widths, icon });
   return { ...plan, more: { context: plan.more.context, fixed: [...spare, ...plan.more.fixed] } };
 }
 
@@ -52,11 +57,12 @@ export function planBar({ spare = [], ...input }) {
  * does (Insert block is never in the `⋮`). `more`: the `⋮` is on the bar even when everything fits (a block's own menu, Section settings in
  * it), so it takes a button. `free`: the room left on the bar, in dp (less than the next tool's width while something is in the `⋮`).
  * `widths`: the widths of the text buttons (toolWidth).
- * @param {{ width: number, context: string[], fixed: string[], more?: boolean, widths?: Record<string, number> }} input
+ * @param {{ width: number, context: string[], fixed: string[], more?: boolean, widths?: Record<string, number>, icon?: number }} input
  * @returns {{ bar: { context: string[], fixed: string[] }, more: { context: string[], fixed: string[] }, overflow: boolean, free: number }}
  */
-function planTools({ width, context, fixed, more = false, widths = {} }) {
-  const w = (id) => toolWidth(id, widths);
+function planTools({ width, context, fixed, more = false, widths = {}, icon = ICON }) {
+  const w = (id) => toolWidth(id, widths, icon);
+  const BUTTON = icon + GAP;
   const sum = (ids) => ids.reduce((n, id) => n + w(id), 0);
   const all = sum(context) + sum(fixed) + (more ? BUTTON : 0);
   if (all <= width) return { bar: { context, fixed }, more: { context: [], fixed: [] }, overflow: more, free: width - all };

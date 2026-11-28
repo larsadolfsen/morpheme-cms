@@ -2679,6 +2679,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const [colorAt, setColorAt] = useState<HTMLElement | null>(null);
   // The bar's width, in dp, measured with a ResizeObserver (never a timer): how many tools fit (textBar.mjs).
   const [barWidth, setBarWidth] = useState(0);
+  // The theme's small icon button in dp (textBar.mjs, ICON): a theme may draw it larger than Material's 40 dp, and the bar plans with the drawn size.
+  const [iconSize, setIconSize] = useState(40);
   // The alignment button that opened its menu, while it is open.
   const [alignAt, setAlignAt] = useState<HTMLElement | null>(null);
   useEffect(() => {
@@ -3498,6 +3500,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const measure = () => {
       const style = getComputedStyle(bar);
       setBarWidth(bar.clientWidth - (parseFloat(style.paddingLeft) || 0) - (parseFloat(style.paddingRight) || 0));
+      const probe = document.createElement('span');
+      probe.style.cssText = 'position:absolute;visibility:hidden;width:var(--mo-comp-icon-button-small-container-height, 2.5rem)';
+      bar.appendChild(probe);
+      const size = probe.getBoundingClientRect().width;
+      probe.remove();
+      if (size > 0) setIconSize(size);
     };
     measure();
     const watch = new ResizeObserver(measure);
@@ -3518,6 +3526,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     spare: spareIds,
     more: blockMenu.length > 0 || settingsShown || !!viewOnSite,
     widths: textWidths,
+    icon: iconSize,
   });
   // The bar's motion (barMotion.mjs): the contextual tools slide in from the left and push the main tools right when a context starts, slide out
   // when it ends, and fade in place from one context to another. FLIP: the new layout is measured, then the old place is animated from, with the
