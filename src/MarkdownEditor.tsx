@@ -2437,14 +2437,16 @@ function blockCard(
           media: { actions: [{ label: t.forms.changeMedia, action: () => reopen('kinds') }] },
         };
       const image = isImageKind(k);
-      // The format an image is cut to: the block's one ratio (the Cards), or in the Carousel the item's own aspect ratio (the multi-aspect ratio layout) or the block's ratio (a card's image); a plain item's image fills it, nothing to cut.
+      // The format an image is cut to: the block's one ratio (the Cards), or in the Carousel the block's ratio (a card's image; the multi-aspect ratio layout: a card's image is cut to the item's aspect, a plain item shows the whole image, uncut); a plain item's image fills it, nothing to cut.
       const ratioNow =
         k !== 'image' || spec!.grid
           ? ''
           : !spec!.itemMedia
             ? ratioProp(node.attrs.props)
             : layoutOf(node.attrs.props) === 'multi-aspect-ratio'
-              ? aspectProp(r.aspect)
+              ? r.card === true
+                ? aspectProp(r.aspect)
+                : '' // a plain item shows the whole image: nothing is cut
               : r.card === true
                 ? ratioProp(node.attrs.props)
                 : '';

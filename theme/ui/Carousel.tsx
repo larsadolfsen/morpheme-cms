@@ -115,6 +115,13 @@ export default function Carousel({
         // A scroller the keyboard can reach (WCAG 2.1.1; axe: scrollable-region-focusable), named like the carousel; with focusable items (the Cards block's) the first of them is reached instead.
         tabIndex={stop ? 0 : undefined}
         aria-label={label || undefined}
+        style={
+          multiAspect
+            ? ({
+                '--mo-comp-carousel-widest': Math.max(...items.map((item) => aspectOf(item.aspect)), aspectOf(undefined)),
+              } as CSSProperties)
+            : undefined
+        }
         onScroll={(e) => setShown(shownItem(e.currentTarget))}
       >
         {items.map((item) => (

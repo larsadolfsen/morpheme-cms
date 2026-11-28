@@ -412,6 +412,12 @@ async function checkCarousel(width, height) {
         radius: getComputedStyle(mask ?? first.firstElementChild).borderTopLeftRadius,
         itemWidth: Math.round(fb.width),
         widths: [...el.querySelectorAll('[data-carousel-item]')].map((i) => Math.round(i.getBoundingClientRect().width)),
+        // A video item's box is the item (the video fills it: no empty area below or beside the still), and in the multi-aspect ratio layout as wide as its video.
+        videoGaps: [...el.querySelectorAll('[data-carousel-item]')]
+          .map((i) => [i.getBoundingClientRect(), i.querySelector('[data-video]')?.getBoundingClientRect()])
+          .filter(([, v]) => v)
+          .filter(([i, v]) => Math.abs(i.width - v.width) > 1 || Math.abs(i.height - v.height) > 1)
+          .map(([i, v]) => `${Math.round(v.width)}x${Math.round(v.height)} in ${Math.round(i.width)}x${Math.round(i.height)}`),
         itemLeft: Math.round(fb.left),
         rowLeft: Math.round(rb.left),
         rowWidth: Math.round(rb.width),
@@ -443,7 +449,7 @@ async function checkCarousel(width, height) {
       // Multi-aspect ratio: leading padding 16dp, the cards of different widths (each as wide as its image's aspect ratio makes it).
       if (l.layout === 'multi-aspect-ratio') {
         if (l.itemLeft !== 16 || l.rowLeft !== 0) problems.push(`${at}: the first item is ${l.itemLeft}px from the edge, not 16px`);
-        if (new Set(l.widths).size < 3)
+        if (new Set(l.widths).size < 2)
           problems.push(`${at}: the items have the same width (${l.widths.join(', ')}px), not their images' aspect ratios`);
       }
       if (['multi-browse', 'hero', 'hero-center'].includes(l.layout) && (l.itemLeft !== 16 || l.rowLeft !== 0))
@@ -453,6 +459,7 @@ async function checkCarousel(width, height) {
       if (l.layout === 'full-screen' && Math.abs(l.itemWidth - l.rowWidth) > 1)
         problems.push(`${at}: a full-screen item is ${l.itemWidth}px of the row's ${l.rowWidth}px`);
     }
+    if (l.videoGaps.length) problems.push(`${at}: a video does not fill its item (${l.videoGaps.join('; ')})`);
     if (l.layout === 'hero' && l.itemWidth <= l.rowWidth / 3)
       problems.push(`${at}: the hero's large item is only ${l.itemWidth}px of ${l.rowWidth}px`);
   }
@@ -802,9 +809,12 @@ async function checkCarouselMediaSheet(width, height) {
   await page.waitForTimeout(400);
   await page.locator('.mo-editor-inline-card-media').first().dispatchEvent('click');
   await page.waitForTimeout(900);
-  const cuttable = await names();
-  if (!cuttable.includes('Crop'))
-    problems.push(`${label}: in the multi-aspect ratio layout the sheet of an image has no Crop (${cuttable.join(', ')})`);
+  // A plain item shows its whole image in this layout, so there is nothing to cut: no Crop (a card keeps its Crop).
+  const whole = await names();
+  if (whole.includes('Crop'))
+    problems.push(
+      `${label}: in the multi-aspect ratio layout the sheet of a plain item's image has a Crop, but the whole image shows (${whole.join(', ')})`,
+    );
   await page.close();
 }
 
@@ -969,6 +979,40 @@ async function checkCarouselVideoThumbnailSite(width, height) {
   await page.close();
 }
 
+/** Multi-aspect ratio: each item is as wide as its own picture, within 9:16 to 16:9, one row height for all, and the whole picture is shown (contained, never cut). */
+async function checkCarouselMultiAspect(width, height) {
+  const label = `${width}px carousel multi-aspect ratio`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const root = page.locator('.mo-block-carousel:has(img[alt^="A mountain, "])').first();
+  if (!(await root.count())) {
+    problems.push(`${label}: no carousel with the ratio images on the Blocks page`);
+    return page.close();
+  }
+  await root.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1200);
+  const items = await root.evaluate((el) =>
+    [...el.querySelectorAll('[data-carousel-item] img[alt^="A mountain, "]')].map((img) => {
+      const li = img.closest('[data-carousel-item]').getBoundingClientRect();
+      return { alt: img.alt, w: li.width, h: li.height, fit: getComputedStyle(img).objectFit, cropped: img.style.transform !== '' };
+    }),
+  );
+  const want = { '9:16': 9 / 16, '1:1': 1, '4:3': 4 / 3, '16:9': 16 / 9, '21:9': 16 / 9, '1:3': 9 / 16 };
+  if (items.length !== 6) problems.push(`${label}: expected 6 images, found ${items.length}`);
+  const row = items[0]?.h;
+  for (const it of items) {
+    const key = /A mountain, ([\d:]+)/.exec(it.alt)?.[1] ?? '';
+    const ratio = it.w / it.h;
+    if (!(key in want) || Math.abs(ratio - want[key]) > 0.03)
+      problems.push(`${label}: ${key} is ${ratio.toFixed(2)} wide / high, not ${want[key]?.toFixed(2)}`);
+    if (Math.abs(it.h - row) > 1) problems.push(`${label}: ${key} is ${it.h}px high, the row is ${row}px`);
+    if (it.fit !== 'contain') problems.push(`${label}: ${key} is drawn with object-fit ${it.fit}, not contain`);
+    if (it.cropped) problems.push(`${label}: ${key} is cut`);
+  }
+  await page.close();
+}
+
 /** The home page's first picture is loaded first: on the demo's home page (/) the first image of the first section is loading="eager" with fetchpriority="high" (the page's largest image), and every other image of the page's text is lazy. */
 async function checkHomeFirstImage(width, height) {
   const label = `${width}px home first image`;
@@ -996,9 +1040,78 @@ async function checkHomeFirstImage(width, height) {
   await page.close();
 }
 
+/** A video item's box is the video's box, and no item is wider than the page's content (the owner's phone, 28 Nov 2026: a grey band above the video from the text's margin, and a 16:9 item wider than the screen): in the multi-aspect ratio carousel of videos every item's video starts at the item's top and is as high as the item, and the item is at most as wide as the carousel. */
+async function checkCarouselVideoBox(width, height) {
+  const label = `${width}px carousel video box`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const root = page.locator('.mo-block-carousel:has(.mo-is-multi-aspect .mo-block-video__facade)').first();
+  if (!(await root.count())) {
+    problems.push(`${label}: no multi-aspect ratio carousel of videos on the Blocks page`);
+    return page.close();
+  }
+  await root.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(800);
+  const m = await root.evaluate((el) => {
+    const room = el.querySelector('.mo-carousel').getBoundingClientRect().width;
+    const items = [...el.querySelectorAll('[data-carousel-item]')].map((li) => {
+      const box = li.getBoundingClientRect();
+      const video = li.querySelector('.mo-block-video__facade')?.getBoundingClientRect();
+      return { w: box.width, h: box.height, videoTop: video ? video.top - box.top : null, videoH: video?.height ?? null };
+    });
+    return { room, vw: document.documentElement.clientWidth, sw: document.documentElement.scrollWidth, items };
+  });
+  const videos = m.items.filter((i) => i.videoH !== null);
+  if (!videos.length) problems.push(`${label}: no video item in it`);
+  for (const [i, it] of videos.entries()) {
+    if (Math.abs(it.videoTop) > 1) problems.push(`${label}: video ${i + 1} starts ${Math.round(it.videoTop)}px below its item's top`);
+    if (Math.abs(it.videoH - it.h) > 1)
+      problems.push(`${label}: video ${i + 1} is ${Math.round(it.videoH)}px high, its item ${Math.round(it.h)}px`);
+  }
+  for (const [i, it] of m.items.entries())
+    if (it.w > m.room + 1) problems.push(`${label}: item ${i + 1} is ${Math.round(it.w)}px wide, the carousel ${Math.round(m.room)}px`);
+  if (m.sw > m.vw) problems.push(`${label}: the page is ${m.sw}px wide on a ${m.vw}px screen`);
+  await page.close();
+}
+
+/** No item is wider than the screen (the owner, 28 Nov 2026): in every multi-aspect ratio carousel on the Blocks page (images, videos, mixed, uncontained) each item is at most the carousel's width, which is the screen minus both margins on a phone, and the page does not scroll sideways. */
+async function checkCarouselWidthCap(width, height) {
+  const label = `${width}px carousel width cap`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  await page.waitForTimeout(800);
+  const m = await page.evaluate(() => {
+    const vw = document.documentElement.clientWidth;
+    const lists = [...document.querySelectorAll('.mo-carousel.mo-is-multi-aspect')].map((c) => {
+      const room = c.getBoundingClientRect().width;
+      return { room, widths: [...c.querySelectorAll('[data-carousel-item]')].map((li) => li.getBoundingClientRect().width) };
+    });
+    return { vw, sw: document.documentElement.scrollWidth, lists };
+  });
+  if (m.lists.length < 4)
+    problems.push(
+      `${label}: only ${m.lists.length} multi-aspect ratio carousels on the Blocks page (expected the images, videos, mixed and uncontained ones)`,
+    );
+  for (const [n, l] of m.lists.entries())
+    for (const [i, w] of l.widths.entries()) {
+      if (w > l.room + 1)
+        problems.push(`${label}: carousel ${n + 1}, item ${i + 1} is ${Math.round(w)}px wide, the carousel ${Math.round(l.room)}px`);
+      if (w > m.vw - 32 + 1)
+        problems.push(`${label}: carousel ${n + 1}, item ${i + 1} is ${Math.round(w)}px wide on a ${m.vw}px screen with 16px margins`);
+    }
+  if (m.sw > m.vw) problems.push(`${label}: the page is ${m.sw}px wide on a ${m.vw}px screen`);
+  await page.close();
+}
+
 export function register(unit) {
+  for (const w of [360, 390, 412, 1280]) unit(`checkCarouselWidthCap ${w}`, () => checkCarouselWidthCap(w, 900));
+  for (const w of [360, 390, 412, 1280]) unit(`checkCarouselVideoBox ${w}`, () => checkCarouselVideoBox(w, 900));
   unit('checkHomeFirstImage 390', () => checkHomeFirstImage(390, 844));
   unit('checkHomeFirstImage 1280', () => checkHomeFirstImage(1280, 900));
+  unit('checkCarouselMultiAspect 390', () => checkCarouselMultiAspect(390, 800));
+  unit('checkCarouselMultiAspect 1280', () => checkCarouselMultiAspect(1280, 900));
   unit('checkCarouselVideoThumbnail 1280', () => checkCarouselVideoThumbnail(1280, 900));
   unit('checkCarouselVideoThumbnailSite 1280', () => checkCarouselVideoThumbnailSite(1280, 900));
   unit('checkCarouselScrollCost 375', () => checkCarouselScrollCost());

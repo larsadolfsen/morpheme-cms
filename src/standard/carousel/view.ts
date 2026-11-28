@@ -15,9 +15,9 @@ import { kindOf, type ButtonView } from '../buttons/view';
 import { viewOf as videoViewOf, type VideoView } from '../video/view';
 import shared from './shared';
 import { ratioOf } from '../../../lib/crop.mjs';
-import { aspectProp, cutOf, DEFAULT_RATIO, ratioProp } from '../cards/cut.mjs';
+import { ASPECTS, aspectProp, cutOf, DEFAULT_RATIO, ratioProp, VIDEO_ASPECT } from '../cards/cut.mjs';
 
-export { ASPECTS, DEFAULT_ASPECT, DEFAULT_RATIO, aspectProp, ratioProp } from '../cards/cut.mjs';
+export { ASPECTS, DEFAULT_ASPECT, DEFAULT_RATIO, VIDEO_ASPECT, aspectProp, ratioProp } from '../cards/cut.mjs';
 
 /** The layouts, as Material 3 names them, in its order; the block starts as the first (Multi-browse). */
 export const carouselLayouts = ['multi-browse', 'uncontained', 'multi-aspect-ratio', 'hero', 'hero-center', 'full-screen'] as const;
@@ -97,6 +97,10 @@ const MEDIA: ItemMedia[] = ['none', 'icon', 'image', 'video'];
 /** An item's media: its choice (an image when it has none). */
 export const mediaOf = (item: CarouselItemProps): ItemMedia => MEDIA.find((m) => m === item.media) ?? 'image';
 
+/** An item's width / height in the multi-aspect ratio layout: the aspect the owner picked, else the image's own (when its size is known), else none (the editor, before the image has loaded: the theme sizes the item from the loaded image). */
+const ownAspect = (aspect: string | undefined, image?: Image) =>
+  ASPECTS.includes(aspect ?? '') ? ratioOf(aspect as string) : image?.width && image?.height ? image.width / image.height : undefined;
+
 /** The items, with their images as `image` gives them, their videos as `video` and their buttons as `buttons` (the site's are asked for). */
 export const itemsOf = (
   items: CarouselItemProps[],
@@ -118,6 +122,7 @@ export const itemsOf = (
     // Only a card has an action area; an item with a page is one link, with no buttons.
     const buttons = card && !page ? how.buttons(item, i) : [];
     const image = media === 'image' && item.image ? cutOf(item.image, ratio) : null;
+    const pictured = image ? how.image(image.src) : undefined;
     return {
       media,
       ...(card ? { card: true as const } : {}),
@@ -125,16 +130,26 @@ export const itemsOf = (
       ...(image
         ? {
             image: {
-              ...how.image(image.src),
+              ...pictured!,
               ...(item.alt?.trim() ? { alt: item.alt.trim() } : {}),
-              ...(image.crop ? { crop: image.crop } : {}),
+              // A card's image is cut to its ratio; a plain item's image is shown whole.
+              ...(image.crop && (card || !perItem) ? { crop: image.crop } : {}),
             },
             // The shape of a card's image (an image item fills its item whatever shape that is); the item's width in the multi-aspect ratio layout.
             ratio,
-            ...(perItem ? { aspect: ratioOf(ratio) } : {}),
+            // The multi-aspect ratio layout: the item is as wide as its own image (its natural width / height, kept within M3's 9:16 to 16:9 by the layout), or as the aspect the
+            // owner picked; a plain item's image is shown whole in it, never cut (an image outside the range is contained). A card keeps its ratio and its cut.
+            ...(perItem
+              ? card
+                ? { aspect: ratioOf(ratio) }
+                : ownAspect(item.aspect, pictured)
+                  ? { aspect: ownAspect(item.aspect, pictured) }
+                  : {}
+              : {}),
           }
         : {}),
-      ...(video ? { video } : {}),
+      // A video item in the multi-aspect ratio layout is as wide as its own video is (the item's aspect, 16:9 when none is set), so the video fills it with nothing left over.
+      ...(video ? { video, ...(perItem ? { aspect: ratioOf(aspectProp(item.aspect, VIDEO_ASPECT)) } : {}) } : {}),
       title: item.title ?? '',
       ...(item.subhead ? { subhead: item.subhead } : {}),
       text: item.text ?? '',

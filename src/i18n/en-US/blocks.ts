@@ -600,7 +600,8 @@ export const blocks = {
     headerHint: 'A title above the carousel. With one, an arrow next to it shows every item, instead of Show all under the row.',
     headerPlaceholder: 'Header',
     ratioHint: 'All the cards’ images use it.',
-    aspectHint: 'This item’s image uses it.',
+    aspectHint: 'The width of this item. Auto uses the image’s own shape, 16:9 for a video; the whole image always shows.',
+    aspectAuto: 'Automatic',
     items: 'Items',
     item: 'item',
     /** An item that is a card: only in the uncontained layouts. */
