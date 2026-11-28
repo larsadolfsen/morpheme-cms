@@ -48,6 +48,8 @@ export default defineBlock({
       label: t.blocks.carousel.layout,
       type: 'select',
       default: 'multi-browse',
+      // A carousel always has a layout: no "None" above Multi-browse.
+      required: true,
       versions: true,
       options: [
         { label: t.blocks.carousel.layoutMultiBrowse, value: 'multi-browse', hint: t.blocks.carousel.layoutMultiBrowseHint },
