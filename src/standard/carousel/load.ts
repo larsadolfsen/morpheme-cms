@@ -6,7 +6,7 @@ import { imageOf } from '../load';
 import type { Load } from '../view';
 import { loadButtons } from '../buttons/load';
 import shared from './shared';
-import { headerOf, itemsOf, layoutOf, ratioProp, type CarouselItemProps, type CarouselLayout, type CarouselView } from './view';
+import { headerOf, isTop, itemsOf, layoutOf, ratioProp, type CarouselItemProps, type CarouselLayout, type CarouselView } from './view';
 
 /** The items on the site, with their images' sizes, their videos' stills and their buttons. */
 export async function loadItems(items: CarouselItemProps[], layout: CarouselLayout, ratio: string) {
@@ -22,9 +22,10 @@ export async function loadItems(items: CarouselItemProps[], layout: CarouselLayo
   });
 }
 
-export const load: Load<CarouselView> = async (props, { texts }) => {
+export const load: Load<CarouselView> = async (props, { texts, index }) => {
   const layout = layoutOf(props);
   return {
+    top: isTop(index),
     layout,
     header: headerOf(props),
     design: props.design || undefined,

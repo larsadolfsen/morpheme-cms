@@ -58,7 +58,13 @@ export type CarouselItem = {
   buttons: ButtonView[];
   divider?: boolean;
 };
+/** A carousel is at the top of the page when it is among the first parts of the text (its place, `index`; the heading in front of it is part 0): its first image is loaded at once. */
+export const TOP_PARTS = 2;
+export const isTop = (index: unknown) => typeof index === 'number' && index < TOP_PARTS;
+
 export type CarouselView = {
+  /** At the top of the page (site only): the first image is loaded eagerly with high priority; the others always wait until they are near. */
+  top?: boolean;
   layout: CarouselLayout;
   header?: string;
   design?: string;

@@ -4,12 +4,12 @@
 // filled or elevated; `color`: the container of a filled card), with its media at the top, a headline, a subhead, a text and either one link (the card with a page is
 // one) or the action area (its buttons). Its optional header has an arrow icon button that shows every item, instead of `Show all` under the row (script.ts).
 // The card items use their own class (`mo-block-carousel__card`), not the Cards block's, so a theme's rules for the Cards block do not reach them.
-import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { Svg } from '@morphemecms/cms/src/icon';
 import { siteT } from '@morphemecms/cms/src/i18n';
 import type { CarouselItem, CarouselView } from '@morphemecms/cms/src/standard/carousel/view';
 import { Link, useInText } from '@morphemecms/cms/src/standard/view';
 import Buttons from '@theme/blocks/buttons/Buttons';
+import { loadingOf, sizesOf } from '@theme/blocks/carousel/sizes.mjs';
 import Video from '@theme/blocks/video/View';
 import Button from '@theme/ui/Button';
 import Card, { CardMedia as MediaBox, cardKinds, type CardKind } from '@theme/ui/Card';
@@ -25,8 +25,6 @@ const cutStyle = ([x, y, w]: number[]) => ({
   transform: `translate(${-Math.round(x * 10) / 10}%, ${-Math.round(y * 10) / 10}%)`,
 });
 
-const sizes = `(min-width: ${BREAKPOINTS.medium}px) 352px, 100vw`;
-
 /** The header's arrow: forward to show every item, back (drawn instead, by the theme, while the items are all shown) to show fewer; an icon button takes one icon, so both are in it. */
 function ArrowIcons() {
   return (
@@ -37,18 +35,20 @@ function ArrowIcons() {
   );
 }
 
-function Picture({ item, cut }: { item: CarouselItem; cut: boolean }) {
+/** An item's image: told how wide its layout draws it (sizes.mjs), and the first one at the top of the page loaded at once, every other when it comes near. */
+function Picture({ item, cut, layout, first }: { item: CarouselItem; cut: boolean; layout: CarouselView['layout']; first: boolean }) {
   const image = item.image!;
+  const crop = image.crop && cut ? image.crop : undefined;
   return (
     <img
-      style={image.crop && cut ? cutStyle(image.crop) : undefined}
+      style={crop ? cutStyle(crop) : undefined}
       src={image.src}
       srcSet={image.srcset}
-      sizes={image.srcset ? sizes : undefined}
+      sizes={image.srcset ? sizesOf(layout, { aspect: item.aspect, crop: crop?.[2] }) : undefined}
       width={image.width}
       height={image.height}
       alt={image.alt ?? ''}
-      loading="lazy"
+      {...loadingOf(first)}
       decoding="async"
     />
   );
@@ -56,17 +56,19 @@ function Picture({ item, cut }: { item: CarouselItem; cut: boolean }) {
 
 export default function CarouselBlock({ view, label }: { view: CarouselView; label?: string }) {
   const say = siteT.blocks.carousel;
-  const { layout, header, items, more } = view;
+  const { layout, header, items, more, top } = view;
+  // The one image loaded at once: the first of the first carousel at the top of the page.
+  const firstImage = top ? items.findIndex((item) => item.media === 'image' && item.image) : -1;
   const type: CardKind = cardKinds.find((k) => k === view.design) ?? 'outlined';
   const colored = type === 'filled' && view.color ? `mo-block-carousel__${view.color}` : undefined;
   const hasCards = items.some((item) => item.card);
 
   // An item that is a card: the Card component in the block's variant, its media at the top (the image cut to the part chosen, or the video with its play button).
-  const cardOf = (item: CarouselItem) => {
+  const cardOf = (item: CarouselItem, i: number) => {
     const media =
       item.media === 'image' && item.image ? (
         <MediaBox ratio={ratioOf(item.ratio)}>
-          <Picture item={item} cut />
+          <Picture item={item} cut layout={layout} first={i === firstImage} />
         </MediaBox>
       ) : item.media === 'video' && item.video ? (
         <Video view={item.video} />
@@ -98,14 +100,14 @@ export default function CarouselBlock({ view, label }: { view: CarouselView; lab
 
   // A plain item: the image or video fills the whole item, with no card surface and no outline, and the label (headline, subhead, text) sits inside the item on the
   // image. An item with a page is one link, the whole item.
-  const plainOf = (item: CarouselItem) => {
+  const plainOf = (item: CarouselItem, i: number) => {
     const image = item.media === 'image' && item.image;
     const video = item.media === 'video' && item.video;
     const body = (
       <>
         {image && (
           <span className="mo-block-carousel__item-media">
-            <Picture item={item} cut={layout === 'multi-aspect-ratio'} />
+            <Picture item={item} cut={layout === 'multi-aspect-ratio'} layout={layout} first={i === firstImage} />
           </span>
         )}
         {video && (
@@ -170,7 +172,7 @@ export default function CarouselBlock({ view, label }: { view: CarouselView; lab
         items={items.map((item, i) => ({
           key: String(i),
           label: say.slideOf(i + 1, items.length),
-          content: item.card ? cardOf(item) : plainOf(item),
+          content: item.card ? cardOf(item, i) : plainOf(item, i),
           ...(layout === 'multi-aspect-ratio' ? { aspect: item.aspect } : {}),
           // An item with a page is one link and a card with buttons has them to focus; one with nothing to focus in it is reached itself.
           focusable: !item.href && item.buttons.length === 0,

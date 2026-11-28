@@ -1,6 +1,8 @@
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { sizesOf } from '../../theme/blocks/carousel/sizes.mjs';
 import { openEditor } from '../built-site.mjs';
-import { blocksOf, browser, has, problems, shots, site } from './support/context.mjs';
+import { ROOT, blocksOf, browser, has, problems, shots, site } from './support/context.mjs';
 import { chooseKind, onTestPage, pressInsert } from './support/shared.mjs';
 import { isMaterialTheme } from '../theme-statement.mjs';
 import { pageLanguage } from './support/page-language.mjs';
@@ -80,6 +82,74 @@ async function checkCarouselScrollCost() {
         `${label}: carousel ${k} writes style ${r.writes} times while it scrolls (limit 0): the script runs on every scroll frame and each write costs a style recalculation, a layout of the text and a paint`,
       );
   }
+  await page.close();
+}
+
+/** A carousel's images are delivered for what each layout draws (owner, 28 Nov 2026: "The carousel page takes too long to load"): on the demo's Carousel page (/blocks/carousel/) the one image loaded at once is the first of the first carousel (eager, fetchpriority high, the page's largest image) and every other image waits (lazy); each image has its width and height (nothing shifts) and the `sizes` of its layout (sizes.mjs, so a layout never gets the one value of another); and a loaded file is never more than 3 times as wide as the image is drawn (device pixels), the step of the image ladder. A site without that page (the starter) has none to measure. */
+async function checkCarouselImages(width, height, scale) {
+  const label = `${width}px carousel images`;
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-carousel.md')))
+    return void console.log(`${label}: skipped, the site has no Carousel page, which the demo has.`);
+  const phone = width < 600;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    deviceScaleFactor: scale,
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const response = await page.goto(new URL('/blocks/carousel/', site).href).catch(() => null);
+  if (!response || response.status() >= 400) {
+    problems.push(`${label}: /blocks/carousel/ did not open`);
+    return page.close();
+  }
+  const carousels = await page.evaluate(() =>
+    [...document.querySelectorAll('[data-carousel]')].map((c) => ({
+      layout: c.dataset.carouselLayout
+        ? c.dataset.carouselAlignment
+          ? `${c.dataset.carouselLayout}-center`
+          : c.dataset.carouselLayout
+        : 'uncontained',
+      multiAspect: c.classList.contains('mo-is-multi-aspect'),
+      images: [...c.querySelectorAll('img')].map((img) => ({
+        loading: img.getAttribute('loading'),
+        priority: img.getAttribute('fetchpriority'),
+        sizes: img.getAttribute('sizes'),
+        width: img.getAttribute('width'),
+        height: img.getAttribute('height'),
+        drawn: img.getBoundingClientRect().width,
+        natural: img.complete ? img.naturalWidth : 0,
+        src: img.currentSrc.split('/').pop(),
+      })),
+    })),
+  );
+  if (carousels.length < 5) problems.push(`${label}: only ${carousels.length} carousels were found on the Carousel page`);
+  carousels.forEach((c, k) => {
+    c.images.forEach((img, i) => {
+      const first = k === 0 && i === 0;
+      const where = `carousel ${k} (${c.layout}), image ${i}`;
+      if (first && (img.loading !== 'eager' || img.priority !== 'high'))
+        problems.push(
+          `${label}: ${where} is the page's first image and is not loading="eager" with fetchpriority="high" (${img.loading}, ${img.priority})`,
+        );
+      if (!first && (img.loading !== 'lazy' || img.priority))
+        problems.push(
+          `${label}: ${where} is not lazy (${img.loading}${img.priority ? `, fetchpriority ${img.priority}` : ''}): only the first image of the page is loaded at once`,
+        );
+      if (!img.width || !img.height) problems.push(`${label}: ${where} has no width and height, so the page shifts when it loads`);
+      // A layout's own `sizes`; a multi-aspect ratio item's is its own width in px.
+      const expected = c.multiAspect ? null : sizesOf(c.layout);
+      if (c.multiAspect ? !/^(\d+px|calc\(\d+px \* [\d.]+\))$/.test(img.sizes ?? '') : img.sizes !== expected)
+        problems.push(`${label}: ${where} has sizes "${img.sizes}", not its layout's ${expected ?? 'width in px'}`);
+      if (img.natural && img.drawn > 1 && img.natural > 3 * img.drawn * scale)
+        problems.push(
+          `${label}: ${where} loaded ${img.src}, ${img.natural} px wide, for an image drawn ${Math.round(img.drawn)} px wide at ${scale}x (more than 3 times what is shown)`,
+        );
+    });
+  });
+  const eager = carousels.flatMap((c) => c.images).filter((img) => img.loading === 'eager').length;
+  if (eager !== 1) problems.push(`${label}: ${eager} images are eager on the Carousel page, expected 1`);
   await page.close();
 }
 
@@ -775,6 +845,8 @@ export function register(unit) {
   unit('checkCarouselScrollCost 375', () => checkCarouselScrollCost());
   unit('checkCarouselMediaSheet 1280', () => checkCarouselMediaSheet(1280, 900));
   unit('checkCarouselCardSwitch 1280', () => checkCarouselCardSwitch(1280, 900));
+  unit('checkCarouselImages 390', () => checkCarouselImages(390, 844, 2));
+  unit('checkCarouselImages 1280', () => checkCarouselImages(1280, 900, 1));
   unit('checkCarouselGap 390', () => checkCarouselGap(390, 800));
   unit('checkCarouselGap 1280', () => checkCarouselGap(1280, 900));
   unit('checkCarousel 768', () => checkCarousel(768, 900));
