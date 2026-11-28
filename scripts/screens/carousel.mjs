@@ -85,7 +85,7 @@ async function checkCarouselScrollCost() {
   await page.close();
 }
 
-/** A carousel's images are delivered for what each layout draws (owner, 28 Nov 2026: "The carousel page takes too long to load"): on the demo's Carousel page (/blocks/carousel/) the one image loaded at once is the first of the first carousel (eager, fetchpriority high, the page's largest image) and every other image waits (lazy); each image has its width and height (nothing shifts) and the `sizes` of its layout (sizes.mjs, so a layout never gets the one value of another); and a loaded file is never more than 3 times as wide as the image is drawn (device pixels), the step of the image ladder. A site without that page (the starter) has none to measure. */
+/** A carousel's images are delivered for what each layout draws (owner, 28 Nov 2026: "The carousel page takes too long to load"): on the demo's Carousel page (/blocks/carousel/) the one image loaded at once is the first of the first carousel (eager, fetchpriority high, the page's largest image) and every other image waits (lazy); each image has its width and height (nothing shifts) and the `sizes` of its layout (sizes.mjs, so a layout never gets the one value of another); (the still of a video item is the Video component's own, `mo-block-video__facade-image`, and not measured here); and a loaded file is never more than 3 times as wide as the image is drawn (device pixels), the step of the image ladder. A site without that page (the starter) has none to measure. */
 async function checkCarouselImages(width, height, scale) {
   const label = `${width}px carousel images`;
   if (!existsSync(join(ROOT, 'src/content/pages/blocks-carousel.md')))
@@ -112,7 +112,7 @@ async function checkCarouselImages(width, height, scale) {
           : c.dataset.carouselLayout
         : 'uncontained',
       multiAspect: c.classList.contains('mo-is-multi-aspect'),
-      images: [...c.querySelectorAll('img')].map((img) => ({
+      images: [...c.querySelectorAll('img:not(.mo-block-video__facade-image)')].map((img) => ({
         loading: img.getAttribute('loading'),
         priority: img.getAttribute('fetchpriority'),
         sizes: img.getAttribute('sizes'),
