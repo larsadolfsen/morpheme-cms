@@ -1,0 +1,6 @@
+{
+  "id": "carousel-every-item-large",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Alle elementer i en karrusel med flere størrelser eller et hovedelement, også de sidste, kan være det store element"
+}

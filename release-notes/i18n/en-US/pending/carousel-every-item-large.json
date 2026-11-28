@@ -1,0 +1,6 @@
+{
+  "id": "carousel-every-item-large",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Every item of a multi-browse or hero carousel, the last ones too, can be the large item"
+}

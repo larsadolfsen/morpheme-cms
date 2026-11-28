@@ -5,7 +5,7 @@
 // work as in any row), and its mask (.mo-carousel__item-mask) is moved and clipped to the size its place gives it. The
 // places are keylines: where each item stands and how wide it is seen, with an item that is just leaving or coming in
 // outside at each end. Scrolled to the start, the large ones are at the start (also in a hero aligned to the centre);
-// scrolled to the end, at the end (center-aligned: the last item centred, with room after it, as the first one is at the start); between, the layout's own; and from one to the other the keylines move by
+// scrolled to the end, the last item rests large like every other, with room after it (a hero aligned to the centre: centred), and no mirrored end state; between, the layout's own; and from one to the other the keylines move by
 // themselves, so that every item grows and shrinks as it passes. Widths from the theme (--mo-comp-carousel-large-item-width,
 // --mo-comp-carousel-small-item-min-width and -max-width, the gap and the height, in ui.css); what is masked of an item is on it
 // as --mo-comp-carousel-mask (0 to 1), for what is on it to fade. The site's carousel.script.ts and, in the editor, Carousel.tsx
@@ -200,8 +200,12 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
             'first',
           );
     // Center-aligned: the row has room after the last item (below), so that it rests in the middle too and the layout there is the layout's own.
+    // Multi-browse and hero (M3: "items automatically change size and snap into place to maintain the same layout", and "at least one large, medium, and small"): the row has room
+    // after its last item too, so that item can rest large like every other, with the medium and small places empty after it. There is no mirrored end state: no item is made
+    // larger or smaller than the layout's own just because it is last.
+    const roomAfter = layout === 'multi-browse' || layout === 'hero';
     end =
-      alignment === 'center'
+      alignment === 'center' || roomAfter
         ? normal
         : stateOf(
             [...sizes].sort((a, b) => a - b),
@@ -213,6 +217,9 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
     // Where an item rests: its start this far before the first large keyline's (scroll-padding, for scroll-snap).
     lead = normal.lines[normal.focal].loc - large / 2;
     row!.style.scrollPaddingInlineStart = `${lead + pad}px`;
+    // The last item rests where the first does: what is left of the row after it, less nothing, is the room it needs after it.
+    if (roomAfter && alignment !== 'center')
+      row!.style.paddingInlineEnd = `${Math.max(padEnd, row!.clientWidth - pad - lead - sizes[sizes.length - 1])}px`;
     toStart = start.offsets[0] - normal.offsets[0];
     toEnd = normal.offsets[0] - end.offsets[0];
     const first = items[0]?.offsetLeft ?? 0;
