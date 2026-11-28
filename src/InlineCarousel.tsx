@@ -189,7 +189,7 @@ export default function InlineCarousel({
             placeholder={t.blocks.carousel.headerPlaceholder}
             onType={(v) => onProps({ header: v })}
             // A tap in the header makes the block the active one, as a tap in an item does.
-            onFocus={() => onChange({ active: Math.max(active, 0), focus: null })}
+            onFocus={() => onChange({ active: Math.max(active ?? 0, 0), focus: null })}
             onKeys={(e) => {
               if (e.key === 'Enter') e.preventDefault();
             }}
