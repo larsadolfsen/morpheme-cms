@@ -813,7 +813,14 @@ async function checkCarouselVideoThumbnail(width, height) {
   if (!/Alt text/.test(await text())) problems.push(`${label}: the video item has no Alt text once it has a thumbnail (${await text()})`);
   const still = () => page.locator('.mo-editor-inline-carousel .mo-block-video__facade-image').first().getAttribute('src');
   const src = await still();
-  if (!src || src.includes('ytimg.com') || src.includes('/_video/'))
+  const host = (() => {
+    try {
+      return new URL(src ?? '', 'http://localhost').hostname;
+    } catch {
+      return '';
+    }
+  })();
+  if (!src || host === 'ytimg.com' || host.endsWith('.ytimg.com') || src.includes('/_video/'))
     problems.push(`${label}: the item draws "${src}", not the chosen thumbnail`);
   await page.screenshot({ path: join(shots, `carousel-video-thumbnail-${width}.png`) });
   // Removing it (the image field's own Remove, in Change link) brings the video's own still back, and the Alt text goes.

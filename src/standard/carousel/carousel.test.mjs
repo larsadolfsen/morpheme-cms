@@ -78,9 +78,7 @@ test('a thumbnail on an item that is not a video is ignored', () => {
 test('the field is the video block’s: same label and hint, shown only for a video, with its alt text rule', () => {
   const block = read('./index.tsx')
     .replace(/\s+/g, ' ')
-    .replace(/,\s*([}\]])/g, ' $1')
-    .replace(/\{ /g, '{ ')
-    .replace(/ \}/g, ' }');
+    .replace(/,\s*([}\]])/g, ' $1');
   assert.match(
     block,
     /name: 'thumbnail', label: t\.blocks\.video\.thumbnail, type: 'image', hint: t\.blocks\.video\.thumbnailHint, only: \{ field: 'media', is: \['video'\] \}/,
