@@ -25,6 +25,7 @@ const panel = sections.find((s) => s.type === 'top');
 // its space above would come between the label and the heading. Only a text without a heading hands its label on.
 const takesLabel = (next?: (typeof sections)[number]) =>
   !!next && next.type !== 'top' && !next.hidden && (next.type !== 'text' || !!next.heading);
+const pictured = { done: false };
 const shown: { section: (typeof sections)[number]; label?: string }[] = [];
 let carried: string | undefined;
 sections.forEach((s, i) => {
@@ -81,17 +82,20 @@ sections.forEach((s, i) => {
             data-editor="h1-section"
           >
             <h1 class="mo-page-title mo-home__title">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
-            {s.items.map((item, n) =>
-              item.block ? (
+            {s.items.map((item) => {
+              // The first image of the page's first section is its first picture: loaded at once with high priority (the Carousel's `top`, isTop, does the same).
+              const eager = i === 0 && !pictured.done && /!\[|<img/.test(item.markdown ?? '');
+              if (eager) pictured.done = true;
+              return item.block ? (
                 !item.block.props.hidden && (
                   <div class="mo-placed-block mo-home__item">
                     <Block type={item.block.type} props={item.block.props} texts={blockTexts[item.block.type]} />
                   </div>
                 )
               ) : (
-                <Markdown body={item.markdown} class="mo-home__item" />
-              ),
-            )}
+                <Markdown body={item.markdown} class="mo-home__item" eagerFirst={eager} />
+              );
+            })}
           </section>
         </Container>
       );

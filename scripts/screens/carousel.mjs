@@ -969,7 +969,36 @@ async function checkCarouselVideoThumbnailSite(width, height) {
   await page.close();
 }
 
+/** The home page's first picture is loaded first: on the demo's home page (/) the first image of the first section is loading="eager" with fetchpriority="high" (the page's largest image), and every other image of the page's text is lazy. */
+async function checkHomeFirstImage(width, height) {
+  const label = `${width}px home first image`;
+  if (!existsSync(join(ROOT, 'src/content/pages/home.md')))
+    return void console.log(`${label}: skipped, the site has no home page content.`);
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await page.goto(new URL('/', site).href);
+  const imgs = await page.evaluate(() =>
+    [...document.querySelectorAll('main img, .mo-markdown img')].map((i) => ({
+      src: i.getAttribute('src'),
+      loading: i.getAttribute('loading'),
+      priority: i.getAttribute('fetchpriority'),
+    })),
+  );
+  if (imgs.length) {
+    const [first, ...rest] = imgs;
+    if (first.loading !== 'eager' || first.priority !== 'high')
+      problems.push(
+        `${label}: the first image (${first.src}) is not loading="eager" with fetchpriority="high" (${first.loading}, ${first.priority})`,
+      );
+    const wrong = rest.filter((i) => i.priority === 'high');
+    if (wrong.length) problems.push(`${label}: ${wrong.length} later images also have fetchpriority="high"`);
+  }
+  await page.close();
+}
+
 export function register(unit) {
+  unit('checkHomeFirstImage 390', () => checkHomeFirstImage(390, 844));
+  unit('checkHomeFirstImage 1280', () => checkHomeFirstImage(1280, 900));
   unit('checkCarouselVideoThumbnail 1280', () => checkCarouselVideoThumbnail(1280, 900));
   unit('checkCarouselVideoThumbnailSite 1280', () => checkCarouselVideoThumbnailSite(1280, 900));
   unit('checkCarouselScrollCost 375', () => checkCarouselScrollCost());
