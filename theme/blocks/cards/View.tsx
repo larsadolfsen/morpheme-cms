@@ -6,16 +6,7 @@ import { useInText } from '@morphemecms/cms/src/standard/view';
 export default function Cards({ view }: { view: CardsView }) {
   return (
     <>
-      <LinkCards
-        items={view.items}
-        design={view.design}
-        color={view.color}
-        phone={view.phone}
-        layout={view.layout}
-        header={view.header}
-        more={view.more}
-        className={useInText() || undefined}
-      />
+      <LinkCards items={view.items} design={view.design} color={view.color} more={view.more} className={useInText() || undefined} />
     </>
   );
 }

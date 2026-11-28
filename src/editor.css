@@ -1204,7 +1204,7 @@ html {
 .mo-editor-text .mo-editor-inline-list-row-next:not(.mo-editor-inline-list-row-active) {
   opacity: 0.55;
 }
-/* The chip over Cards that are a carousel on phones: in place they are typed stacked, so the choice is not forgotten. */
+/* The chip over the Carousel block typed in place (InlineCarousel.tsx): it names the block, whose items are typed stacked. */
 .mo-editor-text .mo-editor-inline-cards-chip {
   display: inline-block;
   margin-bottom: 0.5rem;
@@ -1956,4 +1956,34 @@ main[tabindex='-1']:focus {
 .mo-editor-text[data-lead-style='page'] .ProseMirror > p[data-lead] {
   color: var(--mo-sys-color-on-surface-variant);
   max-inline-size: 52ch;
+}
+
+/* The Carousel block typed in place (InlineCarousel.tsx): its items stacked, as the site draws them with Show all (blocks/carousel.css): two by two from 600 px; a plain item is a 3:2 tile. */
+.mo-editor-text .mo-editor-inline-carousel {
+  display: grid;
+  gap: var(--mo-comp-carousel-gap, 0.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (width >= 37.5rem) {
+  .mo-editor-text .mo-editor-inline-carousel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.mo-editor-text .mo-editor-inline-carousel .mo-block-carousel__item {
+  min-height: 12rem;
+  aspect-ratio: 3 / 2;
+}
+.mo-editor-text .mo-editor-inline-carousel .mo-block-carousel__item .mo-editor-inline-card-media-box {
+  position: absolute;
+  inset: 0;
+}
+.mo-editor-text .mo-editor-inline-carousel .mo-block-carousel__item .mo-editor-inline-card-media-view {
+  height: 100%;
+}
+.mo-editor-text .mo-editor-inline-carousel .mo-block-carousel__item .mo-editor-inline-card-slots {
+  position: relative;
+  z-index: 1;
+  margin: 0.5rem;
 }

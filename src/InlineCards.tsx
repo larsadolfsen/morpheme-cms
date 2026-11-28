@@ -6,7 +6,7 @@
 // picked from the link control in the action row, which opens the page picker at once (a card has no sheet of its own). The active card has
 // its action area at the bottom: its buttons and the next one, empty and faded (`Add button`; with a page it says so and adds none). The parts, the keys and what is kept
 // are InlineItems.tsx and src/inlineRows.mjs; a new block starts with three empty, faded cards, the first active (the List has one); `Add
-// card` and the dotted line are as in the List.
+// card` and the dotted line are as in the List. (A carousel of cards is the Carousel block, InlineCarousel.tsx.)
 import { buttonClass } from '@theme/ui/Button';
 import { useState } from 'react';
 import { Icon, materialIcon } from './icon';
@@ -19,7 +19,7 @@ import ButtonMenu, { type ButtonPatch } from './ButtonMenu';
 import { buttonList, type Button } from './standard/buttons/fields';
 import { buttonsOf as resolveButtons } from './standard/buttons/view';
 import shared from './standard/cards/shared';
-import { layoutOf, ratioProp, shownCards, type LinkCard, type LinkCardProps } from './standard/cards/view';
+import { ratioProp, shownCards, type LinkCard, type LinkCardProps } from './standard/cards/view';
 import { cardKinds, type CardKind } from '@theme/ui/Card';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import Divider from '@theme/ui/Divider';
@@ -63,7 +63,7 @@ export default function InlineCards({
       onChange: (v) => change(card, row, { icon: v.icon as string }),
     });
   };
-  const cards = shownCards(items as LinkCardProps[], data, props.media, ratioProp(props), layoutOf(props) === 'multi-aspect-ratio');
+  const cards = shownCards(items as LinkCardProps[], data, props.media, ratioProp(props));
   const type: CardKind = cardKinds.find((k) => k === props.design) ?? 'outlined';
   const colored = type === 'filled' && props.color ? `mo-block-cards__${props.color}` : undefined;
   const media = cards[0]?.media ?? 'icon';
@@ -158,25 +158,6 @@ export default function InlineCards({
   };
   return (
     <>
-      {props.phone === 'carousel' && <span className="mo-editor-inline-cards-chip">{t.blocks.cards.carouselChip}</span>}
-      {/* The carousel's optional header, typed where it stands, as the site draws it (the arrow beside it is the site's, not drawn here). Empty: no header, `Show all` under the row. */}
-      {props.phone === 'carousel' && (
-        <div className="mo-block-cards__header mo-editor-inline-cards-header">
-          <span className="mo-block-cards__heading">
-            <InlineField
-              name="header"
-              value={typeof props.header === 'string' ? props.header : ''}
-              label={t.blocks.cards.header}
-              placeholder={t.blocks.cards.headerPlaceholder}
-              onType={(v) => onProps({ header: v })}
-              onFocus={() => {}}
-              onKeys={(e) => {
-                if (e.key === 'Enter') e.preventDefault();
-              }}
-            />
-          </span>
-        </div>
-      )}
       <InlineItems
         items={items}
         active={active}

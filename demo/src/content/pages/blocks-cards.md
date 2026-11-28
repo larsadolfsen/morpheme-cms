@@ -12,7 +12,6 @@ Drawn by the Card component: the Cards block and the Notice block.
 
 [All blocks](/blocks/)
 
-
 ## Cards with icons
 
 Group related ideas with an icon, a photo or just text, each linking to a page if you like.
@@ -38,11 +37,6 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 ## Cards: filled, with a video
 
 <div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;media&quot;:&quot;video&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;With a video&quot;,&quot;text&quot;:&quot;A video shows its still with a play button.&quot;,&quot;video&quot;:&quot;https://www.youtube.com/watch?v=aqz-KE-bpKQ&quot;},{&quot;title&quot;:&quot;One media for all cards&quot;,&quot;text&quot;:&quot;The block sets the media; each card gives its own video.&quot;}],&quot;color&quot;:&quot;tertiary&quot;}"></div>
-
-## Cards in a carousel
-
-Cards swiped sideways on every screen size. Every layout, each with its own example, is on the [Carousel](/blocks/carousel/) page.
-<div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Swipe sideways&quot;,&quot;text&quot;:&quot;These cards slide sideways on every screen size, and the next one peeks in.&quot;},{&quot;icon&quot;:&quot;volunteer_activism&quot;,&quot;title&quot;:&quot;Show all&quot;,&quot;text&quot;:&quot;A Show all button under them stacks the cards in place.&quot;},{&quot;icon&quot;:&quot;menu_book&quot;,&quot;title&quot;:&quot;Wider, more cards&quot;,&quot;text&quot;:&quot;A wider carousel shows more cards at once.&quot;},{&quot;icon&quot;:&quot;military_tech&quot;,&quot;title&quot;:&quot;Snap scrolling&quot;,&quot;text&quot;:&quot;Each swipe settles on a card.&quot;,&quot;href&quot;:&quot;#&quot;}]}"></div>
 
 ## Notice
 

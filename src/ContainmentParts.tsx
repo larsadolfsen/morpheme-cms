@@ -32,12 +32,12 @@ function Shown({ label, children }: { label: string; children: ReactNode }) {
  * through the theme's own data attributes (data-carousel-fade, data-carousel-inset, carouselLayout.ts). */
 function Image({ n }: { n: number }) {
   return (
-    <span className="mo-block-cards__item">
-      <span className="mo-block-cards__item-media">
+    <span className="mo-block-carousel__item">
+      <span className="mo-block-carousel__item-media">
         <img src={exampleImage} alt="" />
       </span>
-      <span className="mo-block-cards__item-label" data-carousel-fade="0.5 8" data-carousel-inset="1rem">
-        <span className="mo-block-cards__item-title" data-carousel-fade="0.1 10">
+      <span className="mo-block-carousel__item-label" data-carousel-fade="0.5 8" data-carousel-inset="1rem">
+        <span className="mo-block-carousel__item-title" data-carousel-fade="0.1 10">
           {say.image(n)}
         </span>
       </span>

@@ -156,6 +156,8 @@ A theme or an app also imports its own parts and data: `@theme/ui/…`, `@theme/
 - `@morphemecms/cms/src/standard/buttons/fields`
 - `@morphemecms/cms/src/standard/cards/view`
 - `@morphemecms/cms/src/standard/cards/load`
+- `@morphemecms/cms/src/standard/carousel/view`
+- `@morphemecms/cms/src/standard/carousel/load`
 - `@morphemecms/cms/src/standard/checklist/view`
 - `@morphemecms/cms/src/standard/checklist/load`
 - `@morphemecms/cms/src/standard/cookies/view`
