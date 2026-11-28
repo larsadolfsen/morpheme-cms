@@ -1,6 +1,8 @@
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { EAGER_IMAGES, sizesOf } from '../../theme/blocks/carousel/sizes.mjs';
 import { openEditor } from '../built-site.mjs';
-import { blocksOf, browser, has, problems, shots, site } from './support/context.mjs';
+import { ROOT, blocksOf, browser, has, problems, shots, site } from './support/context.mjs';
 import { chooseKind, onTestPage, pressInsert } from './support/shared.mjs';
 import { isMaterialTheme } from '../theme-statement.mjs';
 import { pageLanguage } from './support/page-language.mjs';
@@ -81,6 +83,111 @@ async function checkCarouselScrollCost() {
       );
   }
   await page.close();
+}
+
+/** A carousel's images are delivered for what each layout draws (owner, 28 Nov 2026: "The carousel page takes too long to load"): on the demo's Carousel page (/blocks/carousel/) the images of the first screen are loaded at once (the first of the first carousel eager with fetchpriority high, the page's largest image, the next ones eager) and every other image waits (lazy); each image has a blurred preview as its background (a `data:` image) so it shows its colours before the file arrives; each image has its width and height (nothing shifts) and the `sizes` of its layout (sizes.mjs: smaller files for multi-browse and uncontained, the base value for the rest); (the still of a video item is the Video component's own, `mo-block-video__facade-image`, and not measured here); and a loaded file is never more than 3 times as wide as the image is drawn (device pixels), the step of the image ladder. A site without that page (the starter) has none to measure. */
+async function checkCarouselImages(width, height, scale) {
+  const label = `${width}px carousel images`;
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-carousel.md')))
+    return void console.log(`${label}: skipped, the site has no Carousel page, which the demo has.`);
+  const phone = width < 600;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    deviceScaleFactor: scale,
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const response = await page.goto(new URL('/blocks/carousel/', site).href).catch(() => null);
+  if (!response || response.status() >= 400) {
+    problems.push(`${label}: /blocks/carousel/ did not open`);
+    return page.close();
+  }
+  const carousels = await page.evaluate(() =>
+    [...document.querySelectorAll('[data-carousel]')].map((c) => ({
+      layout: c.dataset.carouselLayout
+        ? c.dataset.carouselAlignment
+          ? `${c.dataset.carouselLayout}-center`
+          : c.dataset.carouselLayout
+        : 'uncontained',
+      images: [...c.querySelectorAll('img:not(.mo-block-video__facade-image)')].map((img) => ({
+        loading: img.getAttribute('loading'),
+        priority: img.getAttribute('fetchpriority'),
+        sizes: img.getAttribute('sizes'),
+        background: getComputedStyle(img).backgroundImage,
+        width: img.getAttribute('width'),
+        height: img.getAttribute('height'),
+        drawn: img.getBoundingClientRect().width,
+        natural: img.complete ? img.naturalWidth : 0,
+        src: img.currentSrc.split('/').pop(),
+      })),
+    })),
+  );
+  if (carousels.length < 5) problems.push(`${label}: only ${carousels.length} carousels were found on the Carousel page`);
+  carousels.forEach((c, k) => {
+    c.images.forEach((img, i) => {
+      const rank = k === 0 ? i : -1;
+      const where = `carousel ${k} (${c.layout}), image ${i}`;
+      if (rank === 0 && (img.loading !== 'eager' || img.priority !== 'high'))
+        problems.push(
+          `${label}: ${where} is the page's first image and is not loading="eager" with fetchpriority="high" (${img.loading}, ${img.priority})`,
+        );
+      if (rank > 0 && rank < EAGER_IMAGES && (img.loading !== 'eager' || img.priority))
+        problems.push(`${label}: ${where} is in the first screen and is not loading="eager" (${img.loading}, ${img.priority})`);
+      if ((rank < 0 || rank >= EAGER_IMAGES) && (img.loading !== 'lazy' || img.priority))
+        problems.push(
+          `${label}: ${where} is not lazy (${img.loading}${img.priority ? `, fetchpriority ${img.priority}` : ''}): only the first screen's images are loaded at once`,
+        );
+      if (!img.background.startsWith('url("data:image/'))
+        problems.push(`${label}: ${where} has no blurred preview as its background (${img.background.slice(0, 40)})`);
+      // Only multi-browse (and the uncontained layout, whose cards may be cut) has `sizes` of its own; every other layout keeps the base value, so nothing larger is fetched.
+      if (c.layout !== 'uncontained' && img.sizes !== sizesOf(c.layout))
+        problems.push(`${label}: ${where} has sizes "${img.sizes}", not ${sizesOf(c.layout)}`);
+      if (!img.width || !img.height) problems.push(`${label}: ${where} has no width and height, so the page shifts when it loads`);
+      if (img.natural && img.drawn > 1 && img.natural > 3 * img.drawn * scale)
+        problems.push(
+          `${label}: ${where} loaded ${img.src}, ${img.natural} px wide, for an image drawn ${Math.round(img.drawn)} px wide at ${scale}x (more than 3 times what is shown)`,
+        );
+    });
+  });
+  const eager = carousels.flatMap((c) => c.images).filter((img) => img.loading === 'eager').length;
+  if (eager !== EAGER_IMAGES) problems.push(`${label}: ${eager} images are eager on the Carousel page, expected ${EAGER_IMAGES}`);
+  await page.close();
+}
+
+/** A carousel draws from the HTML, without its script (owner, 28 Nov 2026: a carousel with a header drew nothing until the script ran): with JavaScript off, every carousel of the Carousel page has its items drawn with a size and its first image inside the row. */
+async function checkCarouselNoScript(width, height) {
+  const label = `${width}px carousel without script`;
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-carousel.md')))
+    return void console.log(`${label}: skipped, the site has no Carousel page, which the demo has.`);
+  const context = await browser.newContext({ viewport: { width, height }, javaScriptEnabled: false, locale: 'en-US' });
+  const page = await context.newPage();
+  const response = await page.goto(new URL('/blocks/carousel/', site).href).catch(() => null);
+  if (!response || response.status() >= 400) problems.push(`${label}: /blocks/carousel/ did not open`);
+  else {
+    const rows = await page.evaluate(() =>
+      [...document.querySelectorAll('[data-carousel-block]')].map((block) => {
+        const item = block.querySelector('.mo-carousel__item');
+        const box = item?.getBoundingClientRect();
+        const row = block.querySelector('[data-carousel-items]')?.getBoundingClientRect();
+        return {
+          header: block.classList.contains('mo-has-header'),
+          width: box?.width ?? 0,
+          height: box?.height ?? 0,
+          rowHeight: row?.height ?? 0,
+        };
+      }),
+    );
+    if (rows.length < 5) problems.push(`${label}: only ${rows.length} carousels were found`);
+    rows.forEach((r, k) => {
+      if (r.width < 50 || r.height < 50 || r.rowHeight < 50)
+        problems.push(
+          `${label}: carousel ${k}${r.header ? ' (with a header)' : ''} draws no item (item ${Math.round(r.width)}x${Math.round(r.height)}, row ${Math.round(r.rowHeight)} high)`,
+        );
+    });
+  }
+  await context.close();
 }
 
 /** The gap between two cards of a carousel stays the carousel's gap on the whole way, not only at rest (the owner's phone, 27 Nov 2026: "the distance between cards ... differs": a card that entered or left at the row's edge trailed 16 px from its neighbour, twice the gap, because the item outside the row stood where the padding ends). Every multi-browse and hero carousel on the Blocks page, the row scrolled in steps from its start to its end: the visible edges of two cards next to each other (their masks less the clipped part) are one gap apart. */
@@ -853,7 +960,8 @@ async function checkCarouselVideoThumbnailSite(width, height) {
   else {
     const frame = item.locator('xpath=ancestor::*[contains(@class,"mo-block-video")][1]');
     if (!(await frame.locator('svg').count())) problems.push(`${label}: the video item with a thumbnail has no play button`);
-    if (!/own thumbnail/.test(await frame.innerText())) problems.push(`${label}: the video item with a thumbnail has lost its title`);
+    if (!/own thumbnail/.test((await frame.textContent()) ?? ''))
+      problems.push(`${label}: the video item with a thumbnail has lost its title`);
     if (typeof (await item.getAttribute('alt')) !== 'string' || !(await item.getAttribute('alt')))
       problems.push(`${label}: the thumbnail has no alt text from the item`);
   }
@@ -861,12 +969,44 @@ async function checkCarouselVideoThumbnailSite(width, height) {
   await page.close();
 }
 
+/** The home page's first picture is loaded first: on the demo's home page (/) the first image of the first section is loading="eager" with fetchpriority="high" (the page's largest image), and every other image of the page's text is lazy. */
+async function checkHomeFirstImage(width, height) {
+  const label = `${width}px home first image`;
+  if (!existsSync(join(ROOT, 'src/content/pages/home.md')))
+    return void console.log(`${label}: skipped, the site has no home page content.`);
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await page.goto(new URL('/', site).href);
+  const imgs = await page.evaluate(() =>
+    [...document.querySelectorAll('main img, .mo-markdown img')].map((i) => ({
+      src: i.getAttribute('src'),
+      loading: i.getAttribute('loading'),
+      priority: i.getAttribute('fetchpriority'),
+    })),
+  );
+  if (imgs.length) {
+    const [first, ...rest] = imgs;
+    if (first.loading !== 'eager' || first.priority !== 'high')
+      problems.push(
+        `${label}: the first image (${first.src}) is not loading="eager" with fetchpriority="high" (${first.loading}, ${first.priority})`,
+      );
+    const wrong = rest.filter((i) => i.priority === 'high');
+    if (wrong.length) problems.push(`${label}: ${wrong.length} later images also have fetchpriority="high"`);
+  }
+  await page.close();
+}
+
 export function register(unit) {
+  unit('checkHomeFirstImage 390', () => checkHomeFirstImage(390, 844));
+  unit('checkHomeFirstImage 1280', () => checkHomeFirstImage(1280, 900));
   unit('checkCarouselVideoThumbnail 1280', () => checkCarouselVideoThumbnail(1280, 900));
   unit('checkCarouselVideoThumbnailSite 1280', () => checkCarouselVideoThumbnailSite(1280, 900));
   unit('checkCarouselScrollCost 375', () => checkCarouselScrollCost());
   unit('checkCarouselMediaSheet 1280', () => checkCarouselMediaSheet(1280, 900));
   unit('checkCarouselCardSwitch 1280', () => checkCarouselCardSwitch(1280, 900));
+  unit('checkCarouselImages 390', () => checkCarouselImages(390, 844, 2));
+  unit('checkCarouselImages 1280', () => checkCarouselImages(1280, 900, 1));
+  unit('checkCarouselNoScript 390', () => checkCarouselNoScript(390, 844));
   unit('checkCarouselGap 390', () => checkCarouselGap(390, 800));
   unit('checkCarouselGap 1280', () => checkCarouselGap(1280, 900));
   unit('checkCarousel 768', () => checkCarousel(768, 900));

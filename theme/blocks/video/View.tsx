@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { Svg } from '@morphemecms/cms/src/icon';
 import type { VideoView } from '@morphemecms/cms/src/standard/video/view';
-import { InProse, Link, useOnSite } from '@morphemecms/cms/src/standard/view';
+import { InProse, Link, previewStyle, useOnSite } from '@morphemecms/cms/src/standard/view';
 
 export default function Video({ view }: { view: VideoView }) {
   // A new link or a new thumbnail is a new frame.
@@ -30,6 +30,7 @@ function Facade({ view }: { view: VideoView }) {
             srcSet={still.srcset}
             sizes={still.srcset && `(min-width: ${BREAKPOINTS.expanded}px) 720px, 100vw`}
             alt={still.alt ?? ''}
+            style={previewStyle(still.placeholder)}
             loading="lazy"
             decoding="async"
             onError={failed}

@@ -5,7 +5,7 @@
 // instead (`Part`, src/apps/<app>/popups/View.tsx, given its view and the button), which shows the button where it
 // wants.
 import type { ComponentType, ReactNode } from 'react';
-import type { Image } from '@morphemecms/cms/src/standard/view';
+import { previewStyle, type Image } from '@morphemecms/cms/src/standard/view';
 import Dialog from '@theme/ui/Dialog';
 import IconButton from '@theme/ui/IconButton';
 import PopupButton, { type PopupButtonView } from '@theme/components/PopupButton';
@@ -32,6 +32,7 @@ export default function PopupView({ popup, Part, part, appId }: { popup: PopupBo
           height={popup.image.height}
           sizes="min(28rem, calc(100vw - 2rem))"
           alt=""
+          style={previewStyle(popup.image.placeholder)}
           className="mo-popup__image"
         />
       )}

@@ -19,6 +19,17 @@
   .mo-block-carousel__show-all {
     display: none;
   }
+  /* A lazy list: an item that is out of the row's view costs no style or layout until it comes near (`content-visibility: auto`; the row is as high as the theme says, so
+     the item keeps its height while skipped, `contain-intrinsic-block-size` for a theme that sets it otherwise). Only where an item is a plain box that draws only inside
+     itself: not the contained layouts (their masks are moved and clipped outside the item by carouselLayout.ts), not multi-aspect ratio (an item's width comes from its aspect, which a skipped item would lose: every item would count as in view and load its image), not a row of cards (as high as the tallest card, so a card that
+     was not drawn yet would change the row's height) and not the stacked view of `Show all`. Scrolling, snapping and the arrow keys are as before: a skipped item stays in
+     the accessibility tree, and focusing it or scrolling to it draws it. */
+  .mo-block-carousel:not(.mo-has-cards):not([data-expanded])
+    .mo-carousel:not(.mo-is-contained):not(.mo-is-multi-aspect)
+    .mo-carousel__item {
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto var(--mo-comp-carousel-height, 20rem);
+  }
   /* Every layout: the row is as high as the theme says, with 8dp above and below (Specs: "Top/bottom padding 8dp"), which also keeps an item's focus ring from being clipped. */
   .mo-block-carousel .mo-carousel__items {
     box-sizing: content-box;
