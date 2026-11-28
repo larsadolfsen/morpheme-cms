@@ -74,6 +74,10 @@ export function Link({
 
 /** An image with the sizes the site has made of it (srcset, width and height), for the browser to pick the one that
  * fits (imageOf, load.ts); in the editor only the image. */
+/** The inline style that shows an image's blurred preview until its file arrives (`placeholder`, a `data:` URI made at build): its colours and shape, at once. */
+export const previewStyle = (placeholder?: string) =>
+  placeholder ? { backgroundImage: `url(${placeholder})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined;
+
 export type Image = {
   src: string;
   srcset?: string;

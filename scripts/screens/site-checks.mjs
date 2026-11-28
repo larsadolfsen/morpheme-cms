@@ -245,9 +245,48 @@ async function checkMenuDrawerWidth(width) {
   await page.close();
 }
 
+/** Every content image of the site has its blurred preview as its background (owner, 28 Nov 2026), drawn from the HTML: with JavaScript off, each image of the pages below that is not a logo, an icon, an avatar, a list's thumbnail or a fetched video still has a `data:` image as its background, and none loads a file from another address (the CSP's `img-src` stays as it is). */
+async function checkImagePreviews() {
+  const label = 'content image previews';
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false, locale: 'en-US' });
+  const page = await context.newPage();
+  const paths = [
+    '/',
+    '/blocks/cards/',
+    '/blocks/image-grid/',
+    '/blocks/blog-posts/',
+    '/blocks/carousel/',
+    '/blog/',
+    '/edit-your-website-from-your-phone/',
+  ];
+  let seen = 0;
+  for (const path of paths) {
+    const response = await page.goto(new URL(path, site).href).catch(() => null);
+    if (!response || response.status() >= 400) continue; // a site without the demo's pages
+    const missing = await page.evaluate(() =>
+      [...document.querySelectorAll('img')]
+        .filter((img) => !/\.svg(\?|$)/.test(img.getAttribute('src') ?? ''))
+        .filter((img) => !img.closest('header, footer, nav'))
+        .filter(
+          (img) =>
+            !img.matches(
+              '.mo-avatar, .mo-chip__image, .mo-block-testimonials__testimonial-picture, .mo-block-video__facade-image, [class*="mo-list__item"]',
+            ),
+        )
+        .map((img) => ({ src: img.getAttribute('src'), background: getComputedStyle(img).backgroundImage })),
+    );
+    seen += 1;
+    for (const m of missing.filter((m) => !/^url\("?data:image\//.test(m.background)))
+      problems.push(`${label}: ${path} ${m.src} has no blurred preview (background: ${m.background.slice(0, 40)})`);
+  }
+  if (!seen) console.log(`${label}: skipped, the site has none of the demo's pages.`);
+  await context.close();
+}
+
 export function register(unit) {
   unit('checkSpacingGrid 375', () => checkSpacingGrid(375, 740));
   unit('checkSpacingGrid 1280', () => checkSpacingGrid(1280, 800));
+  unit('checkImagePreviews', () => checkImagePreviews());
   unit('checkHints', () => checkHints());
   unit('checkMenuDrawerWidth 390', () => checkMenuDrawerWidth(390));
   unit('checkMenuDrawerWidth 1280', () => checkMenuDrawerWidth(1280));

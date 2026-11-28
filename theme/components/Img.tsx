@@ -1,7 +1,7 @@
 // An image with the sizes the site made of it (imageOf, packages/editor/site/images.mjs), so the browser downloads one that fits
 // the screen; in the editor the image itself. `sizes` is the width it is shown in; an image fetched first
 // (`fetchPriority` 'high') is not lazy.
-import type { Image } from '@morphemecms/cms/src/standard/view';
+import { previewStyle, type Image } from '@morphemecms/cms/src/standard/view';
 
 export default function Img({
   image,
@@ -28,6 +28,7 @@ export default function Img({
       decoding="async"
       fetchPriority={fetchPriority}
       className={className}
+      style={previewStyle(image.placeholder)}
     />
   );
 }

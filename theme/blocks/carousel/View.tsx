@@ -7,7 +7,7 @@
 import { Svg } from '@morphemecms/cms/src/icon';
 import { siteT } from '@morphemecms/cms/src/i18n';
 import type { CarouselItem, CarouselView } from '@morphemecms/cms/src/standard/carousel/view';
-import { Link, useInText } from '@morphemecms/cms/src/standard/view';
+import { Link, previewStyle, useInText } from '@morphemecms/cms/src/standard/view';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import { loadingOf, sizesOf } from '@theme/blocks/carousel/sizes.mjs';
 import Video from '@theme/blocks/video/View';
@@ -41,7 +41,7 @@ function Picture({ item, cut, layout, rank }: { item: CarouselItem; cut: boolean
   const crop = image.crop && cut ? image.crop : undefined;
   return (
     <img
-      style={{ ...(crop ? cutStyle(crop) : null), ...(image.placeholder ? { backgroundImage: `url(${image.placeholder})` } : null) }}
+      style={{ ...(crop ? cutStyle(crop) : null), ...previewStyle(image.placeholder) }}
       src={image.src}
       srcSet={image.srcset}
       sizes={image.srcset ? sizesOf(layout, { crop: crop?.[2] }) : undefined}

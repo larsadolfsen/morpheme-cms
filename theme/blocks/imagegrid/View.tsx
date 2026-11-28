@@ -8,7 +8,7 @@ import Chip from '@theme/ui/Chip';
 import ChipSet from '@theme/ui/ChipSet';
 import Lightbox from '@theme/ui/Lightbox';
 import type { GridImage, ImageGridView } from '@morphemecms/cms/src/standard/imagegrid/view';
-import { useInText } from '@morphemecms/cms/src/standard/view';
+import { previewStyle, useInText } from '@morphemecms/cms/src/standard/view';
 
 const FIRST_ROW = 4;
 
@@ -33,6 +33,7 @@ function Picture({ image, index, sizes }: { image: GridImage; index: number; siz
           width={image.width}
           height={image.height}
           alt={image.alt}
+          style={previewStyle(image.placeholder)}
           loading={first ? 'eager' : 'lazy'}
           decoding="async"
           fetchPriority={index === 0 ? 'high' : undefined}

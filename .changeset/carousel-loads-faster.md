@@ -2,4 +2,4 @@
 '@morphemecms/cms': patch
 ---
 
-A carousel loads faster: its first image loads at once when it is at the top of the page, every other image waits until it is near, and items out of a row's view cost no layout until they come near.
+Images load faster: each content image shows a small blurred preview of itself at once, the image at the top of a page loads first, the others wait until they are near, and a carousel draws only the items near its view.

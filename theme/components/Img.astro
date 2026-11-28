@@ -1,7 +1,7 @@
 ---
 // Responsive <img>: adds srcset + width/height from the image manifest so the browser
 // downloads a size that matches the screen. `sizes` describes the displayed width.
-import { altFor, responsive } from '@morphemecms/cms/site/images.mjs';
+import { altFor, previewCss, responsive } from '@morphemecms/cms/site/images.mjs';
 import { decorativeOf } from '@morphemecms/cms/lib/crop.mjs';
 
 interface Props {
@@ -12,10 +12,11 @@ interface Props {
   decorative?: boolean;
   sizes: string;
   class?: string;
+  style?: string;
   loading?: 'lazy' | 'eager';
   fetchpriority?: 'high' | 'low' | 'auto';
 }
-const { src, alt: own, decorative, sizes, class: className, loading = 'lazy', fetchpriority } = Astro.props;
+const { src, alt: own, decorative, sizes, class: className, style: own_style, loading = 'lazy', fetchpriority } = Astro.props;
 const { srcset, width, height } = responsive(src);
 const marked = decorativeOf(src);
 const { alt } = altFor(marked.address, { alt: own, decorative: decorative || marked.decorative });
@@ -32,4 +33,5 @@ const { alt } = altFor(marked.address, { alt: own, decorative: decorative || mar
   decoding="async"
   fetchpriority={fetchpriority}
   class={className}
+  style={[own_style, previewCss(src)].filter(Boolean).join(';') || undefined}
 />

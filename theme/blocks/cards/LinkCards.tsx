@@ -7,6 +7,7 @@
 import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { Svg } from '@morphemecms/cms/src/icon';
 import type { LinkCard } from '@morphemecms/cms/src/standard/cards/view';
+import { previewStyle } from '@morphemecms/cms/src/standard/view';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import Video from '@theme/blocks/video/View';
 import Card, { CardMedia as MediaBox, cardKinds, type CardKind } from '@theme/ui/Card';
@@ -32,7 +33,7 @@ export function CardMedia({ card }: { card: LinkCard }) {
           style={card.ratio && card.ratio !== '3:2' ? { aspectRatio: card.ratio.replace(':', ' / ') } : undefined}
         >
           <img
-            style={card.image.crop ? cutStyle(card.image.crop) : undefined}
+            style={{ ...(card.image.crop ? cutStyle(card.image.crop) : null), ...previewStyle(card.image.placeholder) }}
             src={card.image.src}
             srcSet={card.image.srcset}
             sizes={card.image.srcset ? sizes : undefined}
@@ -64,7 +65,7 @@ function mediaOf(card: LinkCard) {
     return (
       <MediaBox ratio={w && h ? w / h : 3 / 2}>
         <img
-          style={card.image.crop ? cutStyle(card.image.crop) : undefined}
+          style={{ ...(card.image.crop ? cutStyle(card.image.crop) : null), ...previewStyle(card.image.placeholder) }}
           src={card.image.src}
           srcSet={card.image.srcset}
           sizes={card.image.srcset ? sizes : undefined}

@@ -74,11 +74,6 @@
     display: block;
     overflow: hidden;
   }
-  /* An image's blurred preview (its inline background, View.tsx) shows its colours and shape until the file arrives. */
-  .mo-block-carousel img {
-    background-position: center;
-    background-size: cover;
-  }
   .mo-block-carousel__item-media :is(img, video) {
     display: block;
     width: 100%;
