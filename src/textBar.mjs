@@ -8,19 +8,23 @@
 // into the `⋮` (docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md, 3.3). The bar never scrolls and uses no timer.
 // Exposes BUTTON, TOOL_WIDTH, toolWidth(...), planBar(...). No browser.
 
-/** An icon button, and the `⋮`: 44 by 44 dp (ToolbarButton in ui.tsx). */
-export const BUTTON = 44;
+/** The space between two tools: the toolbar's gap, 8 dp (md.comp.toolbar.docked min-spacing is 4 dp). */
+export const GAP = 8;
+
+/** An icon button, and the `⋮`, with the space after it: 40 dp (Material 3's small icon button) and the gap, which is its 48 dp target (ToolbarButton in ui.tsx). */
+export const BUTTON = 40 + GAP;
 
 /**
  * The declared width of each tool that is not a plain 44 dp icon button, in dp. A tool with a menu and a chevron (Text style, List, Alignment,
- * Color) is the theme's text button with `width: 2.75rem` (toolbarMenuSize in ui.tsx): 44 dp too; the block selection's count with its cross
+ * Color) is the theme's text button with `width: 3rem` (toolbarMenuSize in ui.tsx): 48 dp and the gap; the block selection's count with its cross
  * is two buttons wide. If a drawn width changes, change it here: `check:screens` fails when a button's drawn width is not this.
  */
-export const TOOL_WIDTH = { style: BUTTON, list: BUTTON, align: BUTTON, color: BUTTON, 'block:count': BUTTON * 2 };
+const MENU_BUTTON = 48 + GAP;
+export const TOOL_WIDTH = { style: MENU_BUTTON, list: MENU_BUTTON, align: MENU_BUTTON, color: MENU_BUTTON, 'block:count': MENU_BUTTON * 2 };
 
 /** The width of one tool in dp. `widths`: the widths of the tools whose width is their label's (a text button such as Alt text, measured once
  * per language and drawn at exactly that width: textButtonWidth in MarkdownEditor.tsx), over TOOL_WIDTH. */
-export const toolWidth = (id, widths = {}) => widths[id] ?? TOOL_WIDTH[id] ?? BUTTON;
+export const toolWidth = (id, widths = {}) => (widths[id] === undefined ? (TOOL_WIDTH[id] ?? BUTTON) : widths[id] + GAP);
 
 /**
  * Splits the tools between the bar and the `⋮` menu, with `spare` tools (a page's Preview) first in the main tools: they stand on the bar,

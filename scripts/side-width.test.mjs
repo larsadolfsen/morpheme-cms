@@ -1,7 +1,7 @@
 // Tests the width rule of check-side.mjs (side-width.mjs: widthProblem) and how it reads the text's classes from built HTML.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { leadProblem, textClasses, widthProblem } from './side-width.mjs';
+import { textClasses, widthProblem } from './side-width.mjs';
 
 const WIDE = ['mo-prose', 'mo-page__text', 'mo-is-single-column'];
 const NARROW = ['mo-prose', 'mo-page__text', 'mo-has-side'];
@@ -19,13 +19,6 @@ test('a page with a column: text stops at the text measure', () => {
 test('textClasses reads the classes of the text wrapper', () => {
   const html = '<article data-template="single"><div data-editor="text" class="mo-prose mo-page__text mo-is-single-column"></div>';
   assert.deepEqual(textClasses(html), WIDE);
-});
-
-test('a page without a column: the first paragraph is the lead; with a column it is not', () => {
-  assert.equal(leadProblem(WIDE, null), null);
-  assert.ok(leadProblem(NARROW, null));
-  assert.equal(leadProblem(NARROW, 'left'), null);
-  assert.ok(leadProblem(WIDE, 'left'));
 });
 
 test('textClasses decodes each entity once', () => {

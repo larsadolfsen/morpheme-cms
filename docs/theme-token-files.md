@@ -17,7 +17,6 @@ stylesheet. Each stylesheet imports its own token files, so a theme that imports
 | `tokens/blocks/` | `blocks.css` | the blocks' variables (`--block-*`, `--motion-*`, `--section-*`) |
 | `tokens/cards/` | `cards.css` | the card tokens of the Cards CSS (`cards.css`) |
 | `tokens/lists/` | `lists.css` | the list tokens of the Lists CSS (`lists.css`) |
-| `tokens/type/` | `type.css` | the type classes' own tokens (the lead's `--mo-sys-prose-space`) |
 | `tokens/base/` | `base.css` | what every theme has: spacing, density, the Tailwind `@theme` names, `--panel-*`, `--theme-*` (from the site shell's files, then `base.css`) |
 | `tokens/material/` | `global.css` | the standard theme's look, Material 3: its colours' swaps, shape steps, elevation values, grid, state layers |
 

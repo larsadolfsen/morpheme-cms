@@ -19,17 +19,10 @@
     max-width: 65ch;
   }
 
-  /* Paragraphs and the lead (the text styles of base.css: the paragraph and lead spaces, in the fallback layer, win over these). */
+  /* Paragraphs (the text styles of base.css: the paragraph space, in the fallback layer, wins over this). */
   :where(.mo-prose) :where(p):not(:where(.mo-is-not-prose, .mo-is-not-prose *)) {
     margin-block-start: 1.25em;
     margin-block-end: 1.25em;
-  }
-  :where(.mo-prose) :where([class~='mo-type-lead']):not(:where(.mo-is-not-prose, .mo-is-not-prose *)) {
-    color: var(--mo-comp-prose-lead);
-    margin-block-start: 1.2em;
-    margin-block-end: 1.2em;
-    font-size: 1.25em;
-    line-height: 1.6;
   }
 
   /* Links and strong. */

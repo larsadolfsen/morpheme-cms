@@ -305,7 +305,7 @@ export function ToolbarButton({
   return (
     <>
       {menu === undefined ? (
-        <SiteIconButton ref={ref} icon={Glyph ? <Glyph /> : <></>} label={label} selected={selected} style={toolbarSize} {...own} />
+        <SiteIconButton ref={ref} icon={Glyph ? <Glyph /> : <></>} label={label} selected={selected} {...own} />
       ) : (
         <SiteButton
           kind="text"
@@ -325,8 +325,7 @@ export function ToolbarButton({
   );
 }
 
-/** The theme's toolbar (Material 3's, docked) with the text's tools (MarkdownEditor.tsx), close round them, without the
- * line a docked one has over it; `className` places it. */
+/** The theme's toolbar (Material 3's docked toolbar, 64 dp) with the text's tools (MarkdownEditor.tsx); `className` places it. */
 export function Toolbar({
   ref,
   label,
@@ -339,45 +338,16 @@ export function Toolbar({
   children: ReactNode;
 }) {
   return (
-    <SiteToolbar ref={ref} label={label} kind="docked" className={className} style={closeToolbar}>
+    <SiteToolbar ref={ref} label={label} kind="docked" className={className}>
       {children}
     </SiteToolbar>
   );
 }
 
-// The text's toolbar: the room round its tools and the box's own line on its top edge too. The docked rule draws its
-// top edge from these two variables, so the edge is the same line as the sides (MarkdownEditor.tsx) whichever of the two
-// rules wins, and never the theme's "no line" (0), which left the top edge and the rounded top corners open.
-const closeToolbar = {
-  '--mo-comp-toolbar-gap': '0',
-  '--mo-comp-toolbar-docked-padding-block': '0',
-  '--mo-comp-toolbar-docked-padding-inline': '0',
-  '--mo-comp-divider-thickness': '1px',
-  '--mo-comp-divider-color': 'var(--mo-sys-color-outline-variant)',
-} as CSSProperties;
-
-// A tool's size in the text's bar: 44 by 44 dp with a 20 dp icon, outside the user's density choice (owner decision, 13 Nov; docs/material-deviations.md).
-// A text tool (Alt text): as high as the icon buttons, the label in the middle of its planned width, no wrap.
-const toolbarTextSize = {
-  minHeight: '2.75rem',
-  justifyContent: 'center',
-  paddingInline: '0',
-  whiteSpace: 'nowrap',
-} as CSSProperties;
-const toolbarSize = {
-  '--mo-comp-icon-button-small-container-height': '2.75rem',
-  '--mo-comp-icon-button-small-icon-size': '1.25rem',
-} as CSSProperties;
-// A tool with a menu there: as high as the others, its icon where an icon button's is (0.625rem in from its start) and
-// the arrow close after it, not a text button's room round a label it does not have (as over the selection, editor.css).
-const toolbarMenuSize = {
-  width: '2.75rem',
-  minHeight: '2.75rem',
-  justifyContent: 'center',
-  paddingInline: '0.125rem',
-  gap: '0.125rem',
-  '--mo-comp-button-small-icon-size': '1.25rem',
-} as CSSProperties;
+// A tool with a text or a menu in the bar keeps the width its place in the plan has (48 dp, the icon button's target, textBar.mjs); the
+// buttons' own sizes, icon sizes and density are the theme's (Material 3: small icon button 40 dp, icon 24 dp, target 48 dp).
+const toolbarTextSize = { minHeight: '2.5rem', justifyContent: 'center', paddingInline: '0', whiteSpace: 'nowrap' } as CSSProperties;
+const toolbarMenuSize = { width: '3rem', minHeight: '2.5rem', justifyContent: 'center', paddingInline: '0', gap: '0' } as CSSProperties;
 
 // ---------------------------------------------------------------------------------------------------
 // Tooltips

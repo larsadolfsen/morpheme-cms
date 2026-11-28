@@ -58,12 +58,6 @@ The theme has 16 type styles: Material 3's 15 type roles and the lead. Each is a
 
 <p class="mo-type-body-small" data-type-spec="mo-type-title-large"><code>.mo-type-title-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
-### Lead
-
-<p class="mo-type-lead" data-type-sample="mo-type-lead">The Larkspur Market opens at nine, and the bakery stall is first in line.</p>
-
-<p class="mo-type-body-small" data-type-spec="mo-type-lead"><code>.mo-type-lead</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
-
 ### Title medium
 
 <p class="mo-type-title-medium" data-type-sample="mo-type-title-medium">Seasonal produce and fresh bread</p>

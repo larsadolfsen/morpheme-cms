@@ -6,7 +6,6 @@
 .mo-prose {
   --mo-comp-prose-body: var(--mo-sys-color-on-surface);
   --mo-comp-prose-headings: var(--mo-sys-color-on-surface);
-  --mo-comp-prose-lead: var(--mo-sys-color-on-surface-variant);
   --mo-comp-prose-links: var(--mo-sys-color-primary);
   --mo-comp-prose-bold: var(--mo-sys-color-on-surface);
   --mo-comp-prose-counters: var(--mo-sys-color-on-surface-variant);

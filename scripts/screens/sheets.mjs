@@ -1479,7 +1479,13 @@ async function checkLinkAndItemPanes(width) {
     await page.keyboard.type('Hello world');
     await page.keyboard.press('ControlOrMeta+a');
     await page.waitForTimeout(400);
-    await page.getByRole('button', { name: 'Link', exact: true }).first().click();
+    // The bar's tools are 48 dp apart (M3 small icon button): at 768 px Link may stand in the More menu.
+    const barLink = page.getByRole('button', { name: 'Link', exact: true });
+    if (await barLink.count()) await barLink.first().click();
+    else {
+      await page.getByRole('button', { name: 'More', exact: true }).first().dispatchEvent('click');
+      await page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: /^Link/ }).first().click();
+    }
     await expect(page, 'the link of a text');
     await closeIt(page, 'the link of a text', null);
     await page.close();

@@ -147,13 +147,6 @@
   .mo-text-after-heading {
     margin-block-start: 1.5rem;
   }
-  /* The text's first paragraph as the lead (the same as mo-type-lead). */
-  .mo-text-lead > p:first-child {
-    font-size: var(--mo-sys-typescale-lead-size);
-    line-height: var(--mo-sys-typescale-lead-line-height);
-    font-weight: var(--mo-sys-typescale-lead-weight);
-    letter-spacing: var(--mo-sys-typescale-lead-tracking);
-  }
   .mo-end-block {
     margin-block-start: 5rem;
   }
@@ -246,7 +239,7 @@
   }
 
   /* The text of a page (PageLayout.astro): without a block beside it the text spans the container, its blocks (mo-is-not-prose) too, and its other
-     parts keep the text's measure, the first paragraph being the lead; with one it keeps the measure itself. */
+     parts keep the text's measure; with one it keeps the measure itself. */
   .mo-page__text.mo-has-side {
     max-inline-size: var(--mo-comp-block-text-measure-max);
     min-inline-size: min(var(--mo-comp-block-text-measure-min), 100%);
@@ -259,14 +252,6 @@
   }
   .mo-page__text:where(.mo-is-single-column) > :not(.mo-is-not-prose, :where(.mo-text-section).mo-is-full) {
     min-inline-size: min(var(--mo-comp-block-text-measure-min), 100%);
-  }
-  .mo-page__text:where(.mo-is-single-column) > p:first-child {
-    font-size: var(--mo-sys-typescale-lead-size);
-    line-height: var(--mo-sys-typescale-lead-line-height);
-    font-weight: var(--mo-sys-typescale-lead-weight);
-    letter-spacing: var(--mo-sys-typescale-lead-tracking);
-    color: var(--mo-sys-color-on-surface-variant);
-    max-inline-size: 52ch;
   }
   /* A text that spans its container, not the 65ch of `.mo-prose` (a text the editor's preview draws). */
   .mo-text-whole {

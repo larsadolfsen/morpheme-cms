@@ -1,6 +1,6 @@
 import { constants, inflateSync } from 'node:zlib';
 import { openEditor, removeVirtualFile, virtualFile } from '../built-site.mjs';
-import { toolWidth } from '../../src/textBar.mjs';
+import { planBar, toolWidth } from '../../src/textBar.mjs';
 import {
   DEFAULT_SCHEME,
   PACK,
@@ -14,7 +14,7 @@ import {
   springCss,
 } from './support/context.mjs';
 import { previewReference } from './support/icon-pack.mjs';
-import { barTools, menusSettled, openStyleMenu, pressInsert } from './support/shared.mjs';
+import { barOrMore, barTools, menusSettled, openStyleMenu, pressInsert } from './support/shared.mjs';
 
 /** The bar has no divider (owner decision, 14 Nov) and Undo, Redo and Insert block stand at its right end in that order, then the ⋮ when there is one: `names` are the bar's buttons left to right,
  * `ends` the right edge of the last button and `edge` the bar's. Returns a problem text, or ''. */
@@ -22,7 +22,9 @@ function rightEndProblem(names, ends, edge, hasDivider) {
   if (hasDivider) return 'the bar has a divider';
   const tail = names.at(-1) === 'More' ? names.slice(-4, -1) : names.slice(-3);
   if (tail.join() !== 'Undo,Redo,Insert block') return `Undo, Redo, Insert block are not the right end of the bar (${names.join(', ')})`;
-  if (edge - ends > 3) return `the last button is ${(edge - ends).toFixed(1)} px from the bar's right edge`;
+  // M3: a minimum outside padding of 16 dp: the bar's 8 dp padding and the last tool's 8 dp gap (less the box's 1 px edge).
+  if (edge - ends < 14 || edge - ends > 17)
+    return `the last button is ${(edge - ends).toFixed(1)} px from the bar's right edge, not about 15 (16 dp less the 1 px edge)`;
   return '';
 }
 
@@ -65,6 +67,8 @@ async function checkTextBar(width = 360) {
         buttonBox: button && button.getBoundingClientRect().toJSON(),
         height: bar.getBoundingClientRect().height,
         barWidth: bar.clientWidth,
+        // What the tools get (planBar): the client width less the bar's side padding.
+        innerWidth: bar.clientWidth - parseFloat(getComputedStyle(bar).paddingLeft) - parseFloat(getComputedStyle(bar).paddingRight),
         names: buttons.map((b) => b.name),
         buttons,
         scrolls: bar.scrollWidth > bar.clientWidth + 2,
@@ -81,18 +85,20 @@ async function checkTextBar(width = 360) {
   const ended = rightEndProblem(inText.names, inText.lastRight, inText.barRight - 1, inText.divider);
   if (ended) problems.push(`${label}: ${ended}`);
   // The bar is 354 dp wide at 375 px (352 inside its 1 dp edges, 10.5 dp from each edge), the page's margin less 5.5 dp each side, at every phone width.
-  if (width === 375 && inText.barWidth !== 352) problems.push(`${label}: the bar is ${inText.barWidth} px inside its edges, not 352`);
-  if (width === 375 && Math.abs(inText.outer - 354) > 0.6)
-    problems.push(`${label}: the bar is ${inText.outer} px wide, not 354 (352 inside)`);
-  const slots = Math.floor(inText.barWidth / 44);
-  if (inText.height < 44 || inText.height > 46)
-    problems.push(`${label}: the bar is ${inText.height} px tall, not 44 (plus its 1 px edges)`);
+  // The text's box is an outlined card in the page's 16 dp grid margin (batch 9): 343 dp at 375 px, 341 inside its 1 dp edges.
+  if (width === 375 && Math.abs(inText.barWidth - 341) > 0.6)
+    problems.push(`${label}: the bar is ${inText.barWidth} px inside its edges, not 341`);
+  if (width === 375 && Math.abs(inText.outer - 341) > 2.6) problems.push(`${label}: the bar is ${inText.outer} px wide, not 341`);
+  const slots = Math.floor((inText.innerWidth + 8) / 48);
+  // M3's docked toolbar is 64 dp high (md.comp.toolbar.docked).
+  if (inText.height < 64 || inText.height > 66)
+    problems.push(`${label}: the bar is ${inText.height} px tall, not 64 (plus its 1 px edges)`);
   if (inText.scrolls || inText.pageScrolls) problems.push(`${label}: the bar or the page scrolls sideways`);
-  if (inText.buttons.some((b) => Math.abs(b.height - 44) > 0.6 || b.width < 43.4))
+  if (inText.buttons.some((b) => Math.abs(b.height - 40) > 0.6 || b.width < 39.4))
     problems.push(
-      `${label}: a button of the bar is not 44 x 44 dp (${inText.buttons.map((b) => `${b.name} ${b.width}x${b.height}`).join(', ')})`,
+      `${label}: a button of the bar is not M3's 40 dp icon button (or wider) (${inText.buttons.map((b) => `${b.name} ${b.width}x${b.height}`).join(', ')})`,
     );
-  // The ⋮ is Material Symbols' more_vert (three dots in a column, 20 dp), drawn by the icon system, not Phosphor's.
+  // The ⋮ is Material Symbols' more_vert (three dots in a column, 24 dp: M3's small icon button), drawn by the icon system, not Phosphor's.
   const dots = await page.evaluate(() => {
     const svg = document.querySelector('.mo-editor-tools [aria-label="More"] svg');
     const r = svg?.getBoundingClientRect();
@@ -111,10 +117,10 @@ async function checkTextBar(width = 360) {
     dots.icon !== 'more_vert' ||
     !dots.path ||
     dots.viewBox !== '0 -960 960 960' ||
-    Math.abs(dots.w - 20) > 0.6 ||
-    Math.abs(dots.h - 20) > 0.6
+    Math.abs(dots.w - 24) > 0.6 ||
+    Math.abs(dots.h - 24) > 0.6
   )
-    problems.push(`${label}: the ⋮ icon is not Material's more_vert at 20 dp (${JSON.stringify(dots)})`);
+    problems.push(`${label}: the ⋮ icon is not Material's more_vert at 24 dp (${JSON.stringify(dots)})`);
   if (inText.names.length > slots) problems.push(`${label}: ${inText.names.length} buttons but room for ${slots}`);
   if (inText.names.slice(0, 2).join() !== 'Bold,Italic')
     problems.push(`${label}: Bold and Italic are not the first two (${inText.names.join(', ')})`);
@@ -123,11 +129,12 @@ async function checkTextBar(width = 360) {
   if (inText.names.indexOf('Insert block') !== inText.names.length - 2)
     problems.push(`${label}: Insert block is not right before the ⋮ (${inText.names.join(', ')})`);
   {
-    // The text tools stand at the left in the owner's order (Bold, Italic, Text style, List), as many as fit beside Undo, Redo, Insert block and the ⋮ (176 dp);
-    // the last one that does not fit is in the ⋮ (at 360 px: Lists).
-    const fit = Math.max(0, Math.min(4, Math.floor((inText.barWidth - 176) / 44)));
+    // The text tools stand at the left in the owner's order (Bold, Italic, Text style, List), as many as the width budget lets in beside Undo, Redo,
+    // Insert block and the ⋮ (planBar, src/textBar.mjs); the first one that does not fit is in the ⋮.
+    const labels = { bold: 'Bold', italic: 'Italic', style: 'Text style', list: 'List' };
+    const plan = planBar({ width: inText.innerWidth, context: Object.keys(labels), fixed: ['undo', 'redo', 'insert'], more: true });
     const got = inText.names.slice(0, -4).map((n) => n.split(':')[0]);
-    const want = ['Bold', 'Italic', 'Text style', 'List'].slice(0, fit);
+    const want = plan.bar.context.map((id) => labels[id]);
     if (got.join() !== want.join()) problems.push(`${label}: the bar has ${got.join()} at the left, not ${want.join()}`);
   }
   if (inText.groups.join() !== 'Text tools,Page tools') problems.push(`${label}: the groups are ${inText.groups.join()}`);
@@ -261,10 +268,13 @@ async function checkTextBar(width = 360) {
     ['Body large', 'body_a1'],
   ])
     if (rowIcons[name] !== icon) problems.push(`${label}: ${name} has icon ${rowIcons[name]}, not ${icon}`);
-  const buttonIcon = await page.evaluate(() =>
-    document.querySelector('.mo-editor-tools [aria-label^="Text style"] svg')?.getAttribute('data-icon'),
-  );
-  if (buttonIcon !== 'match_case') problems.push(`${label}: the Text style button shows ${buttonIcon}, not Aa (match_case)`);
+  const buttonIcon = await page.evaluate(() => {
+    const button = document.querySelector('.mo-editor-tools > * [aria-label^="Text style"], .mo-editor-tools [aria-label^="Text style"]');
+    return button ? (button.querySelector('svg')?.getAttribute('data-icon') ?? 'none') : null;
+  });
+  // At a width where Text style is in the ⋮ menu there is no bar button to read.
+  if (buttonIcon !== null && buttonIcon !== 'match_case')
+    problems.push(`${label}: the Text style button shows ${buttonIcon}, not Aa (match_case)`);
   for (const name of ['Main heading', 'Quote'])
     if (rowIcons[name]?.startsWith('body_a') || rowIcons[name] === 'match_case' || rowIcons[name] === 'none')
       problems.push(`${label}: ${name} lost its own icon (${rowIcons[name]})`);
@@ -512,7 +522,8 @@ async function checkBarSlide(width, reduced = false, height = 800) {
     const context = bar.querySelector('.mo-editor-tools-context');
     return {
       mainAfterContext: !!context && main.getBoundingClientRect().left >= context.getBoundingClientRect().right - 1,
-      mainAtEnd: bar.getBoundingClientRect().right - main.getBoundingClientRect().right < 3,
+      mainAtEnd:
+        bar.getBoundingClientRect().right - main.getBoundingClientRect().right < parseFloat(getComputedStyle(bar).paddingRight) + 3,
       transform: getComputedStyle(main).transform,
     };
   });
@@ -583,7 +594,8 @@ async function checkTextBarFit(width) {
       right: b.getBoundingClientRect().right,
     }));
     return {
-      inner: el.clientWidth,
+      // The inside width planBar gets: the client width less the bar's side padding.
+      inner: el.clientWidth - parseFloat(getComputedStyle(el).paddingLeft) - parseFloat(getComputedStyle(el).paddingRight),
       barRight: el.getBoundingClientRect().right,
       scrolls: el.scrollWidth > el.clientWidth + 2,
       buttons,
@@ -596,12 +608,12 @@ async function checkTextBarFit(width) {
     problems.push(`${label}: the bar overflows its box (last button ends at ${bar.buttons.at(-1).right}, box at ${bar.barRight - 1})`);
   for (const b of bar.buttons) {
     const id = idOf(b.name) ?? { Undo: 'undo', Redo: 'redo', 'Insert block': 'insert', More: 'more' }[b.name];
-    if (id && Math.abs(b.w - toolWidth(id)) > 0.6)
-      problems.push(`${label}: ${b.name} is drawn ${b.w} dp wide, TOOL_WIDTH says ${toolWidth(id)} (src/textBar.mjs)`);
+    if (id && Math.abs(b.w + 8 - toolWidth(id)) > 0.6)
+      problems.push(`${label}: ${b.name} is drawn ${b.w} dp wide, TOOL_WIDTH says ${toolWidth(id)} with its 8 dp gap (src/textBar.mjs)`);
   }
   if (onBar.join() !== TEXT.slice(0, onBar.length).join())
     problems.push(`${label}: the bar's text tools are not in order (${onBar.join()})`);
-  const free = bar.inner - bar.buttons.reduce((n, b) => n + b.w, 0);
+  const free = bar.inner - bar.buttons.reduce((n, b) => n + b.w + 8, 0);
   const hasMore = bar.buttons.some((b) => b.name === 'More');
   const inMenu = [];
   if (hasMore) {
@@ -611,13 +623,17 @@ async function checkTextBarFit(width) {
       [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')].map((x) => x.textContent.trim()),
     );
     for (const r of rows) {
-      const id = /^Text style/.test(r)
-        ? 'style'
-        : /^(Bullet|Check|Numbered) list$/.test(r)
-          ? 'list'
-          : /^Align /.test(r)
-            ? 'align'
-            : { Link: 'link', Color: 'color', Divider: 'divider' }[r];
+      const id = /^Bold/.test(r)
+        ? 'bold'
+        : /^Italic/.test(r)
+          ? 'italic'
+          : /^Text style/.test(r)
+            ? 'style'
+            : /^(Bullet|Check|Numbered) list$/.test(r)
+              ? 'list'
+              : /^Align /.test(r)
+                ? 'align'
+                : { Link: 'link', Color: 'color', Divider: 'divider' }[r];
       if (id && !inMenu.includes(id)) inMenu.push(id);
     }
   }
@@ -652,7 +668,7 @@ async function checkTextBarWide() {
       width: bar.clientWidth,
       height: bar.getBoundingClientRect().height,
       names: buttons.map((b) => b.getAttribute('aria-label')),
-      small: buttons.filter((b) => Math.abs(b.getBoundingClientRect().height - 44) > 0.6 || b.getBoundingClientRect().width < 43.4).length,
+      small: buttons.filter((b) => Math.abs(b.getBoundingClientRect().height - 40) > 0.6 || b.getBoundingClientRect().width < 39.4).length,
       scrolls: bar.scrollWidth > bar.clientWidth + 2,
       divider: !!bar.querySelector('hr[aria-orientation="vertical"]'),
       barRight: bar.getBoundingClientRect().right,
@@ -693,17 +709,18 @@ async function checkTextBarWide() {
   for (const name of want)
     if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)) && !rows.includes(name))
       problems.push(`1280px text bar: no ${name} on the bar or in the ⋮ (${got.names.join(', ')} | ${rows.join(', ')})`);
-  for (const name of ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Undo', 'Redo', 'Insert block'])
+  // 478 dp holds Bold, Italic, Text style, List and Alignment beside the fixed tools and the ⋮ (48 dp pitch); Link is the first row of the ⋮.
+  for (const name of ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Undo', 'Redo', 'Insert block'])
     if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)))
       problems.push(`1280px text bar: ${name} is not on the bar (${got.names.join(', ')})`);
   if (
     got.names.includes('More') &&
-    rows.some((r) => !['Preview', 'Color', 'Divider', 'Hide helping lines', 'Show helping lines'].includes(r))
+    rows.some((r) => !['Preview', 'Link', 'Color', 'Divider', 'Hide helping lines', 'Show helping lines'].includes(r))
   )
-    problems.push(`1280px text bar: the ⋮ holds more than Preview, Color, Divider and the helping-lines button (${rows.join(', ')})`);
-  if (got.height < 44 || got.height > 46 || got.small || got.scrolls || got.divider)
+    problems.push(`1280px text bar: the ⋮ holds more than Preview, Link, Color, Divider and the helping-lines button (${rows.join(', ')})`);
+  if (got.height < 64 || got.height > 66 || got.small || got.scrolls || got.divider)
     problems.push(
-      `1280px text bar: height ${got.height}, ${got.small} buttons not 44 x 44, scrolls ${got.scrolls}, divider ${got.divider} (none wanted)`,
+      `1280px text bar: height ${got.height}, ${got.small} buttons not 40 dp, scrolls ${got.scrolls}, divider ${got.divider} (none wanted)`,
     );
   await page.close();
 }
@@ -755,8 +772,8 @@ async function checkPreviewInBar(width) {
     .locator('.mo-editor-tools button[aria-label="Preview"]')
     .evaluate((b) => b.getBoundingClientRect().toJSON(), null, { timeout: 2000 })
     .catch(() => null);
-  if (!size || Math.abs(size.width - 44) > 0.6 || Math.abs(size.height - 44) > 0.6)
-    problems.push(`${label}: Preview on the bar is not 44 x 44 dp (${JSON.stringify(size)})`);
+  if (!size || Math.abs(size.width - 40) > 0.6 || Math.abs(size.height - 40) > 0.6)
+    problems.push(`${label}: Preview on the bar is not 40 x 40 dp (${JSON.stringify(size)})`);
   if (!idle.includes('More')) problems.push(`${label}: idle, a saved page's bar has no ⋮ for View on site (${idle.join(', ')})`);
   else {
     const rows = await moreRows();
@@ -1001,8 +1018,10 @@ async function checkDividerBlock(width) {
   await page.waitForTimeout(600);
   const names = await bar();
   if (got.pressed !== 'true' || !got.focus) problems.push(`${label}: a tap did not select the Divider (${JSON.stringify(got)})`);
+  // On the bar, or in the ⋮ where the bar has no room.
   for (const want of ['Remove', 'Add below', 'Add above'])
-    if (!names.includes(want)) problems.push(`${label}: no ${want} on the bar while the Divider is selected (${names.join(', ')})`);
+    if (!names.includes(want) && !(await barOrMore(page, want).count()))
+      problems.push(`${label}: no ${want} on the bar while the Divider is selected (${names.join(', ')})`);
   for (const not of ['Settings', 'Edit', 'Link'])
     if (names.includes(not)) problems.push(`${label}: ${not} on the bar for a Divider, which has none`);
   await page.keyboard.press('ArrowDown');
@@ -1194,7 +1213,10 @@ async function checkToolbarBox() {
     await page.waitForSelector('.mo-editor-tools');
     const read = () =>
       page.evaluate(() => {
-        const bar = document.querySelector('.mo-editor-tools');
+        // The outline is the text's card (batch 9): the first box from the bar outwards that draws a border.
+        let bar = document.querySelector('.mo-editor-tools');
+        for (let i = 0; i < 6 && bar.parentElement && !(parseFloat(getComputedStyle(bar).borderTopWidth) >= 1); i++)
+          bar = bar.parentElement;
         const cs = getComputedStyle(bar);
         const side = (n) => `${cs[`border${n}Style`]} ${parseFloat(cs[`border${n}Width`])}px ${cs[`border${n}Color`]}`;
         return {
@@ -1210,10 +1232,6 @@ async function checkToolbarBox() {
     const check = (name, got) => {
       if (got.top[0] === 'none' || got.top[1] < 1 || got.top[2] === 'rgba(0, 0, 0, 0)')
         problems.push(`${width}x${height}px text toolbar (${name}): its top edge has no border (${got.side})`);
-      if (parseFloat(got.line) < 1)
-        problems.push(
-          `${width}x${height}px text toolbar (${name}): the docked rule's own top line is ${got.line}, so it would leave the top edge open where it wins`,
-        );
       if (got.left < 1 || got.right < 1) problems.push(`${width}x${height}px text toolbar (${name}): a side has no border`);
       if (got.radius.some((r) => parseFloat(r) < 1))
         problems.push(`${width}x${height}px text toolbar (${name}): a top corner is not rounded (${got.radius})`);

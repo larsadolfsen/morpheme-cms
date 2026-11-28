@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { openEditor } from '../built-site.mjs';
 import { FIXTURE_PAGE, browser, problems, shots, site } from './support/context.mjs';
 import {
+  barOrMore,
   barTools,
   chooseKind,
   inlineBlocks,
@@ -441,8 +442,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       .locator('.mo-editor-inline-list-row-active .mo-block-cards__card-actions .mo-editor-inline-card-next-button')
       .allTextContents();
     if (next.join() !== 'Add button') problems.push(`${label}: the active card's action area has "${next}", not "Add button"`);
-    if (width >= 1000 && !(await page.locator('.mo-editor-tools button[aria-label="Link"]').count()))
-      problems.push(`${label}: the toolbar has no Link while the card is still empty`);
+    // The Link tool is a text tool: at 1280 it is on the bar or in the ⋮ by the bar's inside width, and the card's own context holds no Link, so `checkTextBar 1280` (text-bar.mjs) checks it there.
     // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
     const fields = await page.evaluate(() =>
       [...document.querySelectorAll('.mo-editor-inline-list-row-active [data-field]')].map((f) => f.dataset.field),
@@ -815,7 +815,10 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
         ? '[data-row-link], .mo-editor-inline-segmented-buttons'
         : '[data-row-link], [data-add-button], .mo-editor-inline-segmented-buttons';
     if (await page.locator(own).count()) problems.push(`${label}: the row has a text row or a button of its own for its link`);
-    if (!(await state()).bar.some((b) => b.label === 'Link')) problems.push(`${label}: the toolbar has no Link button`);
+    // The Link tool stands on the bar, or in the ⋮ where the bar has no room (the M3 docked toolbar keeps 16 dp of padding on each side: 309 dp inside at 375 px).
+    const linkTool = await barTools(page);
+    if (!linkTool.bar.some((b) => b.label === 'Link') && !linkTool.more.some((m) => m.label === 'Link'))
+      problems.push(`${label}: the toolbar has no Link button on the bar or in the ⋮`);
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
     await page.waitForTimeout(500);
     if (!(await page.getByText('Page', { exact: true }).locator('visible=true').count()))
@@ -1081,7 +1084,7 @@ async function checkSteps(width, height) {
   await page.locator('.mo-editor-inline-steps [data-row="0"] [data-field="title"]').click();
   await page.waitForTimeout(200);
   // The step row's own Move down on the bar (not the block's, in its action row).
-  await page.locator('.mo-editor-tools button[aria-label="Move down"]:visible').first().click();
+  await barOrMore(page, 'Move down').first().click();
   await page.waitForTimeout(200);
   now = await steps();
   if (now[1]?.title !== 'Order' || now.map((s) => s.number).join() !== '1,2,3')

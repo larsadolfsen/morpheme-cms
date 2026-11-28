@@ -51,6 +51,8 @@
     padding: var(--mo-comp-menu-item-padding, 0.5rem 0.75rem);
     color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-comp-block-text) 80%, transparent));
     font-size: var(--mo-comp-menus-menu-item-label-text-size, var(--mo-sys-typescale-body-medium-size));
+    /* M3 Menus, Specs: the item's label is label large, 14/20; its line height goes with its size (the page's 24 would be inherited otherwise). */
+    line-height: var(--mo-sys-typescale-label-large-line-height, 1.25rem);
     font-weight: var(--mo-comp-menus-menu-item-label-text-weight, inherit);
     letter-spacing: var(--mo-comp-menus-menu-item-label-text-tracking, var(--mo-sys-typescale-body-medium-tracking));
     transition:
@@ -107,6 +109,8 @@
     background: transparent;
     font: inherit;
     font-size: var(--mo-comp-menus-menu-item-label-text-size, var(--mo-sys-typescale-body-medium-size));
+    /* M3 Menus, Specs: the item's label is label large, 14/20; its line height goes with its size (the page's 24 would be inherited otherwise). */
+    line-height: var(--mo-sys-typescale-label-large-line-height, 1.25rem);
     font-weight: var(--mo-comp-menus-menu-item-label-text-weight, inherit);
     letter-spacing: var(--mo-comp-menus-menu-item-label-text-tracking, var(--mo-sys-typescale-body-medium-tracking));
     text-align: start;

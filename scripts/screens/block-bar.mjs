@@ -2,7 +2,17 @@ import { openEditor } from '../built-site.mjs';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT, browser, problems, site } from './support/context.mjs';
-import { barTools, cancelOf, insertBlock, newLineUnder, pressInsert, pressMore, pressTool } from './support/shared.mjs';
+import {
+  barOrMore,
+  barSmallTargets,
+  barTools,
+  cancelOf,
+  insertBlock,
+  newLineUnder,
+  pressInsert,
+  pressMore,
+  pressTool,
+} from './support/shared.mjs';
 
 /** A card that is not typed in place (HTML code here; an image, Testimonials and the like work the same) has its tools on the text's one bar (PR 4 of the contextual toolbar plan): a tap on it selects it
  * (marked, no pop-up on the card), the bar gets a group named by the block, its Edit as the gear (on a phone; from expanded a tap opens the side panel) and the rest of its menu (Move up, Remove) in the ⋮,
@@ -43,7 +53,9 @@ async function checkCardBar(width, height = 800) {
   if (!selected.groups.length || selected.groups[0] === 'Text tools')
     problems.push(`${label}: the bar's first group is "${selected.groups}", not the block's name`);
   const tools = await barTools(page);
-  if (tools.bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the card's bar is under 44 x 44 dp`);
+  if (tools.bar.some((b) => b.height < 39.4 || b.width < 39.4)) problems.push(`${label}: a button of the card's bar is under 40 x 40 dp`);
+  const small = await barSmallTargets(page, width < 600);
+  if (small.length) problems.push(`${label}: a target of the card's bar is under ${width < 600 ? 48 : 44} dp (${small})`);
   // Remove is in the card's ⋮ at every width (from expanded the side sheet has none).
   if (!tools.names.includes('Remove')) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
   const rowNames = await page
@@ -125,7 +137,9 @@ async function checkBlockBar(width, height = 800) {
   for (const name of ['Add above', 'Add below', 'Undo', 'Redo'])
     if (!bar.some((b) => b.label === name && b.svg))
       problems.push(`${label}: the bar has no icon button "${name}" (${bar.map((b) => b.label)})`);
-  if (bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the block's bar is under 44 x 44 dp`);
+  if (bar.some((b) => b.height < 39.4 || b.width < 39.4)) problems.push(`${label}: a button of the block's bar is under 40 x 40 dp`);
+  const small = await barSmallTargets(page, width < 600);
+  if (small.length) problems.push(`${label}: a target of the block's bar is under ${width < 600 ? 48 : 44} dp (${small})`);
   // The List's tools in the owner's order (14 Nov), the bar's first and then the ⋮'s: Add below, Add above, Settings (Edit), Fill from a list, Move up, Move down;
   // Undo, Redo, Insert block and the ⋮ close the bar, with no divider.
   const order = ['Add below', 'Add above', 'Edit'];
@@ -594,7 +608,16 @@ async function checkBlockDrag(width) {
   }
   const box = (i) => handles.nth(i).boundingBox();
   const first = await box(0);
-  if (first.width < 48 || first.height < 48) problems.push(`${label}: a handle is smaller than 48 x 48 (${first.width}x${first.height})`);
+  // The handle is M3's small icon button (batch 9): drawn 40 dp, with a target of the part's own size (48 dp on a touch, 44 for a mouse), as an icon button's.
+  if (first.width < 39.4 || first.height < 39.4)
+    problems.push(`${label}: a handle is smaller than 40 x 40 (${first.width}x${first.height})`);
+  const hit = await handles.first().evaluate((h) => {
+    const a = getComputedStyle(h, '::after');
+    return { w: parseFloat(a.width), h: parseFloat(a.height) };
+  });
+  const need = phone ? 47.4 : 43.4;
+  if (!(hit.w >= need) || !(hit.h >= need))
+    problems.push(`${label}: a handle's target is ${hit.w}x${hit.h}, under ${Math.round(need + 0.6)} x ${Math.round(need + 0.6)}`);
   const opacity = (want) => handleOpacity(page, 1, want);
   if (phone) {
     // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
@@ -812,6 +835,8 @@ async function checkBlockHandleCorner(width) {
             top: handle.top - frame.top,
             right: handle.right,
             vLeft: handle.left,
+            tw: parseFloat(getComputedStyle(el.querySelector(':scope > .mo-site-block-handle'), '::after').width),
+            th: parseFloat(getComputedStyle(el.querySelector(':scope > .mo-site-block-handle'), '::after').height),
           },
           frameW: frame.width,
           editorLeft: editor.left,
@@ -824,7 +849,13 @@ async function checkBlockHandleCorner(width) {
       const at = `${label}: ${name}`;
       if (!m.handle) problems.push(`${at}: no handle`);
       else {
-        if (m.handle.w < 48 || m.handle.h < 48) problems.push(`${at}: the handle is ${m.handle.w}x${m.handle.h}, under 48x48`);
+        if (m.handle.w < 39.4 || m.handle.h < 39.4) problems.push(`${at}: the handle is ${m.handle.w}x${m.handle.h}, under 40x40`);
+        // Its target is the part's own: 48 dp on a touch, 44 for a mouse.
+        const need = width < 600 ? 47.4 : 43.4;
+        if (!(m.handle.tw >= need) || !(m.handle.th >= need))
+          problems.push(
+            `${at}: the handle's target is ${m.handle.tw}x${m.handle.th}, under ${Math.round(need + 0.6)}x${Math.round(need + 0.6)}`,
+          );
         if (m.handle.left > m.frameW / 4 || m.handle.top > 16)
           problems.push(`${at}: the handle is not in the frame's top left corner (${m.handle.left}, ${m.handle.top})`);
         if (m.handle.left < 0) problems.push(`${at}: the handle starts outside the frame (${m.handle.left})`);
@@ -875,8 +906,9 @@ async function checkBlockMove(width) {
       }),
     );
   const selected = () => page.locator('.ProseMirror .mo-site-block-selected').count();
-  const up = page.locator('.mo-editor-tools').getByRole('button', { name: 'Move up' });
-  const down = page.locator('.mo-editor-tools').getByRole('button', { name: 'Move down' });
+  // On a phone the bar has no room for them: they are then in the ⋮ (barOrMore).
+  const up = barOrMore(page, 'Move up');
+  const down = barOrMore(page, 'Move down');
   const centre = async (loc) => {
     const b = await loc.boundingBox();
     return [b.x + b.width / 2, b.y + b.height / 2];
@@ -926,6 +958,8 @@ async function checkBlockMove(width) {
       continue;
     }
     if (!(await button.first().isDisabled())) problems.push(`${label}: ${name} is not disabled for blocks that are apart`);
+    // In the ⋮ the disabled row is M3's disabled menu item, which prints no reason: only a tool on the bar carries it.
+    if (!(await page.locator('.mo-editor-tools').getByRole('button', { name }).count())) continue;
     const reason = await button.first().getAttribute('aria-description');
     if (!/next to each other/.test(reason ?? '')) problems.push(`${label}: ${name} has no reason ("${reason}")`);
     if (!/next to each other/.test((await button.first().getAttribute('title')) ?? '')) problems.push(`${label}: ${name} has no title`);

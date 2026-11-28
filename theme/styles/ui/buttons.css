@@ -348,8 +348,9 @@
     transform: scale(0.95);
     border-radius: var(--mo-comp-icon-button-pressed, var(--mo-comp-icon-button-corners));
   }
+  /* Disabled content is on-surface at 38 % (M3 states: md.sys.state, "disabled"; md.comp.icon-button.standard disabled icon.opacity 0.38). */
   .mo-icon-button:disabled {
-    opacity: 0.35;
+    opacity: var(--mo-sys-state-disabled-state-layer-opacity, 0.38);
     cursor: default;
   }
   /* Standard: only the icon, a light shade when pointed at. */

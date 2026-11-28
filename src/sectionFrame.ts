@@ -75,19 +75,6 @@ function sectionDecorations(doc: Node): Decoration[] {
   });
 }
 
-/** The lead (data-lead): the paragraph the site draws larger, as the site finds it: the first part of the text after the page's H1 (the H1 is
- *  left out of the text, withoutH1 in lib/without-h1.mjs; a blog post has none in its text, so its first part), when that part is a paragraph
- *  with something in it (theme/styles/site-page.css `p:first-child` of the text, lib/lead.mjs for a post). editor.css draws it, and only when
- *  the field says so (data-lead-style: not on a page with a column beside the text, where the site has no lead). */
-function leadDecorations(doc: Node): Decoration[] {
-  const nodes: { node: Node; pos: number }[] = [];
-  doc.forEach((node, pos) => void nodes.push({ node, pos }));
-  const h1 = nodes.findIndex(({ node }) => node.type.name === 'heading' && node.attrs.level === 1);
-  const at = nodes[h1 + 1];
-  if (!at || at.node.type.name !== 'paragraph' || at.node.content.size === 0) return [];
-  return [Decoration.node(at.pos, at.pos + at.node.nodeSize, { 'data-lead': '' })];
-}
-
 /** The focus lines of the section the cursor is in: horizontal only, at its top and its bottom (a section is text; the page's blocks keep their own
  *  dotted frame and are no part of one, so a block neither starts nor ends a section). data-section-focus=start|middle|end|only is on each text
  *  node of the section; editor.css draws the section's own line above it in the focus colour, and a bottom line under its last text node
@@ -169,10 +156,7 @@ export const sectionFrame = (on: boolean) =>
       new Plugin({
         props: {
           decorations: ({ doc, selection }) =>
-            DecorationSet.create(doc, [
-              ...(on ? [...sectionDecorations(doc), ...leadDecorations(doc)] : []),
-              ...focusDecorations(doc, selection),
-            ]),
+            DecorationSet.create(doc, [...(on ? [...sectionDecorations(doc)] : []), ...focusDecorations(doc, selection)]),
         },
         view: (view) => {
           let frame = 0;

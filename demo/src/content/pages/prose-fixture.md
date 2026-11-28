@@ -9,8 +9,6 @@ nofollow: true
 
 Text right under a heading one, with a [link](/about/), **bold**, *italic*, `inline code` and <kbd>Ctrl</kbd> + <kbd>S</kbd>.
 
-<p class="mo-type-lead">This is a lead paragraph, one step larger than the text.</p>
-
 ## Heading two
 
 A paragraph after a heading two, followed by a heading three.

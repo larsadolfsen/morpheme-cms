@@ -22,10 +22,6 @@
 }
 
 :where(:root) {
-  /* The menus and the toolbar of the text: Material 3's menu surface and shadow (elevation level 2). */
-  --mo-comp-editor-menu-surface: var(--mo-sys-color-surface-container-lowest);
-  --mo-comp-editor-menu-shadow: var(--mo-sys-elevation-level2-shadow);
-
   /* The room a screen leaves under its footer for the FAB (Screen.tsx data-clearance): the FAB's 56 dp and its 16 dp margin. */
   --mo-comp-fab-room: 4.5rem;
 
@@ -57,12 +53,10 @@
   --mo-comp-google-icon-ring: #dadce0;
   --mo-comp-google-icon-letter: #202124;
 
-  /* The dotted frame round an H2 section of a page or blog post (sectionFrame.ts): its line, the space between the line and
-     the text, the space above a section, and the space between two parts inside it (em: it scales with the part's text). */
-  --mo-comp-editor-section-frame: 2px dotted var(--mo-comp-block-line);
+  /* The dotted line of an H2 section of a page or blog post (sectionFrame.ts, 1 dp in outline-variant, the divider's): the space between the
+     line and the text, and the space above a section (the 4 dp grid). */
   --mo-comp-editor-section-pad: 1rem;
   --mo-comp-editor-section-gap: 2rem;
-  --mo-comp-editor-section-rhythm: 0.625em;
 
   /* The frame the editor draws round a block (the line of .mo-site-block-card, M3 outlined card: 1 dp): it hangs this far outside the text column on each side, a fixed outset
      (4 dp grid), and the block's own content stays on the column's edge, as on the site. The line's width is part of the outset: the padding inside the
@@ -94,6 +88,7 @@
 .mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]::before,
 .mo-editor-text .ProseMirror:focus-visible > [data-section-focus-below]::before {
   border-block-start-color: var(--mo-sys-color-primary);
+  border-block-start-width: 2px;
 }
 .mo-editor-text .ProseMirror:focus-visible > [data-section-bottom] {
   position: relative;
@@ -189,17 +184,17 @@
 .mo-editor-text .ProseMirror > [data-section-part='start'] {
   position: relative;
   margin-block-start: var(--mo-comp-editor-section-gap);
-  border-block-start: 2px solid transparent;
+  border-block-start: 1px solid transparent;
   padding-block-start: var(--mo-comp-editor-section-pad);
 }
 /* The line is full width (the owner, 25 Nov 2026): it reaches out of the text field's padding to both edges, drawn in the border's place. */
 .mo-editor-text .ProseMirror > [data-section-part='start']::before {
   content: '';
   position: absolute;
-  inset: -2px 0 auto;
+  inset: -1px 0 auto;
   block-size: 0;
   pointer-events: none;
-  border-block-start: var(--mo-comp-editor-section-frame);
+  border-block-start: 1px dotted var(--mo-sys-color-outline-variant);
 }
 /* A coloured section's box is inset, so its line reaches out of the box to the field's edges. */
 .mo-editor-text .ProseMirror > [data-section-part='start'][data-section-box]::before {
@@ -223,11 +218,11 @@
 .mo-editor-text .ProseMirror > [data-section-box] {
   margin-block: 0;
   padding-inline: var(--mo-comp-editor-section-pad);
-  padding-block: var(--mo-comp-editor-section-rhythm);
+  padding-block: var(--mo-ref-space-50);
 }
 
 .mo-editor-text .ProseMirror > :is(ul, ol)[data-section-box] {
-  padding-inline-start: calc(var(--mo-comp-editor-section-pad) + 1.625em);
+  padding-inline-start: calc(var(--mo-comp-editor-section-pad) + 1.5rem);
 }
 
 .mo-editor-text .ProseMirror > :is([data-section-box='start'], [data-section-box='only']) {
@@ -255,7 +250,7 @@
   border-radius: 0;
 }
 .mo-editor-text .ProseMirror > :is(ul, ol)[data-section-box][data-section-width='full'] {
-  padding-inline-start: calc(var(--mo-comp-editor-pad-x) + var(--mo-comp-editor-section-pad) + 1.625em);
+  padding-inline-start: calc(var(--mo-comp-editor-pad-x) + var(--mo-comp-editor-section-pad) + 1.5rem);
 }
 /* flow-root: the first section's negative margin stays on the section, it does not collapse into the text's own. */
 .mo-editor-text .ProseMirror {
@@ -393,9 +388,10 @@
   overflow-wrap: anywhere;
   border-radius: var(--mo-sys-shape-corner-small);
   background: var(--mo-sys-color-surface-container-high);
-  padding: 0 0.4em;
+  padding: var(--mo-ref-space-50);
   font-family: ui-monospace, monospace;
-  font-size: 0.8em;
+  font-size: var(--mo-sys-typescale-body-small-size);
+  line-height: var(--mo-sys-typescale-body-small-line-height);
   color: var(--mo-sys-color-on-surface-variant);
 }
 
@@ -774,7 +770,7 @@ html {
 }
 
 /* A block of the site in the text (Book an appointment, Testimonials …; MarkdownEditor.tsx): the block as it
-   looks on the site (src/apps/<app>/blocks/, previews.tsx) in a thin, dashed square frame, not text. Tapping it opens a row
+   looks on the site (src/apps/<app>/blocks/, previews.tsx) in a thin, solid square frame, not text. Tapping it opens a row
    of icons on it with what can be done with it. The frame stands out a little to the sides, so the block
    lines up with the text. A image in the text is a card like it (in its paragraph). */
 .mo-editor-text .mo-site-block {
@@ -799,7 +795,7 @@ html {
   position: relative;
   /* The outline is an outlined Card's: 1 px solid outline-variant, its corner radius and padding, the theme's tokens (the same fallbacks as .mo-card), so the action row, the items and the
      add button line up inside it. */
-  border-radius: var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius));
+  border-radius: var(--mo-sys-shape-corner-medium);
   border: var(--mo-comp-editor-frame-line) solid var(--mo-sys-color-outline-variant);
   padding-block: var(--mo-comp-card-padding, 1rem);
   padding-inline: calc(var(--mo-comp-editor-frame-outset) - var(--mo-comp-editor-frame-line));
@@ -858,27 +854,35 @@ html {
 
 .mo-editor-text .mo-site-block-handle {
   position: absolute;
-  top: 0.25rem;
-  /* The block's top left corner (owner, 16 Nov): the one place to drag a block. A 48 dp touch target, drawn inside the frame, its edge 24 dp in from the frame's left
+  top: 0.5rem;
+  /* The block's top left corner (owner, 16 Nov): the one place to drag a block. Drawn 40 dp, 4 dp in from the 48 dp target's edge, which is 24 dp in from the frame's left
      edge, where the selection mark's 48 dp target (centred on the outline's corner curve) ends, so the two never overlap (the card is the frame outset wider than the block on each side). */
   left: calc(
-    var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius)) * 0.2929 + 0.53px + 1.5rem -
+    var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius)) * 0.2929 + 0.53px + 1.5rem + 0.25rem -
       var(--mo-comp-editor-frame-outset)
   );
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  inline-size: 3rem;
-  block-size: 3rem;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--mo-sys-color-surface) 80%, transparent);
+  background: var(--mo-sys-color-surface);
   color: var(--mo-sys-color-on-surface-variant);
   cursor: grab;
   touch-action: none;
   transition: opacity var(--mo-sys-motion-spring-default-effects);
+}
+
+/* The handle is drawn 40 dp (Material 3's small icon button); its target is the part's own 48 dp on a touch and 44 dp for a mouse (--mo-sys-target-size,
+   theme/styles/ui/target-size.css), an invisible area out from its middle. */
+.mo-editor-text .mo-site-block-handle::after {
+  content: '';
+  position: absolute;
+  inset: calc((100% - var(--mo-sys-target-size)) / 2);
 }
 
 /* The active block's action row (blockRow.ts): inside the block's dotted outline (the card), at the top of its padding, 48 dp high, with the drag handle at its start, in the card's flow so
@@ -944,7 +948,7 @@ html {
 
 /* A button that cannot be used (a block that cannot move further): shown, in its place, with the reason; the theme's disabled look, no state layer. */
 .mo-editor-text .mo-site-block-row [data-row][aria-disabled] {
-  opacity: 0.35;
+  opacity: var(--mo-sys-state-disabled-state-layer-opacity);
   cursor: default;
 }
 
@@ -954,7 +958,7 @@ html {
 
 .mo-editor-text .mo-site-block-has-row > .mo-site-block-handle {
   /* In the row's start: the row's own height, below the card's border and gap from its top edge. */
-  top: calc(1.5px + var(--mo-comp-card-gap, 0.5rem));
+  top: calc(1.5px + var(--mo-comp-card-gap, 0.5rem) + 0.25rem);
   opacity: 1;
 }
 
@@ -964,7 +968,7 @@ html {
 
 /* Disabled while several blocks are selected: the theme's disabled colours, no grab cursor. */
 .mo-editor-text .mo-site-block-handle[aria-disabled] {
-  color: color-mix(in srgb, var(--mo-sys-color-on-surface) 38%, transparent);
+  opacity: var(--mo-sys-state-disabled-state-layer-opacity);
   cursor: default;
 }
 
@@ -1048,8 +1052,13 @@ html {
 
 /* The lifted box is the dotted outline with its row inside it, with its corners. */
 .mo-editor-text .mo-site-block-dragging > .mo-site-block-card {
-  box-shadow: var(--mo-sys-elevation-level4-shadow);
-  background: var(--mo-sys-color-surface);
+  /* Material 3's dragged state: elevation level 3 and a 16 % on-surface state layer. */
+  box-shadow: var(--mo-sys-elevation-level3-shadow);
+  background: color-mix(
+    in srgb,
+    var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-dragged-state-layer-opacity) * 100%),
+    var(--mo-sys-color-surface)
+  );
 }
 
 .mo-editor-text .mo-site-part-drop-above {
@@ -1060,12 +1069,11 @@ html {
   box-shadow: 0 3px 0 0 var(--mo-sys-color-primary);
 }
 
-/* A block in focus shows it with its own outline: a 2 px line in the focus colour, the primary role (a section on a colour swaps it to its
-   on-colour). */
+/* A block in focus shows Material 3's focus ring (md.sys.state.focus-indicator: secondary, 3 dp, 2 dp outside). */
 .mo-editor-text .mo-site-block-card:focus-visible,
 .mo-editor-text .mo-site-block-card:has(> .mo-site-block-card-button:focus-visible) {
-  outline: 2px dotted var(--mo-sys-color-primary);
-  outline-offset: 2px;
+  outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+  outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
 }
 
 .mo-editor-text .mo-site-block-hidden-badge {
@@ -1098,8 +1106,8 @@ html {
 }
 .mo-editor-text .mo-site-block-inline:focus-within {
   border-color: var(--mo-sys-color-primary);
-  outline: 2px dotted var(--mo-sys-color-primary);
-  outline-offset: 2px;
+  outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+  outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
 }
 
 /* A field typed in a row: no frame of its own, the text of the row as the site draws it, and the height of its text. */
@@ -1127,10 +1135,10 @@ html {
   outline: none;
 }
 
-/* A row typed in place shows its focus: the editor's 2 px primary ring (owner, 15 Nov 2026), on a click as well as the keyboard. */
+/* A row typed in place shows Material 3's focus ring. */
 .mo-editor-text .mo-editor-inline-list-field:focus-visible {
-  outline: 2px solid var(--mo-sys-color-primary);
-  outline-offset: 2px;
+  outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+  outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
   border-radius: var(--mo-sys-shape-corner-extra-small);
 }
 
@@ -1158,19 +1166,23 @@ html {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.125rem;
+  gap: var(--mo-ref-space-50);
 }
 
+/* A field's name: body small (12/16, 400) in on-surface-variant. */
 .mo-editor-text .mo-editor-inline-field-name {
   color: var(--mo-sys-color-on-surface-variant);
-  font-size: var(--mo-sys-typescale-body-small-size, 0.75rem);
+  font-size: var(--mo-sys-typescale-body-small-size);
+  line-height: var(--mo-sys-typescale-body-small-line-height);
+  font-weight: var(--mo-sys-typescale-body-small-weight);
 }
 
 /* A List that reads a list: the line that says which, over its rows. */
 .mo-editor-text .mo-editor-inline-list-from {
-  margin: 0 0 0.5rem;
+  margin: 0 0 var(--mo-ref-space-100);
   color: var(--mo-sys-color-on-surface-variant);
   font-size: var(--mo-sys-typescale-body-medium-size);
+  line-height: var(--mo-sys-typescale-body-medium-line-height);
 }
 
 /* A dynamic block that can pick the fields of its list: a text button for each part of a row (top line, bottom line, icon, link). */
@@ -1188,7 +1200,7 @@ html {
 }
 
 /* An Expandable list in the page editor stays inside the block's box: the theme moves a plain list out by the layer room on each side (so the site's text keeps the text
-   edges); here the block's dashed outline is the edge, so the list takes the box's width and the rows keep their own inner padding. */
+   edges); here the block's outline is the edge, so the list takes the box's width and the rows keep their own inner padding. */
 .mo-editor-text .mo-block-accordion.mo-editor-inline-segmented {
   margin-inline: 0;
   max-inline-size: 100%;
@@ -1206,13 +1218,19 @@ html {
 }
 /* The chip over the Carousel block typed in place (InlineCarousel.tsx): it names the block, whose items are typed stacked. */
 .mo-editor-text .mo-editor-inline-cards-chip {
-  display: inline-block;
-  margin-bottom: 0.5rem;
-  border-radius: var(--mo-sys-shape-corner-full);
-  padding: 2px 10px;
-  background: var(--mo-sys-color-secondary-container);
-  color: var(--mo-sys-color-on-secondary-container);
-  font-size: var(--mo-sys-typescale-body-small-size);
+  /* The assist chip (md.comp.assist-chip): 32 dp high, corner small, 16 dp sides, label large in on-surface, a 1 dp outline-variant line. */
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  block-size: 2rem;
+  margin-bottom: var(--mo-ref-space-100);
+  border: 1px solid var(--mo-sys-color-outline-variant);
+  border-radius: var(--mo-sys-shape-corner-small);
+  padding-inline: 1rem;
+  color: var(--mo-sys-color-on-surface);
+  font-size: var(--mo-sys-typescale-label-large-size);
+  line-height: var(--mo-sys-typescale-label-large-line-height);
+  font-weight: var(--mo-sys-typescale-label-large-weight);
 }
 /* A card's media that is set: the media, and a button laid over it (its sibling, as a control may not hold another); a tap changes it (Cards, InlineCards.tsx). */
 .mo-editor-text .mo-editor-inline-card-media-box {
@@ -1234,8 +1252,6 @@ html {
 /* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn in the theme button of its style. */
 .mo-editor-text .mo-editor-inline-card-button {
   display: inline-flex;
-  min-width: 6rem;
-  min-height: 2.5rem;
   align-items: center;
 }
 
@@ -1250,54 +1266,8 @@ html {
 
 /* Menus are placed by the theme's rules for a dropdown menu (ui.css, under the button, the other side when there is no room), the menu's width
    112 to 280 dp by the part. */
-/* On a phone the text's box (bar and body) is 354 dp wide at 375 px (352 inside its 1 dp edges), 10.5 dp from each edge instead of the screen's 16 dp (owner decision, 14 Nov:
-   eight 44 dp icons fit). A deviation from M3's 16 dp margin (docs/material-deviations.md). */
-@media (width < 37.5rem) {
-  .mo-editor-text-box {
-    margin-inline: -0.34375rem;
-  }
-}
-
-/* The text's toolbar (MarkdownEditor.tsx, Toolbar in ui.tsx): the box's top edge, in the box's own surface. */
-.mo-editor-tools {
-  --mo-comp-toolbar-docked-container-color: var(--mo-comp-editor-menu-surface);
-}
-
-/* The text box's own side lines run up behind the toolbar when it sticks, so the two cut-outs outside its rounded top corners are
-   filled in the page's surface (the same one the body has): the curve is clean, with no line past it. */
-.mo-editor-tools::before,
-.mo-editor-tools::after {
-  content: '';
-  position: absolute;
-  top: -1px;
-  width: var(--mo-sys-shape-corner-medium);
-  height: var(--mo-sys-shape-corner-medium);
-  pointer-events: none;
-}
-
-.mo-editor-tools::before {
-  left: -1px;
-  background: radial-gradient(
-    circle at 100% 100%,
-    transparent var(--mo-sys-shape-corner-medium),
-    var(--mo-sys-color-surface) var(--mo-sys-shape-corner-medium)
-  );
-}
-
-.mo-editor-tools::after {
-  right: -1px;
-  background: radial-gradient(
-    circle at 0 100%,
-    transparent var(--mo-sys-shape-corner-medium),
-    var(--mo-sys-color-surface) var(--mo-sys-shape-corner-medium)
-  );
-}
-
-/* The bar is one row, 44 dp high: the tools of the place at the left, Undo, Redo, Insert block and the `⋮` at the right end, no divider between them. It never scrolls (textBar.mjs picks what is
-   on it; the rest is in the `⋮` menu). The buttons are 44 by 44 dp with no gap between them (owner decision, 13 Nov), the idle tools stand at the
-   leading edge, and the groups are boxes in a row (their buttons are the bar's). */
+/* The text's bar is Material 3's docked toolbar: 64 dp, the container surface-container (the theme's), the box's card corner on its top. */
 .mo-editor-tools.mo-toolbar {
-  min-height: 2.75rem;
   justify-content: flex-start;
 }
 
@@ -1318,6 +1288,8 @@ html {
   display: flex;
   flex: none;
   align-items: center;
+  /* The `⋮` stands the toolbar's 8 dp after Insert block, as every tool does after the one before it (a tool's width in the plan includes it, textBar.mjs). */
+  gap: var(--mo-ref-space-100);
 }
 
 /* Undo, Redo, Insert block and the `⋮` stand at the right end in every place, with no divider (owner decision, 14 Nov). */
@@ -1334,6 +1306,7 @@ html {
 
 .mo-editor-tools-group {
   display: flex;
+  gap: var(--mo-ref-space-100);
   flex: none;
   align-items: center;
 }
@@ -1352,6 +1325,11 @@ html {
   color: var(--mo-comp-icon-button-standard-icon-color, var(--mo-comp-block-text));
 }
 
+/* Disabled (Alignment beside a block): on-surface at 38 %, as the standard icon buttons beside it (M3 States: "Disabled state layer opacity 0.38"). */
+.mo-toolbar__menu-button:disabled {
+  opacity: var(--mo-sys-state-disabled-state-layer-opacity, 0.38);
+}
+
 /* Only drawn: the taps go to the card. */
 .mo-editor-text .mo-site-block-preview {
   pointer-events: none;
@@ -1368,18 +1346,19 @@ html {
 
 /* A section of a fixed page in the type of the site's pages, not that of the text. */
 .mo-editor-text .mo-site-block-section {
-  font-size: 1.0625rem;
-  line-height: 1.5;
+  font-size: var(--mo-sys-typescale-body-large-size);
+  line-height: var(--mo-sys-typescale-body-large-line-height);
 }
 
 .mo-editor-text .mo-site-block-lines {
   display: flex;
   flex-direction: column;
-  gap: var(--mo-ref-space-25);
-  padding: 0 0.25rem;
+  gap: var(--mo-ref-space-50);
+  padding: var(--mo-ref-space-50);
   color: var(--mo-sys-color-on-surface-variant);
-  font-size: 0.875rem;
-  line-height: 1.45;
+  font-size: var(--mo-sys-typescale-body-medium-size);
+  line-height: var(--mo-sys-typescale-body-medium-line-height);
+  font-weight: var(--mo-sys-typescale-body-medium-weight);
 }
 
 /* A fixed page's text as on the site (data-look, looksOf in sections.mjs): the headings of the
@@ -1417,8 +1396,7 @@ html {
   line-height: 1.75rem;
 }
 
-.mo-editor-text .ProseMirror > [data-look~='section-intro'],
-.mo-editor-text .ProseMirror > [data-look~='page-intro'] {
+.mo-editor-text .ProseMirror > [data-look~='section-intro'] {
   max-width: 52ch;
   color: var(--mo-sys-color-on-surface-variant);
   font-size: 1.125rem;
@@ -1486,25 +1464,19 @@ html {
     font-size: 1.875rem;
     line-height: 1.375;
   }
-
-  .mo-editor-text .ProseMirror > [data-look~='page-intro'] {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-  }
 }
 
-/* A block hidden on the site: faded and grey. */
+/* A block hidden on the site: Material 3's disabled content, 38 % (md.sys.state: disabled), with no grey filter. */
 .mo-editor-text .mo-site-block-hidden .mo-site-block-preview {
-  opacity: 0.4;
-  filter: grayscale(1);
+  opacity: var(--mo-sys-state-disabled-state-layer-opacity);
 }
 
 /* A text with blocks (a page, a fixed page's sections): the cards close together, with the free line
    between two of them to write in: thin, until the cursor is in it (mo-editor-gap-here, MarkdownEditor.tsx)
    or the pointer over it, when it opens up and says so. */
 .mo-editor-spaced {
-  /* The hints are the text's own colour (a section's on-colour, or the page's) at placeholder emphasis (85%, for 4.5:1 on every section colour), never a fixed grey. */
-  --mo-comp-editor-hint-color: color-mix(in srgb, currentColor 85%, transparent);
+  /* The hints are the placeholder's colour, on-surface-variant (the section's remapped role on a section colour). */
+  --mo-comp-editor-hint-color: var(--mo-sys-color-on-surface-variant);
 }
 
 .mo-editor-spaced .mo-site-block {
@@ -1515,9 +1487,9 @@ html {
   margin-block: 0;
   border-radius: var(--mo-sys-shape-corner-small);
   padding-inline: 0;
-  padding-block: 0.25rem;
-  font-size: 0.875rem;
-  line-height: 0.5rem;
+  padding-block: var(--mo-ref-space-25);
+  font-size: var(--mo-sys-typescale-body-medium-size);
+  line-height: var(--mo-ref-space-100);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -1527,7 +1499,7 @@ html {
 }
 
 .mo-editor-spaced .ProseMirror:focus > p.mo-editor-gap-here:has(> br:only-child) {
-  line-height: 1.5rem;
+  line-height: var(--mo-sys-typescale-body-medium-line-height);
 }
 
 .mo-editor-spaced .ProseMirror:focus > p.mo-editor-gap-here:has(> br:only-child)::before {
@@ -1539,7 +1511,7 @@ html {
 
 @media (hover: hover) {
   .mo-editor-spaced .ProseMirror > p:has(> br:only-child):hover {
-    line-height: 1.5rem;
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
   }
 
   .mo-editor-spaced .ProseMirror > p:has(> br:only-child):hover::before {
@@ -1700,7 +1672,7 @@ dialog {
 }
 
 .mo-editor-text .mo-editor-inline-table-box .mo-editor-inline-table-cell-active {
-  outline: var(--mo-comp-editor-section-frame);
+  outline: 2px dotted var(--mo-comp-block-line);
   outline-offset: -2px;
 }
 
@@ -1936,26 +1908,11 @@ main[tabindex='-1']:focus {
 }
 
 /* The editor's own screens keep their icon buttons 48 px (a target they owe, checked in block-bar.mjs, page-rows.mjs and search-and-palette.mjs): the top bar,
-   the action row of the active block and the command palette's field row. Material's small icon button is 40 dp with a 48 dp target, and the theme draws
+   and the command palette's field row; the page editor's action row is Material's small icon button as the theme draws it. Material's small icon button is 40 dp with a 48 dp target, and the theme draws
    no target area beyond the container yet; the theme's own parts, and so the editor's gallery of them, keep the 40 dp. */
 .mo-editor-screen-bar,
-.mo-site-block-row,
 [data-search-controlled] .mo-search-view__header {
   --mo-comp-icon-button-small-container-height: 3rem;
-}
-
-/* The lead: the text's first paragraph, drawn as the site draws it (site-page.css `.mo-page__text > p:first-child` for a page, the post's
-   `mo-type-lead`): the lead's size, line height, weight and tracking; a page's lead is also muted and 52ch wide. The field says which
-   (`data-lead-style`); a page with a column beside its text has no lead on the site, so none here. */
-.mo-editor-text[data-lead-style] .ProseMirror > p[data-lead] {
-  font-size: var(--mo-sys-typescale-lead-size);
-  line-height: var(--mo-sys-typescale-lead-line-height);
-  font-weight: var(--mo-sys-typescale-lead-weight);
-  letter-spacing: var(--mo-sys-typescale-lead-tracking);
-}
-.mo-editor-text[data-lead-style='page'] .ProseMirror > p[data-lead] {
-  color: var(--mo-sys-color-on-surface-variant);
-  max-inline-size: 52ch;
 }
 
 /* The Carousel block typed in place (InlineCarousel.tsx): its items stacked, as the site draws them with Show all (blocks/carousel.css): two by two from 600 px; a plain item is a 3:2 tile. */

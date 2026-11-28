@@ -603,13 +603,13 @@ async function checkDynamicList(width, height) {
     return {
       labels: names,
       inside: !box.scrolls,
-      small: [...buttons, ...more].some((b) => b.height < 43.4 || (b.width !== undefined && b.width < 43.4)),
+      small: [...buttons, ...more].some((b) => b.height < 39.4 || (b.width !== undefined && b.width < 39.4)),
     };
   };
   const typed = await bar();
   if (!typed.labels.includes('Fill from a list')) problems.push(`${label}: the toolbar has no dynamic icon`);
   if (!typed.inside) problems.push(`${label}: the toolbar reaches outside the screen`);
-  if (typed.small) problems.push(`${label}: a toolbar button is under 44 dp`);
+  if (typed.small) problems.push(`${label}: a toolbar button is under 40 dp`);
   await pressTool(page, 'Fill from a list');
   const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Dynamic list' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));

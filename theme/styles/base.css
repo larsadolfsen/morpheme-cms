@@ -138,22 +138,13 @@
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
-  /* A blog post's lead: its first paragraph, one step larger than the text (the lead tokens, ui.css: the title large's
-     unless a theme sets them). */
-  .mo-prose.mo-post__lead {
-    font-size: var(--mo-sys-typescale-lead-size);
-    line-height: var(--mo-sys-typescale-lead-line-height);
-    font-weight: var(--mo-sys-typescale-lead-weight);
-    letter-spacing: var(--mo-sys-typescale-lead-tracking);
-  }
   /* The text right after the lead (no image between): the space the prose puts between paragraphs (16px), not the
    larger space of a text under an image. In the fallback layer on purpose: it must beat the mt-10 / medium:mt-14 utilities. */
   .mo-prose.mo-post__lead + .mo-prose {
     margin-top: 1rem;
   }
   /* The text's spaces are on the 4dp grid (Material 3's spacing units are multiples of 4dp and 8dp; it prints no paragraph
-   or heading space, so these are the nearest rule): a paragraph 16px, a lead paragraph 24px (--mo-sys-prose-space, set by .mo-type-lead
-   and .mo-post__lead), a title above 32px and below 12px (the h2's 56 and 28 are on the grid already). They replace the typography
+   or heading space, so these are the nearest rule): a paragraph 16px, a title above 32px and below 12px (the h2's 56 and 28 are on the grid already). They replace the typography
    plugin's em spaces (17.5, 27.5, 35.19, 13.2), which land off the grid. Not the paragraphs of a list item, which the
    plugin spaces itself, and the first and last child keep no space, as the plugin has it. */
   .mo-prose :where(p):not(:where(li > p)) {
