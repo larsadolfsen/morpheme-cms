@@ -157,7 +157,7 @@ test('the aspect field is shown for an image and a video, and offers Automatic',
     .replace(/,\s*([}\]])/g, ' $1');
   assert.match(
     block,
-    /name: 'aspect'.*only: \{ field: 'layout', is: \['multi-aspect-ratio'\], and: \{ field: 'media', is: \['', 'video'\] \} \}/,
+    /name: 'aspect'.*only: \{ field: 'layout', is: \['uncontained'\], and: \{ field: 'multiAspectRatio', is: \['true'\], and: \{ field: 'media', is: \['', 'video'\] \} \} \}/,
   );
   assert.match(block, /options: \[\{ label: t\.blocks\.carousel\.aspectAuto, value: '' \}/);
 });

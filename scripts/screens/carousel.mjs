@@ -915,9 +915,12 @@ async function checkCarouselMediaSheet(width, height) {
     .click();
   await page.waitForTimeout(300);
   await page
-    .locator('dialog[open] *, .mo-editor-menu *, [role="listbox"] *', { hasText: /^Uncontained multi-aspect ratio$/ })
+    .locator('dialog[open] *, .mo-editor-menu *, [role="listbox"] *', { hasText: /^Uncontained$/ })
     .last()
     .click();
+  await page.waitForTimeout(500);
+  // Multi-aspect ratio is a setting of Uncontained (M3's design "Uncontained multi-aspect ratio").
+  await sheet().getByRole('switch', { name: 'Multi-aspect ratio' }).first().check();
   await page.waitForTimeout(500);
   await page.keyboard.press('Escape');
   await page.waitForTimeout(400);

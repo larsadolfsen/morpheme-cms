@@ -14,7 +14,7 @@ import { ASPECTS } from '../cards/cut.mjs';
 import { example } from './shared';
 
 // The layouts that take no cards; the card fields show in the others (the uncontained ones).
-const PLAIN_LAYOUTS = ['multi-browse', 'hero', 'hero-center', 'full-screen'];
+const PLAIN_LAYOUTS = ['multi-browse', 'hero', 'full-screen'];
 
 export default defineBlock({
   group: 'cards',
@@ -41,8 +41,7 @@ export default defineBlock({
     },
   },
   fields: [
-    // M3's order and names (m3.material.io/components/carousel/guidelines, Layouts), each hint M3's "Best used for"; the uncontained multi-aspect ratio layout is a
-    // variant of Uncontained and follows it. Every layout is offered for every item: the editor decides (owner, 25 Nov 2026). Multi-browse is the layout of a new block.
+    // M3's four layouts, in its order and with its names (m3.material.io/components/carousel/guidelines, Layouts), each hint M3's "Best used for". Every layout is offered for every item: the editor decides (owner, 25 Nov 2026). Multi-browse is the layout of a new block.
     {
       name: 'layout',
       label: t.blocks.carousel.layout,
@@ -54,11 +53,26 @@ export default defineBlock({
       options: [
         { label: t.blocks.carousel.layoutMultiBrowse, value: 'multi-browse', hint: t.blocks.carousel.layoutMultiBrowseHint },
         { label: t.blocks.carousel.layoutUncontained, value: 'uncontained', hint: t.blocks.carousel.layoutUncontainedHint },
-        { label: t.blocks.carousel.layoutMultiAspect, value: 'multi-aspect-ratio', hint: t.blocks.carousel.layoutMultiAspectHint },
         { label: t.blocks.carousel.layoutHero, value: 'hero', hint: t.blocks.carousel.layoutHeroHint },
-        { label: t.blocks.carousel.layoutHeroCenter, value: 'hero-center', hint: t.blocks.carousel.layoutHeroCenterHint },
         { label: t.blocks.carousel.layoutFullScreen, value: 'full-screen', hint: t.blocks.carousel.layoutFullScreenHint },
       ],
+    },
+    // M3's two designs: "Uncontained multi-aspect ratio" is a design of Uncontained, "Center-aligned hero" of Hero (Overview: "Layouts can be start-aligned or center-aligned").
+    {
+      name: 'multiAspectRatio',
+      label: t.blocks.carousel.multiAspect,
+      type: 'boolean',
+      toggle: t.blocks.carousel.multiAspectToggle,
+      hint: t.blocks.carousel.multiAspectHint,
+      only: { field: 'layout', is: ['uncontained'] },
+    },
+    {
+      name: 'centerAligned',
+      label: t.blocks.carousel.centerAligned,
+      type: 'boolean',
+      toggle: t.blocks.carousel.centerAlignedToggle,
+      hint: t.blocks.carousel.centerAlignedHint,
+      only: { field: 'layout', is: ['hero'] },
     },
     // The carousel's optional header (M3, Carousel, Accessibility: "If the carousel has a header, you can use an arrow icon button instead" of Show all). Empty:
     // no header, `Show all` under the row. Typed in place above it (InlineCarousel.tsx).
@@ -97,7 +111,7 @@ export default defineBlock({
       type: 'select',
       default: '3:2',
       hint: t.blocks.carousel.ratioHint,
-      only: { field: 'layout', is: ['uncontained'] },
+      only: { field: 'layout', is: ['uncontained'], and: { field: 'multiAspectRatio', is: ['true'], not: true } },
       options: FORMATS.map((f) => ({ label: f, value: f })),
     },
     {
@@ -149,7 +163,11 @@ export default defineBlock({
           label: t.blocks.cards.ratio,
           type: 'select',
           hint: t.blocks.carousel.aspectHint,
-          only: { field: 'layout', is: ['multi-aspect-ratio'], and: { field: 'media', is: ['', 'video'] } },
+          only: {
+            field: 'layout',
+            is: ['uncontained'],
+            and: { field: 'multiAspectRatio', is: ['true'], and: { field: 'media', is: ['', 'video'] } },
+          },
           options: [{ label: t.blocks.carousel.aspectAuto, value: '' }, ...ASPECTS.map((f) => ({ label: f, value: f }))],
         },
         {
