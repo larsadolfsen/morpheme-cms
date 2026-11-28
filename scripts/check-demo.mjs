@@ -3,7 +3,7 @@
 // standard theme, in a folder of its own. Run it when the CMS, the
 // standard theme or the demo has changed: npx morpheme check:demo.
 import { execFileSync } from 'node:child_process';
-import { rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { binOf } from './bin.mjs';
@@ -36,8 +36,15 @@ try {
   run([fileURLToPath(new URL('check-content.mjs', import.meta.url))]);
   run([fileURLToPath(new URL('editor-roundtrip.mjs', import.meta.url))]);
   run([binOf('astro'), 'build', '--outDir', join(dir, 'dist')]);
+  // The built home page carries its critical CSS (beasties is a dev dependency, so CI has it), with the theme's fonts: without
+  // @font-face inline the first paint uses the fallback font and the page shifts when the real one arrives (lib/criticalCss.mjs).
+  const home = readFileSync(join(dir, 'dist', 'index.html'), 'utf8');
+  const critical = /<style data-critical>([\s\S]*?)<\/style>/.exec(home)?.[1];
+  if (!critical) throw new Error('The built home page has no critical CSS (<style data-critical>).');
+  if (!critical.includes('@font-face')) throw new Error("The home page's critical CSS has no @font-face.");
   console.log('\nThe demo works with the CMS.');
-} catch {
+} catch (error) {
+  if (error?.message) console.error(error.message);
   console.error('\nThe demo does not work with the CMS (see above).');
   process.exitCode = 1;
 } finally {
