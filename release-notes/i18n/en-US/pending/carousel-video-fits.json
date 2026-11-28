@@ -1,0 +1,7 @@
+{
+  "id": "carousel-video-fits",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Carousel videos",
+  "text": "A video in a carousel no longer leaves empty space under it. In the multi-aspect ratio layout, pick the item’s ratio, or leave Automatic for 16:9, and the item is as wide as its video. Images and videos can share one row."
+}

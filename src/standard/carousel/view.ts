@@ -15,9 +15,9 @@ import { kindOf, type ButtonView } from '../buttons/view';
 import { viewOf as videoViewOf, type VideoView } from '../video/view';
 import shared from './shared';
 import { ratioOf } from '../../../lib/crop.mjs';
-import { aspectProp, cutOf, DEFAULT_RATIO, ratioProp } from '../cards/cut.mjs';
+import { aspectProp, cutOf, DEFAULT_RATIO, ratioProp, VIDEO_ASPECT } from '../cards/cut.mjs';
 
-export { ASPECTS, DEFAULT_ASPECT, DEFAULT_RATIO, aspectProp, ratioProp } from '../cards/cut.mjs';
+export { ASPECTS, DEFAULT_ASPECT, DEFAULT_RATIO, VIDEO_ASPECT, aspectProp, ratioProp } from '../cards/cut.mjs';
 
 /** The layouts, as Material 3 names them, in its order; the block starts as the first (Multi-browse). */
 export const carouselLayouts = ['multi-browse', 'uncontained', 'multi-aspect-ratio', 'hero', 'hero-center', 'full-screen'] as const;
@@ -128,7 +128,8 @@ export const itemsOf = (
             ...(perItem ? { aspect: ratioOf(ratio) } : {}),
           }
         : {}),
-      ...(video ? { video } : {}),
+      // A video item in the multi-aspect ratio layout is as wide as its own video is (the item's aspect, 16:9 when none is set), so the video fills it with nothing left over.
+      ...(video ? { video, ...(perItem ? { aspect: ratioOf(aspectProp(item.aspect, VIDEO_ASPECT)) } : {}) } : {}),
       title: item.title ?? '',
       ...(item.subhead ? { subhead: item.subhead } : {}),
       text: item.text ?? '',

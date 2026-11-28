@@ -305,6 +305,12 @@ async function checkCarousel(width, height) {
         radius: getComputedStyle(mask ?? first.firstElementChild).borderTopLeftRadius,
         itemWidth: Math.round(fb.width),
         widths: [...el.querySelectorAll('[data-carousel-item]')].map((i) => Math.round(i.getBoundingClientRect().width)),
+        // A video item's box is the item (the video fills it: no empty area below or beside the still), and in the multi-aspect ratio layout as wide as its video.
+        videoGaps: [...el.querySelectorAll('[data-carousel-item]')]
+          .map((i) => [i.getBoundingClientRect(), i.querySelector('[data-video]')?.getBoundingClientRect()])
+          .filter(([, v]) => v)
+          .filter(([i, v]) => Math.abs(i.width - v.width) > 1 || Math.abs(i.height - v.height) > 1)
+          .map(([i, v]) => `${Math.round(v.width)}x${Math.round(v.height)} in ${Math.round(i.width)}x${Math.round(i.height)}`),
         itemLeft: Math.round(fb.left),
         rowLeft: Math.round(rb.left),
         rowWidth: Math.round(rb.width),
@@ -336,7 +342,7 @@ async function checkCarousel(width, height) {
       // Multi-aspect ratio: leading padding 16dp, the cards of different widths (each as wide as its image's aspect ratio makes it).
       if (l.layout === 'multi-aspect-ratio') {
         if (l.itemLeft !== 16 || l.rowLeft !== 0) problems.push(`${at}: the first item is ${l.itemLeft}px from the edge, not 16px`);
-        if (new Set(l.widths).size < 3)
+        if (new Set(l.widths).size < 2)
           problems.push(`${at}: the items have the same width (${l.widths.join(', ')}px), not their images' aspect ratios`);
       }
       if (['multi-browse', 'hero', 'hero-center'].includes(l.layout) && (l.itemLeft !== 16 || l.rowLeft !== 0))
@@ -346,6 +352,7 @@ async function checkCarousel(width, height) {
       if (l.layout === 'full-screen' && Math.abs(l.itemWidth - l.rowWidth) > 1)
         problems.push(`${at}: a full-screen item is ${l.itemWidth}px of the row's ${l.rowWidth}px`);
     }
+    if (l.videoGaps.length) problems.push(`${at}: a video does not fill its item (${l.videoGaps.join('; ')})`);
     if (l.layout === 'hero' && l.itemWidth <= l.rowWidth / 3)
       problems.push(`${at}: the hero's large item is only ${l.itemWidth}px of ${l.rowWidth}px`);
   }

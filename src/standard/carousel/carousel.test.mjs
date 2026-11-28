@@ -114,3 +114,32 @@ test('the alt text is in use for an image item, and for a video item only while 
   assert.equal(used({ media: 'icon', thumbnail: '/images/a.jpg' }), false);
   assert.equal(used({ media: 'none' }), false);
 });
+
+test('in the multi-aspect ratio layout a video item is as wide as its own video: its aspect, else 16:9; an image keeps 1:1 without one', () => {
+  const items = (list) => viewOf({ layout: 'multi-aspect-ratio', items: list }, data).items;
+  const [landscape, portrait, square, image, imageSet] = items([
+    { media: 'video', video: YOUTUBE },
+    { media: 'video', video: YOUTUBE, aspect: '9:16' },
+    { media: 'video', video: YOUTUBE, aspect: '1:1' },
+    { media: 'image', image: '/images/a.jpg' },
+    { media: 'image', image: '/images/a.jpg', aspect: '2:3' },
+  ]);
+  assert.equal(landscape.aspect, 16 / 9);
+  assert.equal(portrait.aspect, 9 / 16);
+  assert.equal(square.aspect, 1);
+  assert.equal(image.aspect, 1);
+  assert.equal(imageSet.aspect, 2 / 3);
+  // Only this layout sets a width from it.
+  assert.equal(itemOf({ aspect: '9:16' }).aspect, undefined);
+});
+
+test('the aspect field is shown for an image and a video, and offers Automatic', () => {
+  const block = read('./index.tsx')
+    .replace(/\s+/g, ' ')
+    .replace(/,\s*([}\]])/g, ' $1');
+  assert.match(
+    block,
+    /name: 'aspect'.*only: \{ field: 'layout', is: \['multi-aspect-ratio'\], and: \{ field: 'media', is: \['', 'video'\] \} \}/,
+  );
+  assert.match(block, /options: \[\{ label: t\.blocks\.carousel\.aspectAuto, value: '' \}/);
+});

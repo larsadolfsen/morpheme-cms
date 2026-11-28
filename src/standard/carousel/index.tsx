@@ -10,7 +10,7 @@ import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { buttonList } from '../buttons/fields';
 import { FORMATS } from '../../../lib/crop.mjs';
-import { ASPECTS, DEFAULT_ASPECT } from '../cards/cut.mjs';
+import { ASPECTS } from '../cards/cut.mjs';
 import { example } from './shared';
 
 // The layouts that take no cards; the card fields show in the others (the uncontained ones).
@@ -143,14 +143,14 @@ export default defineBlock({
         },
         { name: 'image', label: t.blocks.cards.image, type: 'image', only: { field: 'media', is: [''] } },
         // The item's own aspect ratio, only in the multi-aspect ratio layout, where its width follows it (Material 3: "Item widths can range anywhere between 9:16 for min width size to 16:9 for max width").
+        // An image or a video; none set is 1:1 for an image and 16:9 for a video (the shape a video plays in), so a portrait video is the owner's pick.
         {
           name: 'aspect',
           label: t.blocks.cards.ratio,
           type: 'select',
-          default: DEFAULT_ASPECT,
           hint: t.blocks.carousel.aspectHint,
-          only: { field: 'layout', is: ['multi-aspect-ratio'], and: { field: 'media', is: [''] } },
-          options: ASPECTS.map((f) => ({ label: f, value: f })),
+          only: { field: 'layout', is: ['multi-aspect-ratio'], and: { field: 'media', is: ['', 'video'] } },
+          options: [{ label: t.blocks.carousel.aspectAuto, value: '' }, ...ASPECTS.map((f) => ({ label: f, value: f }))],
         },
         {
           name: 'video',

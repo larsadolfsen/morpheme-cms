@@ -69,6 +69,21 @@
     height: 100%;
     object-fit: cover;
   }
+  /* A video item: the video's box is the item (in the multi-aspect ratio layout as wide as the video is, in the others the layout's box), so the still fills it whole,
+     with none of the text's 16:9, margin and corners, and the played video (the iframe that takes the link's place) keeps the same box. */
+  .mo-block-carousel__item-media .mo-block-video__facade,
+  .mo-block-carousel__item-media iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    aspect-ratio: auto;
+  }
+  .mo-block-carousel__item-media .mo-block-video__facade {
+    display: flex;
+  }
   .mo-block-carousel__item-icon {
     margin: 1rem 1rem 0;
     color: var(--mo-sys-color-primary);
