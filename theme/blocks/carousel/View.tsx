@@ -35,32 +35,20 @@ function ArrowIcons() {
   );
 }
 
-/** An item's image: told how wide its layout draws it (sizes.mjs), and the first one at the top of the page loaded at once, every other when it comes near. */
-function Picture({
-  item,
-  cut,
-  layout,
-  first,
-  count,
-}: {
-  item: CarouselItem;
-  cut: boolean;
-  layout: CarouselView['layout'];
-  first: boolean;
-  count: number;
-}) {
+/** An item's image: told how wide its layout draws it (sizes.mjs), the ones in the first screen of the page loaded at once, every other when it comes near. */
+function Picture({ item, cut, layout, rank }: { item: CarouselItem; cut: boolean; layout: CarouselView['layout']; rank: number }) {
   const image = item.image!;
   const crop = image.crop && cut ? image.crop : undefined;
   return (
     <img
-      style={crop ? cutStyle(crop) : undefined}
+      style={{ ...(crop ? cutStyle(crop) : null), ...(image.placeholder ? { backgroundImage: `url(${image.placeholder})` } : null) }}
       src={image.src}
       srcSet={image.srcset}
-      sizes={image.srcset ? sizesOf(layout, { aspect: item.aspect, crop: crop?.[2], count }) : undefined}
+      sizes={image.srcset ? sizesOf(layout, { crop: crop?.[2] }) : undefined}
       width={image.width}
       height={image.height}
       alt={image.alt ?? ''}
-      {...loadingOf(first)}
+      {...loadingOf(rank)}
       decoding="async"
     />
   );
@@ -69,8 +57,8 @@ function Picture({
 export default function CarouselBlock({ view, label }: { view: CarouselView; label?: string }) {
   const say = siteT.blocks.carousel;
   const { layout, header, items, more, top } = view;
-  // The one image loaded at once: the first of the first carousel at the top of the page.
-  const firstImage = top ? items.findIndex((item) => item.media === 'image' && item.image) : -1;
+  // A carousel at the top of the page loads the images its first screen shows at once: an image's place among the images of the row (-1 when the carousel is not at the top).
+  const rankOf = (i: number) => (top ? items.slice(0, i).filter((item) => item.media === 'image' && item.image).length : -1);
   const type: CardKind = cardKinds.find((k) => k === view.design) ?? 'outlined';
   const colored = type === 'filled' && view.color ? `mo-block-carousel__${view.color}` : undefined;
   const hasCards = items.some((item) => item.card);
@@ -80,7 +68,7 @@ export default function CarouselBlock({ view, label }: { view: CarouselView; lab
     const media =
       item.media === 'image' && item.image ? (
         <MediaBox ratio={ratioOf(item.ratio)}>
-          <Picture item={item} cut layout={layout} first={i === firstImage} count={items.length} />
+          <Picture item={item} cut layout={layout} rank={rankOf(i)} />
         </MediaBox>
       ) : item.media === 'video' && item.video ? (
         <Video view={item.video} />
@@ -119,7 +107,7 @@ export default function CarouselBlock({ view, label }: { view: CarouselView; lab
       <>
         {image && (
           <span className="mo-block-carousel__item-media">
-            <Picture item={item} cut={layout === 'multi-aspect-ratio'} layout={layout} first={i === firstImage} count={items.length} />
+            <Picture item={item} cut={layout === 'multi-aspect-ratio'} layout={layout} rank={rankOf(i)} />
           </span>
         )}
         {video && (

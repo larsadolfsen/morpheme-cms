@@ -21,7 +21,7 @@ import {
   type Post,
 } from '../site/content';
 import { allPostsCategory, allPostsLink } from '../site/home';
-import { altFor, libraryAlt, libraryImages, responsive } from '../site/images.mjs';
+import { altFor, libraryAlt, libraryImages, placeholderOf, responsive } from '../site/images.mjs';
 import { readingMinutes } from '../site/format';
 import { testimonials, testimonialsPath } from '../site/testimonials';
 import { cookieList } from '../site/cookieList';
@@ -163,7 +163,7 @@ export const standard: StandardSite = {
     },
     // The sizes, and the text the Library has for it ("" when it is decorative there): a use with a text of its own puts that over it.
     image: (src) => {
-      return { ...responsive(src), ...libraryAltPart(libraryAlt(src)) };
+      return { ...responsive(src), placeholder: placeholderOf(src), ...libraryAltPart(libraryAlt(src)) };
     },
   },
 };

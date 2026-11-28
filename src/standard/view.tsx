@@ -74,7 +74,14 @@ export function Link({
 
 /** An image with the sizes the site has made of it (srcset, width and height), for the browser to pick the one that
  * fits (imageOf, load.ts); in the editor only the image. */
-export type Image = { src: string; srcset?: string; width?: number; height?: number; alt?: string };
+export type Image = {
+  src: string;
+  srcset?: string;
+  width?: number;
+  height?: number;
+  alt?: string;
+  /** A blurred preview (a `data:` URI), shown until the file arrives. */ placeholder?: string;
+};
 
 /** An image in the editor: as it is shown there (shownAt: one made ready in this visit, from the browser). */
 export const shownImage = (src: string): Image => ({ src: shownAt(src) });

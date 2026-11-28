@@ -73,6 +73,9 @@ export function responsive(src) {
   return { srcset, width: info.width, height: info.height };
 }
 
+/** An image's blurred preview, a `data:` URI of 20 px (made by scripts/responsive-images.mjs), or undefined. */
+export const placeholderOf = (src) => load()[src]?.blur;
+
 // The sizes of an image shown `scale` times wider than its box (cut to a format, crop.mjs), e.g.
 // a list like "720px, calc(100vw - 40px)" twice as wide.
 const scaled = (sizes, scale) =>
