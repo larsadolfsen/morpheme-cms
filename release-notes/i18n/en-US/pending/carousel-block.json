@@ -3,5 +3,5 @@
   "kind": "paragraph",
   "mark": "feature",
   "title": "Carousel is its own block",
-  "text": "A carousel and a grid are not the same thing, so Carousel is now a block of its own. Pick a layout (Multi-browse, Uncontained, Uncontained multi-aspect ratio, Hero, Center-aligned hero or Full-screen) and add images or videos; in the uncontained layouts an item can also be a card, in the Outlined, Filled or Elevated look you chose. Cards is always a grid, and a Cards block that was a carousel becomes a Carousel block when your site updates."
+  "text": "A carousel and a grid are not the same thing, so Carousel is now a block of its own. Pick a layout (Multi-browse, Uncontained, Uncontained multi-aspect ratio, Hero, Center-aligned hero or Full-screen) and add images or videos; in the uncontained layouts an item can also be a card, in the Outlined, Filled or Elevated look you chose. Cards is always a grid, and a Cards block that was a carousel becomes a Carousel block when your site updates. Buttons on an item are drawn only when the item is a card; in the other layouts they are not drawn, but they stay stored."
 }
