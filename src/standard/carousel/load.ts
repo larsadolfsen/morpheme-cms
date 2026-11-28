@@ -1,10 +1,10 @@
-// "Carousel" on the site (view.ts): the images' sizes come from the site (imageOf), a video's still from the site (facadeOf) and the
+// "Carousel" on the site (view.ts): the images' sizes come from the site (imageOf), a video's still from the site (facadeOf, or its thumbnail: facadeWithThumbnail) and the
 // buttons' targets from the site's config (loadButtons).
-import { facadeOf } from '../../../lib/video.mjs';
 import { videoOf } from '../../../lib/video-id.mjs';
 import { imageOf } from '../load';
 import type { Load } from '../view';
 import { loadButtons } from '../buttons/load';
+import { facadeWithThumbnail } from '../video/load';
 import shared from './shared';
 import { headerOf, isTop, itemsOf, layoutOf, ratioProp, type CarouselItemProps, type CarouselLayout, type CarouselView } from './view';
 
@@ -14,9 +14,9 @@ export async function loadItems(items: CarouselItemProps[], layout: CarouselLayo
   const buttons = await Promise.all(items.map((item) => loadButtons(item.buttons)));
   return itemsOf(items, layout, ratio, {
     image: imageOf,
-    video: (url, title) => {
-      const video = videoOf(url);
-      return video ? facadeOf(video, title) : null;
+    video: (item) => {
+      const video = videoOf(item.video ?? '');
+      return video ? facadeWithThumbnail(video, item, item.title) : null;
     },
     buttons: (_, i) => buttons[i],
   });

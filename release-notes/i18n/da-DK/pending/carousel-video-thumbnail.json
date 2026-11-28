@@ -1,0 +1,7 @@
+{
+  "id": "carousel-video-thumbnail",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Karrusellens videominiature",
+  "text": "En video i en karrusel kan vise dit eget billede, før den afspilles. Sæt Medie til Video, tryk på Skift link, og tilføj en Miniature. Uden en vises videoens egen miniature, og videoleverandøren kontaktes først, når en besøgende afspiller videoen."
+}
