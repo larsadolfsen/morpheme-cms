@@ -1,0 +1,6 @@
+{
+  "id": "carousel-full-screen-height",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A full-screen carousel item fills the screen below the header"
+}

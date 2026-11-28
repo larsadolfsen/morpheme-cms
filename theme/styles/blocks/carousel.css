@@ -42,9 +42,31 @@
   .mo-block-carousel .mo-carousel.mo-is-multi-aspect .mo-carousel__items {
     height: min(var(--mo-comp-carousel-height, 14rem), calc(100cqw / var(--mo-comp-carousel-widest, 1)));
   }
-  /* A full-screen one is as high as the theme says a full screen is (portrait on a phone, M3, Carousel, Specs), not as high as a contained row. */
+  /* A full-screen one is as high as the screen below the header (M3, Carousel, Specs: full-screen), with no padding above or below, not as high as a contained row. */
   .mo-block-carousel .mo-carousel.mo-is-full-screen .mo-carousel__items {
-    height: var(--mo-comp-carousel-full-screen-height, min(75svh, 36rem));
+    height: var(--mo-comp-carousel-full-screen-height, calc(100vh - 4rem));
+    padding-block: 0;
+  }
+  /* The screen's height minus the sticky header (4rem, .mo-header__row): the small viewport first (the address bar shown, so nothing hides under it), the dynamic one where the browser has it. */
+  @supports (height: 100svh) {
+    .mo-block-carousel .mo-carousel.mo-is-full-screen .mo-carousel__items {
+      height: var(--mo-comp-carousel-full-screen-height, calc(100svh - 4rem));
+    }
+  }
+  @supports (height: 100dvh) {
+    .mo-block-carousel .mo-carousel.mo-is-full-screen .mo-carousel__items {
+      height: var(--mo-comp-carousel-full-screen-height, calc(100dvh - 4rem));
+    }
+  }
+  /* The caption sits inside the item, above the site's fixed action bar (6rem of room under the page on a phone, site-action.css). */
+  @media (width < 37.5rem) {
+    /* Out to the phone's edges without corners (the theme's token, none for Material). */
+    .mo-block-carousel .mo-carousel.mo-is-full-screen .mo-block-carousel__item {
+      border-radius: var(--mo-comp-carousel-full-screen-radius, 0);
+    }
+    .mo-block-carousel .mo-carousel.mo-is-full-screen .mo-block-carousel__item-label {
+      padding-block-end: 6rem;
+    }
   }
   .mo-block-carousel .mo-carousel__item-mask {
     display: flex;
