@@ -316,6 +316,54 @@ async function checkCarouselEveryItemLarge(width, height) {
   await page.close();
 }
 
+/** A full-screen carousel is as high as the screen below the sticky header, with no padding above or below, one item as wide as the row and 16 px between items; the page never scrolls sideways
+ * (320, 390, 768, 1280 px). From 840 px (and in landscape) it is drawn as a hero, so only the sideways scroll is checked there. */
+async function checkCarouselFullScreen(width, height) {
+  const label = `${width}px carousel full-screen`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const r = await page.evaluate(() => {
+    const doc = document.documentElement;
+    const header = document.querySelector('.mo-header');
+    const rows = [...document.querySelectorAll('.mo-carousel.mo-is-full-screen .mo-carousel__items')].map((row) => {
+      const cs = getComputedStyle(row);
+      const item = row.querySelector('.mo-carousel__item');
+      return {
+        height: Math.round(row.getBoundingClientRect().height),
+        padTop: cs.paddingTop,
+        padBottom: cs.paddingBottom,
+        gap: cs.columnGap,
+        rowWidth: Math.round(row.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)),
+        itemWidth: Math.round(item.getBoundingClientRect().width),
+      };
+    });
+    return {
+      scrollWidth: doc.scrollWidth,
+      clientWidth: doc.clientWidth,
+      header: header ? Math.round(header.getBoundingClientRect().height) : 0,
+      rows,
+      inner: window.innerHeight,
+    };
+  });
+  if (r.scrollWidth > r.clientWidth) problems.push(`${label}: the page scrolls sideways (${r.scrollWidth} px of ${r.clientWidth} px)`);
+  if (width < 840) {
+    if (!r.rows.length) problems.push(`${label}: no full-screen carousel on the page`);
+    for (const row of r.rows) {
+      const want = r.inner - r.header;
+      if (Math.abs(row.height - want) > 1)
+        problems.push(`${label}: a full-screen row is ${row.height} px high, the screen minus the header is ${want} px`);
+      if (row.padTop !== '0px' || row.padBottom !== '0px')
+        problems.push(`${label}: a full-screen row has padding above or below (${row.padTop}, ${row.padBottom})`);
+      if (row.gap !== '16px') problems.push(`${label}: a full-screen row has ${row.gap} between items, not 16px`);
+      if (Math.abs(row.itemWidth - row.rowWidth) > 1)
+        problems.push(`${label}: a full-screen item is ${row.itemWidth} px of the row's ${row.rowWidth} px`);
+    }
+  }
+  await page.close();
+}
+
 /** The Carousel block (the demo's Blocks page, /blocks/carousel/), on every screen size: at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), labelled, with no page indicator (M3 prints none); each layout the block offers (`layout`: multi-browse, hero, center-aligned hero, full-screen) is on the page, its items with M3's 28dp corners, and `Show all` is under every one but the full-screen one; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 840 and 1280 px it is the same row, with more cards in view (the hero keeps one small item), `Show all` under it, and a full-screen carousel is the hero. */
 async function checkCarousel(width, height) {
   const label = `${width}px carousel`;
@@ -1192,6 +1240,13 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkCarouselEveryItemLarge ${w}`, () => checkCarouselEveryItemLarge(w, h));
+  for (const [w, h] of [
+    [320, 640],
+    [390, 800],
+    [768, 1000],
+    [1280, 900],
+  ])
+    unit(`checkCarouselFullScreen ${w}`, () => checkCarouselFullScreen(w, h));
   unit('checkCarousel 768', () => checkCarousel(768, 900));
   unit('checkCarousel 600', () => checkCarousel(600, 900));
   unit('checkCarousel 840', () => checkCarousel(840, 900));

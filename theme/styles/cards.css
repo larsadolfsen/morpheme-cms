@@ -165,7 +165,11 @@
   }
   /* Full-screen: one item at a time, as wide as the carousel, out to a phone's edges without corners there. */
   :where(.mo-carousel).mo-is-full-screen .mo-carousel__items {
-    height: var(--mo-comp-carousel-full-screen-height, min(75svh, 36rem));
+    height: var(
+      --mo-comp-carousel-full-screen-height,
+      calc(100vh - 4rem)
+    ); /* the screen minus the sticky header; svh and dvh follow in blocks/carousel.css */
+    padding-block: 0;
     gap: 1rem; /* M3, Carousel, Specs, full-screen: "Padding between elements 16dp" */
     margin: 0 calc(-1 * var(--mo-comp-carousel-bleed, 0rem));
   }
